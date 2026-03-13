@@ -1,0 +1,106 @@
+plugins {
+    java
+    application
+    `maven-publish`
+}
+
+group = "org.dawciobiel"
+version = "1.0.0-SNAPSHOT"
+
+description = "A Java library for building interactive console dialogs, menus, and wizards."
+
+// ═══════════════════════════════════════════
+// Konfiguracja Java
+// ═══════════════════════════════════════════
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+
+    application {
+        mainClass = "org.dawciobiel.shelldialog.Example"
+    }
+}
+
+// ═══════════════════════════════════════════
+// Repozytoria
+// ═══════════════════════════════════════════
+
+repositories {
+    mavenCentral()
+}
+
+// ═══════════════════════════════════════════
+// Zależności
+// ═══════════════════════════════════════════
+
+dependencies {
+    implementation("com.googlecode.lanterna:lanterna:3.1.3")
+}
+
+// ═══════════════════════════════════════════
+// Konfiguracja kompilacji
+// ═══════════════════════════════════════════
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+// ═══════════════════════════════════════════
+// Fat JAR (ekwiwalent maven-shade-plugin)
+// ═══════════════════════════════════════════
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = application.mainClass.get()
+    }
+    from(configurations.runtimeClasspath.get().map {
+        if (it.isDirectory) it else zipTree(it)
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// ═══════════════════════════════════════════
+// Testy (ekwiwalent maven-surefire-plugin)
+// ═══════════════════════════════════════════
+
+tasks.test {
+    forkEvery = 1
+    maxParallelForks = 1
+}
+
+// ═══════════════════════════════════════════
+// Publikacja (ekwiwalent maven-publish)
+// ═══════════════════════════════════════════
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            pom {
+                name = "shelldialog"
+                description = project.description
+                url = "https://github.com/dawciobiel/shelldialog"
+                licenses {
+                    license {
+                        name = "GNU General Public License v3.0"
+                        url = "https://www.gnu.org/licenses/gpl-3.0.html"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "dawciobiel"
+                        name = "Dawid Bielecki"
+                        email = "dawciobiel.vcs+github@gmail.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/dawciobiel/shelldialog.git"
+                    developerConnection = "scm:git:ssh://github.com/dawciobiel/shelldialog.git"
+                    url = "https://github.com/dawciobiel/shelldialog"
+                }
+            }
+        }
+    }
+}

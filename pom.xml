@@ -9,13 +9,13 @@
     <!-- ═══════════════════════════════════════════
          Identyfikacja projektu
          ═══════════════════════════════════════════ -->
-    <groupId>org.dawciobiel.uigcli</groupId>
+    <groupId>org.dawciobiel</groupId>
     <artifactId>shelldialog</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>user-interface-generator-cli</name>
-    <description>CLI User Interface Generator using JLine 3</description>
+    <name>shelldialog</name>
+    <description>A Java library for building interactive console dialogs, menus, and wizards.</description>
 
     <!-- ═══════════════════════════════════════════
          Właściwości globalne
@@ -28,7 +28,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Wersje zależności -->
-        <jline.version>3.30.4</jline.version>
+        <lanterna.version>3.1.3</lanterna.version>
     </properties>
 
     <!-- ═══════════════════════════════════════════
@@ -36,45 +36,10 @@
          ═══════════════════════════════════════════ -->
     <dependencies>
 
-        <!-- JLine – terminal (rdzeń, wymagany zawsze) -->
         <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-terminal</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-
-        <!-- JLine – obsługa klawiatury, historia, autouzupełnianie -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-reader</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-
-        <!-- JLine – style i kolory (ANSI) -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-style</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-
-        <!-- JLine – Jansi: obsługa ANSI na Windows (cmd.exe, PowerShell) -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-terminal-jansi</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>2.4.2</version>
-        </dependency>
-
-        <!-- JLine – JNA: alternatywny backend natywny (opcjonalny, lepszy na niektórych systemach) -->
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-terminal-jna</artifactId>
-            <version>${jline.version}</version>
+            <groupId>com.googlecode.lanterna</groupId>
+            <artifactId>lanterna</artifactId>
+            <version>${lanterna.version}</version>
         </dependency>
 
     </dependencies>
@@ -88,6 +53,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -100,8 +66,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -119,12 +84,11 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- Pakiety i nazwa klasy głównej -->
-                                    <mainClass>org.dawciobiel.uigcli.Example</mainClass>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.dawciobiel.shelldialog.Example</mainClass>
                                 </transformer>
                             </transformers>
-                            <!-- Nazwa wynikowego JAR -->
                             <finalName>${project.artifactId}-${project.version}</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
@@ -138,10 +102,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.4.1</version>
                 <configuration>
-                    <!-- Pakiety i nazwa klasy głównej -->
-                    <mainClass>org.dawciobiel.uigcli.Example</mainClass>
-                    <quietLogs>true</quietLogs>
-                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                    <mainClass>org.dawciobiel.shelldialog.Example</mainClass>
                 </configuration>
             </plugin>
 
