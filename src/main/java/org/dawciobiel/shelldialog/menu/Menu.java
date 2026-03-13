@@ -6,6 +6,8 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.dawciobiel.shelldialog.console.ConsoleColors;
 import org.dawciobiel.shelldialog.console.SmartConsole;
+import org.dawciobiel.shelldialog.console.TerminalSize;
+import org.dawciobiel.shelldialog.console.TextWrapper;
 import org.dawciobiel.shelldialog.console.header.Header;
 import org.dawciobiel.shelldialog.console.header.border.BorderLine;
 import org.dawciobiel.shelldialog.console.header.border.BorderType;
@@ -16,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static java.lang.System.out;
 
@@ -55,7 +58,7 @@ public class Menu {
     private Integer run() throws IOException {
         int selectedIndex = 1; // Index value `0` is header, not first menuItem!
 
-        FileInputStream ttyInput   = new FileInputStream("/dev/tty");
+        FileInputStream ttyInput = new FileInputStream("/dev/tty");
         FileOutputStream ttyOutput = new FileOutputStream("/dev/tty");
 
         DefaultTerminalFactory factory = new DefaultTerminalFactory(
@@ -130,39 +133,43 @@ public class Menu {
     // -------------------------------------------------------------------------
 
     private String buildTitle() {
+        int terminalWidth = TerminalSize.getWidth();
+        int innerWidth = terminalWidth - 2; // miejsce na znaki ramki bocznej
+        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1); // -1 na spację po lewej
+
         return switch (borderType) {
-            case BORDER_ALL        -> buildTitleFull();
-            case BORDER_HORIZONTAL -> buildTitleHorizontal();
-            case BORDER_VERTICAL   -> buildTitleVertical();
-            case BORDER_NO         -> buildTitleNone();
+            case BORDER_ALL -> buildTitleFull(terminalWidth, innerWidth, wrappedLines);
+            case BORDER_HORIZONTAL -> buildTitleHorizontal(terminalWidth, innerWidth, wrappedLines);
+            case BORDER_VERTICAL -> buildTitleVertical(terminalWidth, innerWidth, wrappedLines);
+            case BORDER_NO -> buildTitleNone(terminalWidth, innerWidth, wrappedLines);
         };
     }
 
-    private String buildTitleFull() {
-        String borderLine = buildBorderLine(true);
+    private String buildTitleFull(int terminalWidth, int innerWidth, List<String> lines) {
+        String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
         return buildTopLine(borderLine)
-                + buildContentLine(BorderLine.VERTICAL, BorderLine.VERTICAL)
+                + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleHorizontal() {
-        String borderLine = buildBorderLine(true);
+    private String buildTitleHorizontal(int terminalWidth, int innerWidth, List<String> lines) {
+        String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
         return buildTopLine(borderLine)
-                + buildContentLine(BorderLine.NO, BorderLine.NO)
+                + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleVertical() {
-        String borderLine = buildBorderLine(false);
+    private String buildTitleVertical(int terminalWidth, int innerWidth, List<String> lines) {
+        String borderLine = BorderLine.NO.repeat(innerWidth);
         return buildTopLine(borderLine)
-                + buildContentLine(BorderLine.VERTICAL, BorderLine.VERTICAL)
+                + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleNone() {
-        String borderLine = buildBorderLine(false);
+    private String buildTitleNone(int terminalWidth, int innerWidth, List<String> lines) {
+        String borderLine = BorderLine.NO.repeat(innerWidth);
         return buildTopLine(borderLine)
-                + buildContentLine(BorderLine.NO, BorderLine.NO)
+                + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
                 + buildBottomLine(BorderLine.NO, borderLine, BorderLine.NO);
     }
 
@@ -171,11 +178,15 @@ public class Menu {
     // -------------------------------------------------------------------------
 
     private String buildTopLine(String borderLine) {
-        return ConsoleColors.BLUE + BorderLine.TOP_LEFT + borderLine + BorderLine.TOP_RIGHT + ConsoleColors.RESET + LINE_BREAK;
+        return ConsoleColors.BLUE
+                + BorderLine.TOP_LEFT + borderLine + BorderLine.TOP_RIGHT
+                + ConsoleColors.RESET + LINE_BREAK;
     }
 
     private String buildBottomLine(String left, String borderLine, String right) {
-        return ConsoleColors.BLUE + left + borderLine + right + ConsoleColors.RESET + LINE_BREAK;
+        return ConsoleColors.BLUE
+                + left + borderLine + right
+                + ConsoleColors.RESET + LINE_BREAK;
     }
 
     private String buildContentLine(String leftBorder, String rightBorder) {
@@ -183,6 +194,23 @@ public class Menu {
         return ConsoleColors.BLUE + leftBorder + menuItems[0]
                 + " ".repeat(padding)
                 + rightBorder + ConsoleColors.RESET + LINE_BREAK;
+    }
+
+    private String buildContentLines(String leftBorder, String rightBorder,
+                                     int innerWidth, List<String> lines) {
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            int padding = Math.max(0, innerWidth - line.length() - 1); // -1 na spację po lewej
+            sb.append(ConsoleColors.BLUE)
+                    .append(leftBorder)
+                    .append(" ")                    // spacja po lewej
+                    .append(line)
+                    .append(" ".repeat(padding))
+                    .append(rightBorder)
+                    .append(ConsoleColors.RESET)
+                    .append(LINE_BREAK);
+        }
+        return sb.toString();
     }
 
     private String buildBorderLine(boolean filled) {
