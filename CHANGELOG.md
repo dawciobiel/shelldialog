@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial project setup.
-- `Menu` class for creating interactive menus.
+- `MenuCLI` class for creating interactive console menus (formerly `Menu`).
+- `Menu` interface to support multiple implementations (CLI, GUI).
 - Support for different border styles.
 - Basic documentation files (`README.md`, `CHANGELOG.md`, `BUGS.md`).
 
 ### Changed
-- Refactored `Menu` class to improve readability and consistency.
+- Refactored `Menu` class to `MenuCLI` and moved to `menu.cli` package.
+- Renamed `console` package to `cli` for better naming consistency.
+- Updated `MenuUsageExample` to use `MenuCLI` and `Locale.of`.
+- Removed unused `TerminalSize` class.
+- Refactored `MenuCLI` class to improve readability and consistency.
 - Renamed `drawMenu` to `printMenu` for consistent naming.
 - Removed unnecessary section comments.
