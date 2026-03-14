@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.console;
+package org.dawciobiel.shelldialog.cli;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -15,8 +15,8 @@ public class Messages {
      * This allows changing the language used for retrieving localized strings.<br>
      * Usage example:<br>
      * <code>
-     * Messages.setLocale(new Locale("en", "US"));
-     * Messages.setLocale(new Locale("pl", "PL"));
+     * Messages.setLocale(Locale.of("pl", "PL"));
+     * Messages.setLocale(Locale.of("en", "US"));
      * </code>
      *
      * @param locale the new locale to be used

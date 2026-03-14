@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.console;
+package org.dawciobiel.shelldialog.cli;
 
 import java.util.ArrayList;
 import java.util.List;

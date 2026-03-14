@@ -1,22 +1,22 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.console.Messages;
-import org.dawciobiel.shelldialog.console.header.border.BorderType;
-import org.dawciobiel.shelldialog.menu.Menu;
+import org.dawciobiel.shelldialog.cli.Messages;
+import org.dawciobiel.shelldialog.cli.header.border.BorderType;
+import org.dawciobiel.shelldialog.menu.cli.MenuCLI;
 
 import java.util.Locale;
 
 /**
- * Example usage of the {@link Menu} class.
+ * Example usage of the {@link MenuCLI} class.
  */
 public class MenuUsageExample {
 
     public static void main(String[] args) {
         String[] menuItems = {"Main Menu Title",
-                " Menuitem #1 ", " Menuitem #2 ", " Menuitem #3 ", " Menuitem #4 "};
+                "Menuitem #1", "Menuitem #2", "Menuitem #3", "Menuitem #4"};
 
-        Messages.setLocale(new Locale("pl", "PL"));
-        Integer choice = Menu.show(menuItems, BorderType.BORDER_ALL);
+        Messages.setLocale(Locale.of("pl", "PL"));
+        Integer choice = MenuCLI.show(menuItems, BorderType.BORDER_ALL);
 
         if (choice < 0) {
             System.err.println("Do not launch the application under IDE, Maven or Gradle. They pipe the terminal output stream.");

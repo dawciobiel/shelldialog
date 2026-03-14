@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.console.header.border;
+package org.dawciobiel.shelldialog.cli.header.border;
 
 public enum BorderType {
 

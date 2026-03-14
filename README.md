@@ -15,8 +15,8 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 Here is a basic example of how to use ShellDialog:
 
 ```java
-import org.dawciobiel.shelldialog.menu.Menu;
-import org.dawciobiel.shelldialog.console.header.border.BorderType;
+import org.dawciobiel.shelldialog.menu.cli.MenuCLI;
+import org.dawciobiel.shelldialog.cli.header.border.BorderType;
 
 public class MenuUsageExample {
     public static void main(String[] args) {
@@ -29,7 +29,7 @@ public class MenuUsageExample {
         };
 
         // Create and show the menu
-        Integer choice = Menu.create(menuItems, BorderType.BORDER_ALL);
+        Integer choice = MenuCLI.show(menuItems, BorderType.BORDER_ALL);
 
         if (choice < 0) {
             // Note: Use a real terminal, not IDE console

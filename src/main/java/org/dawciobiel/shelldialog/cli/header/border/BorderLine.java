@@ -1,6 +1,6 @@
-package org.dawciobiel.shelldialog.console.header.border;
+package org.dawciobiel.shelldialog.cli.header.border;
 
-import org.dawciobiel.shelldialog.console.Messages;
+import org.dawciobiel.shelldialog.cli.Messages;
 
 @SuppressWarnings("unused")
 public final class BorderLine {
