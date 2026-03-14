@@ -16,7 +16,7 @@ public class MenuUsageExample {
                 " Menuitem #1 ", " Menuitem #2 ", " Menuitem #3 ", " Menuitem #4 "};
 
         Messages.setLocale(new Locale("pl", "PL"));
-        Integer choice = Menu.create(menuItems, BorderType.BORDER_ALL);
+        Integer choice = Menu.show(menuItems, BorderType.BORDER_ALL);
 
         if (choice < 0) {
             System.err.println("Do not launch the application under IDE, Maven or Gradle. They pipe the terminal output stream.");

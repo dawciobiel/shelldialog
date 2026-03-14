@@ -24,16 +24,31 @@ public class Menu {
     private static final String ERROR_MESSAGE_TERMINAL = Messages.getString("error.terminal");
 
     private final String[] menuItems;
+    private final BorderType borderType;
 
     private Menu(String[] menuItems, BorderType borderType) {
         this.menuItems = menuItems;
+        this.borderType = borderType;
     }
 
-    public static Integer create(String[] menuItems) {
-        return create(menuItems, BorderType.BORDER_ALL);
+    /**
+     * Displays the menu and returns the index of the selected item.
+     *
+     * @param menuItems an array of strings representing the menu header (index 0) and items
+     * @return the index of the selected item, or -1 if cancelled (Escape)
+     */
+    public static Integer show(String[] menuItems) {
+        return show(menuItems, BorderType.BORDER_ALL);
     }
 
-    public static Integer create(String[] menuItems, BorderType borderType) {
+    /**
+     * Displays the menu with a specific border type and returns the index of the selected item.
+     *
+     * @param menuItems  an array of strings representing the menu header (index 0) and items
+     * @param borderType the type of border to be used for the menu header
+     * @return the index of the selected item, or -1 if cancelled (Escape)
+     */
+    public static Integer show(String[] menuItems, BorderType borderType) {
         try {
             return new Menu(menuItems, borderType).run();
         } catch (IOException e) {
