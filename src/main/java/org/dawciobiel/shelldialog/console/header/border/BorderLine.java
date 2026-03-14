@@ -1,5 +1,8 @@
 package org.dawciobiel.shelldialog.console.header.border;
 
+import org.dawciobiel.shelldialog.console.Messages;
+
+@SuppressWarnings("unused")
 public final class BorderLine {
 
     public static final String NO = " ";
@@ -33,6 +36,6 @@ public final class BorderLine {
      */
 
     private BorderLine() {
-        throw new UnsupportedOperationException("BorderLine is a utility class and cannot be instantiated");
+        throw new UnsupportedOperationException(Messages.getString("error.borderline.instantiation"));
     }
 }

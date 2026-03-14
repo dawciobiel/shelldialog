@@ -7,7 +7,7 @@ import org.dawciobiel.shelldialog.menu.Menu;
 public class UsageExample {
 
     public static void main(String[] args) {
-        String[] menuItems = {"„Therefore if your right eye causes you to sin, (...) pluck it out and throw it away \"",
+        String[] menuItems = {"Main Menu Title",
 
                 " Menuitem #1 ", " Menuitem #2 ", " Menuitem #3 ", " Menuitem #4 "};
 

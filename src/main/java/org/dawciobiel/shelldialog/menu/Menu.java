@@ -5,6 +5,7 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.dawciobiel.shelldialog.console.ConsoleColors;
+import org.dawciobiel.shelldialog.console.Messages;
 import org.dawciobiel.shelldialog.console.SmartConsole;
 import org.dawciobiel.shelldialog.console.TerminalSize;
 import org.dawciobiel.shelldialog.console.TextWrapper;
@@ -24,7 +25,7 @@ import static java.lang.System.out;
 public class Menu {
 
     private static final String LINE_BREAK = "\n";
-    private static final String ERROR_MESSAGE_TERMINAL = "Terminal error: ";
+    private static final String ERROR_MESSAGE_TERMINAL = Messages.getString("error.terminal");
 
     private final String[] menuItems;
     private final BorderType borderType;
