@@ -1,13 +1,12 @@
 package org.dawciobiel.shelldialog.menu;
 
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import org.dawciobiel.shelldialog.console.ConsoleColors;
 import org.dawciobiel.shelldialog.console.Messages;
-import org.dawciobiel.shelldialog.console.SmartConsole;
-import org.dawciobiel.shelldialog.console.TerminalSize;
 import org.dawciobiel.shelldialog.console.TextWrapper;
 import org.dawciobiel.shelldialog.console.header.border.BorderLine;
 import org.dawciobiel.shelldialog.console.header.border.BorderType;
@@ -20,22 +19,16 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static java.lang.System.out;
-
 public class Menu {
 
-    private static final String LINE_BREAK = "\n";
     private static final String ERROR_MESSAGE_TERMINAL = Messages.getString("error.terminal");
 
     private final String[] menuItems;
-    private final BorderType borderType;
 
     private Menu(String[] menuItems, BorderType borderType) {
         this.menuItems = menuItems;
-        this.borderType = borderType;
     }
 
-    @SuppressWarnings("unused")
     public static Integer create(String[] menuItems) {
         return create(menuItems, BorderType.BORDER_ALL);
     }
@@ -50,7 +43,7 @@ public class Menu {
     }
 
     private Integer run() throws IOException {
-        int selectedIndex = 1; // Index value `0` is header, not first menuItem!
+        int selectedIndex = 1;
 
         FileInputStream ttyInput = new FileInputStream("/dev/tty");
         FileOutputStream ttyOutput = new FileOutputStream("/dev/tty");
@@ -64,139 +57,105 @@ public class Menu {
 
         try (Screen screen = factory.createScreen()) {
             screen.startScreen();
-            printMenu(selectedIndex);
-            selectedIndex = processInput(screen, selectedIndex);
-            SmartConsole.showCursor();
-        }
-        out.flush();
-        return selectedIndex;
-    }
+            screen.setCursorPosition(null); // Hide cursor
 
-    private int processInput(Screen screen, int selectedIndex) throws IOException {
-        while (true) {
-            KeyStroke key = screen.readInput();
-            KeyType type = key.getKeyType();
+            TextGraphics tg = screen.newTextGraphics();
 
-            if (type == KeyType.ArrowUp) {
-                if (selectedIndex > 1) selectedIndex--;
-                printMenu(selectedIndex);
-            } else if (type == KeyType.ArrowDown) {
-                if (selectedIndex < menuItems.length - 1) selectedIndex++;
-                printMenu(selectedIndex);
-            } else if (type == KeyType.Enter) {
-                return selectedIndex;
-            } else if (type == KeyType.Escape) {
-                return -1;
+            while (true) {
+                render(screen, tg, selectedIndex);
+                
+                KeyStroke key = screen.readInput();
+                KeyType type = key.getKeyType();
+
+                if (type == KeyType.ArrowUp) {
+                    if (selectedIndex > 1) selectedIndex--;
+                } else if (type == KeyType.ArrowDown) {
+                    if (selectedIndex < menuItems.length - 1) selectedIndex++;
+                } else if (type == KeyType.Enter) {
+                    return selectedIndex;
+                } else if (type == KeyType.Escape) {
+                    return -1;
+                }
             }
         }
     }
 
-    private void printMenu(int selectedIndex) {
-        SmartConsole.clearScreen();
-        SmartConsole.hideCursor();
-        printTitle();
-        printMenuItems(selectedIndex);
-        printNavigationInstructions();
-    }
+    private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
+        screen.clear();
+        int currentRow = 0;
+        int terminalWidth = screen.getTerminalSize().getColumns();
 
-    private void printTitle() {
-        System.out.println(buildTitle());
-    }
+        // 1. Draw Title
+        currentRow = drawTitle(tg, currentRow, terminalWidth);
 
-    private void printMenuItems(int selectedIndex) {
+        // 2. Draw Menu Items
         for (int i = 1; i < menuItems.length; i++) {
-            System.out.println(i == selectedIndex ? formatSelectedItem(i) : formatUnselectedItem(i));
+            if (i == selectedIndex) {
+                drawSelectedItem(tg, currentRow++, i);
+            } else {
+                drawUnselectedItem(tg, currentRow++, i);
+            }
         }
+
+        // 3. Draw Navigation Instructions
+        drawNavigation(tg, currentRow + 1);
+
+        screen.refresh();
     }
 
-    private void printNavigationInstructions() {
-        System.out.println(LINE_BREAK + " " + Navigation.NAVIGATION_TEXT_COLOR
-                + Navigation.NAVIGATION_ARROWS + " " + Navigation.NAVIGATION_TEXT
-                + " " + Navigation.NAVIGATION_TEXT_DELIMITER
-                + " " + Navigation.NAVIGATION_ACCEPT_CHARACTER + " " + Navigation.NAVIGATION_ACCEPT_TEXT
-                + " " + Navigation.NAVIGATION_TEXT_ACCEPT
-                + ConsoleColors.RESET);
-    }
+    private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
+        int innerWidth = terminalWidth - 2;
+        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1);
+        
+        tg.setForegroundColor(TextColor.ANSI.BLUE);
 
-    private String buildTitle() {
-        int terminalWidth = TerminalSize.getWidth();
-        int innerWidth = terminalWidth - 2; // space for side border characters
-        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1); // -1 for left padding
+        String topBorder = BorderLine.TOP_LEFT + BorderLine.HORIZONTAL.repeat(innerWidth) + BorderLine.TOP_RIGHT;
+        tg.putString(0, startRow++, topBorder);
 
-        return switch (borderType) {
-            case BORDER_ALL -> buildTitleFull(innerWidth, wrappedLines);
-            case BORDER_HORIZONTAL -> buildTitleHorizontal(innerWidth, wrappedLines);
-            case BORDER_VERTICAL -> buildTitleVertical(innerWidth, wrappedLines);
-            case BORDER_NO -> buildTitleNone(innerWidth, wrappedLines);
-        };
-    }
-
-    private String buildTitleFull(int innerWidth, List<String> lines) {
-        String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
-        return buildTopLine(borderLine)
-                + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
-                + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
-    }
-
-    private String buildTitleHorizontal(int innerWidth, List<String> lines) {
-        String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
-        return buildTopLine(borderLine)
-                + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
-                + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
-    }
-
-    private String buildTitleVertical(int innerWidth, List<String> lines) {
-        String borderLine = BorderLine.NO.repeat(innerWidth);
-        return buildTopLine(borderLine)
-                + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
-                + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
-    }
-
-    private String buildTitleNone(int innerWidth, List<String> lines) {
-        String borderLine = BorderLine.NO.repeat(innerWidth);
-        return buildTopLine(borderLine)
-                + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
-                + buildBottomLine(BorderLine.NO, borderLine, BorderLine.NO);
-    }
-
-    private String buildTopLine(String borderLine) {
-        return ConsoleColors.BLUE
-                + BorderLine.TOP_LEFT + borderLine + BorderLine.TOP_RIGHT
-                + ConsoleColors.RESET + LINE_BREAK;
-    }
-
-    private String buildBottomLine(String left, String borderLine, String right) {
-        return ConsoleColors.BLUE
-                + left + borderLine + right
-                + ConsoleColors.RESET + LINE_BREAK;
-    }
-
-    private String buildContentLines(String leftBorder, String rightBorder,
-                                     int innerWidth, List<String> lines) {
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            int padding = Math.max(0, innerWidth - line.length() - 1); // -1 for left padding
-            sb.append(ConsoleColors.BLUE)
-                    .append(leftBorder)
-                    .append(" ")                    // left padding
-                    .append(line)
-                    .append(" ".repeat(padding))
-                    .append(rightBorder)
-                    .append(ConsoleColors.RESET)
-                    .append(LINE_BREAK);
+        for (String line : wrappedLines) {
+            tg.putString(0, startRow, BorderLine.VERTICAL);
+            tg.putString(2, startRow, line);
+            tg.putString(terminalWidth - 1, startRow, BorderLine.VERTICAL);
+            startRow++;
         }
-        return sb.toString();
+
+        String bottomBorder = BorderLine.BOTTOM_LEFT + BorderLine.HORIZONTAL.repeat(innerWidth) + BorderLine.BOTTOM_RIGHT;
+        tg.putString(0, startRow++, bottomBorder);
+
+        return startRow;
     }
 
-    private String formatSelectedItem(int index) {
-        return Arrow.ARROW_COLOR + " " + Arrow.ARROW_LEFT + " "
-                + Navigation.SELECTED_ITEM_TEXT_COLOR + Navigation.SELECTED_ITEM_BACKGROUND_COLOR
-                + menuItems[index]
-                + ConsoleColors.RESET + Arrow.ARROW_COLOR + Arrow.ARROW_RIGHT
-                + ConsoleColors.RESET;
+    private void drawSelectedItem(TextGraphics tg, int row, int index) {
+        // Draw Left Arrow
+        tg.setForegroundColor(Arrow.ARROW_COLOR);
+        tg.putString(0, row, Arrow.ARROW_LEFT);
+
+        // Draw Text
+        tg.setForegroundColor(Navigation.SELECTED_ITEM_TEXT_COLOR);
+        tg.setBackgroundColor(Navigation.SELECTED_ITEM_BACKGROUND_COLOR);
+        tg.putString(2, row, menuItems[index]);
+
+        // Reset Background for Right Arrow
+        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+        tg.setForegroundColor(Arrow.ARROW_COLOR);
+        tg.putString(2 + menuItems[index].length() + 1, row, Arrow.ARROW_RIGHT);
     }
 
-    private String formatUnselectedItem(int index) {
-        return "   " + menuItems[index];
+    private void drawUnselectedItem(TextGraphics tg, int row, int index) {
+        tg.setForegroundColor(TextColor.ANSI.DEFAULT);
+        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+        tg.putString(3, row, menuItems[index]);
+    }
+
+    private void drawNavigation(TextGraphics tg, int row) {
+        tg.setForegroundColor(Navigation.NAVIGATION_TEXT_COLOR);
+        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+        
+        String nav = " " + Navigation.NAVIGATION_ARROWS + " " + Navigation.NAVIGATION_TEXT 
+                   + " " + Navigation.NAVIGATION_TEXT_DELIMITER 
+                   + " " + Navigation.NAVIGATION_ACCEPT_CHARACTER + " " + Navigation.NAVIGATION_ACCEPT_TEXT 
+                   + " " + Navigation.NAVIGATION_TEXT_ACCEPT;
+        
+        tg.putString(0, row, nav);
     }
 }

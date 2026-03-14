@@ -18,7 +18,7 @@ Here is a basic example of how to use ShellDialog:
 import org.dawciobiel.shelldialog.menu.Menu;
 import org.dawciobiel.shelldialog.console.header.border.BorderType;
 
-public class UsageExample {
+public class MenuUsageExample {
     public static void main(String[] args) {
         String[] menuItems = {
             "Main Menu Title", // Index 0 is the Header
