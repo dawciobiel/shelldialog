@@ -71,7 +71,7 @@ publishing {
                     developer {
                         id = "dawciobiel"
                         name = "Dawid Bielecki"
-                        email = "dawciobiel.vcs+github@gmail.com"
+                        email = "3913996+dawciobiel@users.noreply.github.com"
                     }
                 }
                 scm {
