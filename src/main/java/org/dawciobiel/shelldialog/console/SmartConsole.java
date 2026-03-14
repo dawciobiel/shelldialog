@@ -6,15 +6,15 @@ public class SmartConsole {
     private static final boolean COLOR_SUPPORTED = isColorSupported();
 
     private static boolean isColorSupported() {
-        // Jeśli stdout jest przekierowany do pliku – nie używaj kolorów
+        // If stdout is redirected to a file - do not use colors
         if (System.console() == null) return false;
 
         String os = System.getProperty("os.name").toLowerCase();
 
-        // Na Linux/macOS zakładamy obsługę ANSI
+        // On Linux/macOS assume ANSI support
         if (!os.contains("win")) return true;
 
-        // Na Windows sprawdzamy zmienną środowiskową (ustawia ją np. Windows Terminal)
+        // On Windows check environment variables (set e.g. by Windows Terminal)
         String term = System.getenv("WT_SESSSystem.outN");       // Windows Terminal
         String ansicon = System.getenv("ANSICON");       // ANSICON wrapper
         String colorTerm = System.getenv("COLORTERM");
@@ -22,6 +22,7 @@ public class SmartConsole {
         return term != null || ansicon != null || colorTerm != null;
     }
 
+    @SuppressWarnings("unused")
     public static String colored(String text, String ansiCode) {
         if (!COLOR_SUPPORTED) return text;
         return ansiCode + text + "\u001B[0m";

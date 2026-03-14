@@ -8,7 +8,6 @@ import org.dawciobiel.shelldialog.console.ConsoleColors;
 import org.dawciobiel.shelldialog.console.SmartConsole;
 import org.dawciobiel.shelldialog.console.TerminalSize;
 import org.dawciobiel.shelldialog.console.TextWrapper;
-import org.dawciobiel.shelldialog.console.header.Header;
 import org.dawciobiel.shelldialog.console.header.border.BorderLine;
 import org.dawciobiel.shelldialog.console.header.border.BorderType;
 import org.dawciobiel.shelldialog.console.navigation.Arrow;
@@ -35,10 +34,7 @@ public class Menu {
         this.borderType = borderType;
     }
 
-    // -------------------------------------------------------------------------
-    // Public API
-    // -------------------------------------------------------------------------
-
+    @SuppressWarnings("unused")
     public static Integer create(String[] menuItems) {
         return create(menuItems, BorderType.BORDER_ALL);
     }
@@ -52,9 +48,6 @@ public class Menu {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Core logic
-    // -------------------------------------------------------------------------
     private Integer run() throws IOException {
         int selectedIndex = 1; // Index value `0` is header, not first menuItem!
 
@@ -70,7 +63,7 @@ public class Menu {
 
         try (Screen screen = factory.createScreen()) {
             screen.startScreen();
-            drawMenu(selectedIndex);
+            printMenu(selectedIndex);
             selectedIndex = processInput(screen, selectedIndex);
             SmartConsole.showCursor();
         }
@@ -85,10 +78,10 @@ public class Menu {
 
             if (type == KeyType.ArrowUp) {
                 if (selectedIndex > 1) selectedIndex--;
-                drawMenu(selectedIndex);
+                printMenu(selectedIndex);
             } else if (type == KeyType.ArrowDown) {
                 if (selectedIndex < menuItems.length - 1) selectedIndex++;
-                drawMenu(selectedIndex);
+                printMenu(selectedIndex);
             } else if (type == KeyType.Enter) {
                 return selectedIndex;
             } else if (type == KeyType.Escape) {
@@ -97,11 +90,7 @@ public class Menu {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Rendering
-    // -------------------------------------------------------------------------
-
-    private void drawMenu(int selectedIndex) {
+    private void printMenu(int selectedIndex) {
         SmartConsole.clearScreen();
         SmartConsole.hideCursor();
         printTitle();
@@ -128,54 +117,46 @@ public class Menu {
                 + ConsoleColors.RESET);
     }
 
-    // -------------------------------------------------------------------------
-    // Title builders
-    // -------------------------------------------------------------------------
-
     private String buildTitle() {
         int terminalWidth = TerminalSize.getWidth();
-        int innerWidth = terminalWidth - 2; // miejsce na znaki ramki bocznej
-        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1); // -1 na spację po lewej
+        int innerWidth = terminalWidth - 2; // space for side border characters
+        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1); // -1 for left padding
 
         return switch (borderType) {
-            case BORDER_ALL -> buildTitleFull(terminalWidth, innerWidth, wrappedLines);
-            case BORDER_HORIZONTAL -> buildTitleHorizontal(terminalWidth, innerWidth, wrappedLines);
-            case BORDER_VERTICAL -> buildTitleVertical(terminalWidth, innerWidth, wrappedLines);
-            case BORDER_NO -> buildTitleNone(terminalWidth, innerWidth, wrappedLines);
+            case BORDER_ALL -> buildTitleFull(innerWidth, wrappedLines);
+            case BORDER_HORIZONTAL -> buildTitleHorizontal(innerWidth, wrappedLines);
+            case BORDER_VERTICAL -> buildTitleVertical(innerWidth, wrappedLines);
+            case BORDER_NO -> buildTitleNone(innerWidth, wrappedLines);
         };
     }
 
-    private String buildTitleFull(int terminalWidth, int innerWidth, List<String> lines) {
+    private String buildTitleFull(int innerWidth, List<String> lines) {
         String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
         return buildTopLine(borderLine)
                 + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleHorizontal(int terminalWidth, int innerWidth, List<String> lines) {
+    private String buildTitleHorizontal(int innerWidth, List<String> lines) {
         String borderLine = BorderLine.HORIZONTAL.repeat(innerWidth);
         return buildTopLine(borderLine)
                 + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleVertical(int terminalWidth, int innerWidth, List<String> lines) {
+    private String buildTitleVertical(int innerWidth, List<String> lines) {
         String borderLine = BorderLine.NO.repeat(innerWidth);
         return buildTopLine(borderLine)
                 + buildContentLines(BorderLine.VERTICAL, BorderLine.VERTICAL, innerWidth, lines)
                 + buildBottomLine(BorderLine.BOTTOM_LEFT, borderLine, BorderLine.BOTTOM_RIGHT);
     }
 
-    private String buildTitleNone(int terminalWidth, int innerWidth, List<String> lines) {
+    private String buildTitleNone(int innerWidth, List<String> lines) {
         String borderLine = BorderLine.NO.repeat(innerWidth);
         return buildTopLine(borderLine)
                 + buildContentLines(BorderLine.NO, BorderLine.NO, innerWidth, lines)
                 + buildBottomLine(BorderLine.NO, borderLine, BorderLine.NO);
     }
-
-    // -------------------------------------------------------------------------
-    // Title line helpers
-    // -------------------------------------------------------------------------
 
     private String buildTopLine(String borderLine) {
         return ConsoleColors.BLUE
@@ -189,21 +170,14 @@ public class Menu {
                 + ConsoleColors.RESET + LINE_BREAK;
     }
 
-    private String buildContentLine(String leftBorder, String rightBorder) {
-        int padding = Math.max(0, Header.HEADER_WIDTH - menuItems[0].length() - 3);
-        return ConsoleColors.BLUE + leftBorder + menuItems[0]
-                + " ".repeat(padding)
-                + rightBorder + ConsoleColors.RESET + LINE_BREAK;
-    }
-
     private String buildContentLines(String leftBorder, String rightBorder,
                                      int innerWidth, List<String> lines) {
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
-            int padding = Math.max(0, innerWidth - line.length() - 1); // -1 na spację po lewej
+            int padding = Math.max(0, innerWidth - line.length() - 1); // -1 for left padding
             sb.append(ConsoleColors.BLUE)
                     .append(leftBorder)
-                    .append(" ")                    // spacja po lewej
+                    .append(" ")                    // left padding
                     .append(line)
                     .append(" ".repeat(padding))
                     .append(rightBorder)
@@ -212,15 +186,6 @@ public class Menu {
         }
         return sb.toString();
     }
-
-    private String buildBorderLine(boolean filled) {
-        String ch = filled ? BorderLine.HORIZONTAL : BorderLine.NO;
-        return ch.repeat(Header.HEADER_WIDTH);
-    }
-
-    // -------------------------------------------------------------------------
-    // Item formatters
-    // -------------------------------------------------------------------------
 
     private String formatSelectedItem(int index) {
         return Arrow.ARROW_COLOR + " " + Arrow.ARROW_LEFT + " "

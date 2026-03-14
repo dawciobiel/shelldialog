@@ -1,10 +1,11 @@
 package org.dawciobiel.shelldialog.console;
 
+@SuppressWarnings("unused")
 public class ConsoleColors {
     // Reset
     public static final String RESET  = "\u001B[0m";
 
-    // Kolory tekstu (foreground)
+    // Text colors (foreground)
     public static final String BLACK   = "\u001B[30m";
     public static final String RED     = "\u001B[31m";
     public static final String GREEN   = "\u001B[32m";
@@ -15,19 +16,19 @@ public class ConsoleColors {
     public static final String WHITE   = "\u001B[37m";
     public static final String GREY    = "\u001B[90m";
 
-    // Jasne warianty (bright)
+    // Bright variants
     public static final String BRIGHT_RED    = "\u001B[91m";
     public static final String BRIGHT_GREEN  = "\u001B[92m";
     public static final String BRIGHT_YELLOW = "\u001B[93m";
     public static final String BRIGHT_BLUE   = "\u001B[94m";
 
-    // Tło (background)
+    // Background colors
     public static final String BG_RED    = "\u001B[41m";
     public static final String BG_GREEN  = "\u001B[42m";
     public static final String BG_YELLOW = "\u001B[43m";
     public static final String BG_BLUE   = "\u001B[44m";
 
-    // Style
+    // Styles
     public static final String BOLD      = "\u001B[1m";
     public static final String UNDERLINE = "\u001B[4m";
 }

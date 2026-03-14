@@ -4,7 +4,7 @@ import org.dawciobiel.shelldialog.console.header.border.BorderType;
 import org.dawciobiel.shelldialog.menu.Menu;
 
 
-public class Example {
+public class UsageExample {
 
     public static void main(String[] args) {
         String[] menuItems = {"„Therefore if your right eye causes you to sin, (...) pluck it out and throw it away \"",
@@ -14,8 +14,8 @@ public class Example {
         Integer choice = Menu.create(menuItems, BorderType.BORDER_ALL);
 
         if (choice < 0) {
-            System.err.println("Do not Launching application under IDE, Maven or Gradle. It pipe terminal output stream.");
-            System.err.println("Use instead real terminal:");
+            System.err.println("Do not launch the application under IDE, Maven or Gradle. They pipe the terminal output stream.");
+            System.err.println("Use a real terminal instead:");
             System.err.println("\tjava -jar build/libs/shelldialog-1.0.0-SNAPSHOT.jar");
             System.err.println("or");
             System.err.println("\tmvn clean compile exec:java");

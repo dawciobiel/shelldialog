@@ -9,48 +9,33 @@ version = "1.0.0-SNAPSHOT"
 
 description = "A Java library for building interactive console dialogs, menus, and wizards."
 
-// ═══════════════════════════════════════════
-// Konfiguracja Java
-// ═══════════════════════════════════════════
-
+// Java configuration
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 
     application {
-        mainClass = "org.dawciobiel.shelldialog.Example"
+        mainClass = "org.dawciobiel.shelldialog.UsageExample"
     }
 }
 
-// ═══════════════════════════════════════════
-// Repozytoria
-// ═══════════════════════════════════════════
-
+// Repositories
 repositories {
     mavenCentral()
 }
 
-// ═══════════════════════════════════════════
-// Zależności
-// ═══════════════════════════════════════════
-
+// Dependencies
 dependencies {
     implementation("com.googlecode.lanterna:lanterna:3.1.3")
 }
 
-// ═══════════════════════════════════════════
-// Konfiguracja kompilacji
-// ═══════════════════════════════════════════
-
+// Compilation configuration
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-// ═══════════════════════════════════════════
-// Fat JAR (ekwiwalent maven-shade-plugin)
-// ═══════════════════════════════════════════
-
+// Fat JAR (equivalent to maven-shade-plugin)
 tasks.jar {
     manifest {
         attributes["Main-Class"] = application.mainClass.get()
@@ -61,19 +46,13 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// ═══════════════════════════════════════════
-// Testy (ekwiwalent maven-surefire-plugin)
-// ═══════════════════════════════════════════
-
+// Tests (equivalent to maven-surefire-plugin)
 tasks.test {
     forkEvery = 1
     maxParallelForks = 1
 }
 
-// ═══════════════════════════════════════════
-// Publikacja (ekwiwalent maven-publish)
-// ═══════════════════════════════════════════
-
+// Publishing (equivalent to maven-publish)
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
