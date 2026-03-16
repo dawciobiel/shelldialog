@@ -1,6 +1,6 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.cli.dialog.QuestionDialog;
+import org.dawciobiel.shelldialog.cli.dialog.TextLineQuestion;
 import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
@@ -18,7 +18,7 @@ public class DialogTextExample {
         String questionTitle = "Provide your answer to the question";
 
         // Messages.setLocale(Locale.of("pl", "PL"));
-        Showable question = new QuestionDialog(questionTitle);
+        Showable question = new TextLineQuestion(questionTitle);
 
         // Parse result
         handleResult(question.show(), questionTitle);

@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class QuestionDialog implements Showable {
+public class TextLineQuestion implements Showable {
 
 
     private static final String INPUT_STREAM = "/dev/tty";
@@ -31,7 +31,7 @@ public class QuestionDialog implements Showable {
     private final String title;
     private final BorderType borderType;
 
-    public QuestionDialog(String question) {
+    public TextLineQuestion(String question) {
         this.title = question;
         this.borderType = BorderType.BORDER_ALL;
     }
