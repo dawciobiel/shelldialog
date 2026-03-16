@@ -2,10 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.0-SNAPSHOT] - 2023-10-27
+
+### Added
+- `QuestionDialog` for interactive text input.
+- `Showable` interface for dialogs.
+- Dialog result types: `Value`, `TextValue`, `IntegerValue`, `ErrorValue`.
+- `DialogTextExample` demonstrating `QuestionDialog` usage.
+- `NavigationToolbar` for improved navigation display.
+- `gradle.properties` for Gradle configuration.
+
+### Changed
+- Renamed `MenuCLI` to `Menu` and moved to `cli.dialog` package.
+- Moved `Messages` to `cli.i18n` package.
+- Updated project version to `1.1.0-SNAPSHOT` in `build.gradle.kts` and `pom.xml`.
+- Updated `README.md` with new version and features.
+- Aligned `mainClass` in `pom.xml` with Gradle configuration.
+- Updated `MenuUsageExample` to reflect new package structure.
+- Updated `BorderLine` and `Arrow` classes to use new navigation constants.
+- Updated `messages.properties` and `messages_pl.properties`.
+
+### Removed
+- Old `Menu` interface.
+- Old `Navigation` class.
+
+## [1.0.0-SNAPSHOT] - YYYY-MM-DD
 
 ### Added
 - Initial project setup.

@@ -1,10 +1,13 @@
 # ShellDialog
 
-ShellDialog is a simple Java library for creating interactive command-line menus. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces.
+**Current version: 1.1.0-SNAPSHOT**
+
+ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces.
 
 ## Features
 
 - Easy menu creation with a simple API.
+- **New:** Dialog for asking questions and capturing text input.
 - Support for keyboard navigation (arrow keys, enter, escape).
 - Customizable borders (full, horizontal, vertical, none).
 - Automatic text wrapping for long menu titles.
@@ -54,5 +57,5 @@ mvn clean package
 ## Launching
 
 ```bash
-java -jar build/libs/shelldialog-1.0.0-SNAPSHOT.jar
+java -jar build/libs/shelldialog-1.1.0-SNAPSHOT.jar
 ```
