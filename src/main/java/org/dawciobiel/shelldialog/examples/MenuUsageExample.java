@@ -1,33 +1,39 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.cli.Messages;
-import org.dawciobiel.shelldialog.cli.header.border.BorderType;
-import org.dawciobiel.shelldialog.menu.cli.MenuCLI;
-
-import java.util.Locale;
+import org.dawciobiel.shelldialog.cli.dialog.Menu;
+import org.dawciobiel.shelldialog.cli.dialog.Showable;
+import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.Value;
+import org.dawciobiel.shelldialog.cli.i18n.Messages;
 
 /**
- * Example usage of the {@link MenuCLI} class.
+ * Example usage of the {@link Menu} class.
  */
 public class MenuUsageExample {
 
     public static void main(String[] args) {
-        String[] menuItems = {"Main Menu Title",
-                "Menuitem #1", "Menuitem #2", "Menuitem #3", "Menuitem #4"};
+        // Show menu dialog
+        String[] menuItems = {"Menu Title", "1.Item", "2.Item", "3.Item"};
 
-        Messages.setLocale(Locale.of("pl", "PL"));
-        Integer choice = MenuCLI.show(menuItems, BorderType.BORDER_ALL);
+        // Messages.setLocale(Locale.of("pl", "PL"));
+        Showable menu = new Menu(menuItems);
 
-        if (choice < 0) {
-            System.err.println("Do not launch the application under IDE, Maven or Gradle. They pipe the terminal output stream.");
-            System.err.println("Use a real terminal instead:");
-            System.err.println("\tjava -jar build/libs/shelldialog-1.0.0-SNAPSHOT.jar");
-            System.err.println("or");
-            System.err.println("\tmvn clean compile exec:java");
+        // Parse result
+        handleResult(menu.show(), menuItems);
+    }
 
-        } else {
-            System.out.println("Selected menuitem: [" + menuItems[choice] + "]");
-            System.out.println("Selected menuitem index: [" + choice + "]");
+    private static void handleResult(Value result, String[] menuItems) {
+        switch (result) {
+            case IntegerValue v -> System.out.printf("Selected menu item [ %s ]%n", menuItems[v.value()]);
+            case TextValue v -> System.out.printf("User left menu dialog by: %s button%n", v.value());
+            case ErrorValue v -> handleError(v);
         }
+    }
+
+    private static void handleError(ErrorValue v) {
+        System.err.println(Messages.getString("error.occurred") + ":\n\n\t" + v.message() + "\n");
+        System.err.println(Messages.getString("error.terminal.stream"));
     }
 }

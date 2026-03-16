@@ -15,28 +15,16 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 Here is a basic example of how to use ShellDialog:
 
 ```java
-import org.dawciobiel.shelldialog.menu.cli.MenuCLI;
-import org.dawciobiel.shelldialog.cli.header.border.BorderType;
-
-public class MenuUsageExample {
     public static void main(String[] args) {
-        String[] menuItems = {
-            "Main Menu Title", // Index 0 is the Header
-            "Option 1",        // Index 1
-            "Option 2",        // Index 2
-            "Option 3",        // Index 3
-            "Exit"             // Index 4
-        };
+    // Show menu dialog
+    String[] menuItems = {"Menu Title", "1.Item", "2.Item", "3.Item"};
 
-        // Create and show the menu
-        Integer choice = MenuCLI.show(menuItems, BorderType.BORDER_ALL);
+    Menu menu = new Menu(menuItems);
 
-        if (choice < 0) {
-            // Note: Use a real terminal, not IDE console
-            System.out.println("Menu cancelled or terminal error.");
-        } else {
-            System.out.println("Selected option index: " + choice);
-            System.out.println("Selected option: " + menuItems[choice]);
+    // Parse result
+    switch (menu.show()) {
+        case IntegerValue v -> System.out.println("Selected menu item [ " + menuItems[v.value()] + " ]");
+        case ErrorValue v   -> System.err.println(Messages.getString("error.terminal.stream"));
         }
     }
 }
@@ -52,11 +40,19 @@ public class MenuUsageExample {
 To build the project, use Maven or Gradle:
 
 ```bash
+./gradlew build
+```
+or
+```bash
+./gradlew --quiet clean build
+```
+or
+```bash
 mvn clean package
 ```
 
-or
+## Launching
 
 ```bash
-./gradlew build
+java -jar build/libs/shelldialog-1.0.0-SNAPSHOT.jar
 ```
