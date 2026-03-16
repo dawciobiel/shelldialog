@@ -24,9 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * CLI implementation of the Menu interface using Lanterna.
+ * CLI implementation of a selection menu using Lanterna.
  */
-public class Menu implements Showable {
+public class SelectionMenu implements Showable {
 
     private static final String INPUT_STREAM = "/dev/tty";
     private static final String OUTPUT_STREAM = "/dev/tty";
@@ -34,7 +34,7 @@ public class Menu implements Showable {
     private final String[] menuItems;
     private final BorderType borderType;
 
-    public Menu(String[] menuItems) {
+    public SelectionMenu(String[] menuItems) {
         this.menuItems = menuItems;
         this.borderType = BorderType.BORDER_ALL;
     }

@@ -1,22 +1,21 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.cli.dialog.Menu;
 import org.dawciobiel.shelldialog.cli.dialog.QuestionDialog;
+import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 import org.dawciobiel.shelldialog.cli.i18n.Messages;
 
 /**
- * Example usage of the {@link Menu} class.
+ * Example usage of the {@link SelectionMenu} class.
  */
 public class DialogTextExample {
 
     public static void main(String[] args) {
         // Show menu dialog
-        String questionTitle = "Question title";
+        String questionTitle = "Provide your answer to the question";
 
         // Messages.setLocale(Locale.of("pl", "PL"));
         Showable question = new QuestionDialog(questionTitle);
@@ -27,10 +26,15 @@ public class DialogTextExample {
 
     private static void handleResult(Value result, String questionTitle) {
         switch (result) {
-            case IntegerValue v ->
-                    System.out.printf("Question: [ %s ]\nAnswer: [ %s ]", v.value(), questionTitle);
-            case TextValue v -> System.out.printf("User left menu dialog by: %s button%n", v.value());
+            case TextValue v -> {
+                if (v.value().equals("Esc")) {
+                    System.out.println("User cancelled the dialog.");
+                } else {
+                    System.out.printf("Question: [ %s ]\nAnswer: [ %s ]\n", questionTitle, v.value());
+                }
+            }
             case ErrorValue v -> handleError(v);
+            default -> System.out.println("Unexpected result type: " + result.getClass().getSimpleName());
         }
     }
 

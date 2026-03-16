@@ -1,6 +1,6 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.cli.dialog.Menu;
+import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
@@ -9,7 +9,7 @@ import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 import org.dawciobiel.shelldialog.cli.i18n.Messages;
 
 /**
- * Example usage of the {@link Menu} class.
+ * Example usage of the {@link SelectionMenu} class.
  */
 public class MenuUsageExample {
 
@@ -18,7 +18,7 @@ public class MenuUsageExample {
         String[] menuItems = {"Menu Title", "1.Item", "2.Item", "3.Item"};
 
         // Messages.setLocale(Locale.of("pl", "PL"));
-        Showable menu = new Menu(menuItems);
+        Showable menu = new SelectionMenu(menuItems);
 
         // Parse result
         handleResult(menu.show(), menuItems);
