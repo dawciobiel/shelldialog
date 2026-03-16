@@ -30,7 +30,6 @@ Here is a basic example of how to use ShellDialog:
         case ErrorValue v   -> System.err.println(Messages.getString("error.terminal.stream"));
         }
     }
-}
 ```
 
 ## Requirements
