@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.cli;
+package org.dawciobiel.shelldialog.cli.i18n;
 
 import java.util.Locale;
 import java.util.ResourceBundle;

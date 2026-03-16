@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.menu.cli;
+package org.dawciobiel.shelldialog.cli.dialog;
 
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
@@ -6,15 +6,18 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import org.dawciobiel.shelldialog.cli.Messages;
 import org.dawciobiel.shelldialog.cli.TextWrapper;
 import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
 import org.dawciobiel.shelldialog.cli.header.border.BorderType;
 import org.dawciobiel.shelldialog.cli.navigation.Arrow;
-import org.dawciobiel.shelldialog.cli.navigation.Navigation;
-import org.dawciobiel.shelldialog.menu.Menu;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
+import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,60 +26,37 @@ import java.util.List;
 /**
  * CLI implementation of the Menu interface using Lanterna.
  */
-public class MenuCLI implements Menu {
+public class Menu implements Showable {
 
-    private static final String ERROR_MESSAGE_TERMINAL = Messages.getString("error.terminal");
+    private static final String INPUT_STREAM = "/dev/tty";
+    private static final String OUTPUT_STREAM = "/dev/tty";
 
     private final String[] menuItems;
     private final BorderType borderType;
 
-    public MenuCLI(String[] menuItems, BorderType borderType) {
+    public Menu(String[] menuItems) {
         this.menuItems = menuItems;
-        this.borderType = borderType;
+        this.borderType = BorderType.BORDER_ALL;
     }
 
-    /**
-     * Displays the menu and returns the index of the selected item.
-     *
-     * @param menuItems an array of strings representing the menu header (index 0) and items
-     * @return the index of the selected item, or -1 if cancelled (Escape)
-     */
-    public static Integer show(String[] menuItems) {
-        return show(menuItems, BorderType.BORDER_ALL);
-    }
-
-    /**
-     * Displays the menu with a specific border type and returns the index of the selected item.
-     *
-     * @param menuItems  an array of strings representing the menu header (index 0) and items
-     * @param borderType the type of border to be used for the menu header
-     * @return the index of the selected item, or -1 if cancelled (Escape)
-     */
-    public static Integer show(String[] menuItems, BorderType borderType) {
-        return new MenuCLI(menuItems, borderType).show();
-    }
-
-    @Override
-    public Integer show() {
-        try {
-            return run();
-        } catch (IOException e) {
-            System.err.println(ERROR_MESSAGE_TERMINAL + e.getMessage());
-            return -1;
-        }
-    }
-
-    private Integer run() throws IOException {
+    public Value show() {
         int selectedIndex = 1;
 
-        FileInputStream ttyInput = new FileInputStream("/dev/tty");
-        FileOutputStream ttyOutput = new FileOutputStream("/dev/tty");
+        FileInputStream ttyInput = null;
+        try {
+            ttyInput = new FileInputStream(INPUT_STREAM);
+        } catch (FileNotFoundException e) {
+            return new ErrorValue(e.getLocalizedMessage());
+        }
 
-        DefaultTerminalFactory factory = new DefaultTerminalFactory(
-                ttyOutput,
-                ttyInput,
-                StandardCharsets.UTF_8
-        );
+        FileOutputStream ttyOutput = null;
+        try {
+            ttyOutput = new FileOutputStream(OUTPUT_STREAM);
+        } catch (FileNotFoundException e) {
+            return new ErrorValue(e.getLocalizedMessage());
+        }
+
+        DefaultTerminalFactory factory = new DefaultTerminalFactory(ttyOutput, ttyInput, StandardCharsets.UTF_8);
         factory.setForceTextTerminal(true);
 
         try (Screen screen = factory.createScreen()) {
@@ -87,7 +67,7 @@ public class MenuCLI implements Menu {
 
             while (true) {
                 render(screen, tg, selectedIndex);
-                
+
                 KeyStroke key = screen.readInput();
                 KeyType type = key.getKeyType();
 
@@ -96,11 +76,13 @@ public class MenuCLI implements Menu {
                 } else if (type == KeyType.ArrowDown) {
                     if (selectedIndex < menuItems.length - 1) selectedIndex++;
                 } else if (type == KeyType.Enter) {
-                    return selectedIndex;
+                    return new IntegerValue(selectedIndex);
                 } else if (type == KeyType.Escape) {
-                    return -1;
+                    return new TextValue("Esc");
                 }
             }
+        } catch (IOException e) {
+            return new ErrorValue(e.getLocalizedMessage());
         }
     }
 
@@ -130,20 +112,21 @@ public class MenuCLI implements Menu {
     private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
         int innerWidth = terminalWidth - 2;
         List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1);
-        
+
         tg.setForegroundColor(TextColor.ANSI.BLUE);
 
-        String topBorder = BorderLine.TOP_LEFT + BorderLine.HORIZONTAL.repeat(innerWidth) + BorderLine.TOP_RIGHT;
+        //todo To implement display border based on value `borderType` from .show() method
+        String topBorder = BorderLine.DOUBLE_TOP_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_TOP_RIGHT;
         tg.putString(0, startRow++, topBorder);
 
         for (String line : wrappedLines) {
-            tg.putString(0, startRow, BorderLine.VERTICAL);
+            tg.putString(0, startRow, BorderLine.DOUBLE_VERTICAL);
             tg.putString(2, startRow, line);
-            tg.putString(terminalWidth - 1, startRow, BorderLine.VERTICAL);
+            tg.putString(terminalWidth - 1, startRow, BorderLine.DOUBLE_VERTICAL);
             startRow++;
         }
 
-        String bottomBorder = BorderLine.BOTTOM_LEFT + BorderLine.HORIZONTAL.repeat(innerWidth) + BorderLine.BOTTOM_RIGHT;
+        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_BOTTOM_RIGHT;
         tg.putString(0, startRow++, bottomBorder);
 
         return startRow;
@@ -152,34 +135,33 @@ public class MenuCLI implements Menu {
     private void drawSelectedItem(TextGraphics tg, int row, int index) {
         // Draw Left Arrow
         tg.setForegroundColor(Arrow.ARROW_COLOR);
+        tg.setBackgroundColor(Arrow.ARROW_BG_COLOR);
         tg.putString(0, row, Arrow.ARROW_LEFT);
 
         // Draw Text
-        tg.setForegroundColor(Navigation.SELECTED_ITEM_TEXT_COLOR);
-        tg.setBackgroundColor(Navigation.SELECTED_ITEM_BACKGROUND_COLOR);
+        tg.setForegroundColor(NavigationToolbar.MENUITEM_SELECTED_COLOR);
+        tg.setBackgroundColor(NavigationToolbar.MENUITEM_SELECTED_BG_COLOR);
         tg.putString(2, row, menuItems[index]);
 
         // Reset Background for Right Arrow
-        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
         tg.setForegroundColor(Arrow.ARROW_COLOR);
-        tg.putString(2 + menuItems[index].length() , row, Arrow.ARROW_RIGHT);
+        tg.setBackgroundColor(Arrow.ARROW_BG_COLOR);
+        tg.putString(2 + menuItems[index].length(), row, Arrow.ARROW_RIGHT);
     }
 
     private void drawUnselectedItem(TextGraphics tg, int row, int index) {
-        tg.setForegroundColor(TextColor.ANSI.DEFAULT);
-        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+        tg.setForegroundColor(NavigationToolbar.MENUITEM_COLOR);
+        tg.setBackgroundColor(NavigationToolbar.MENUITEM_BG_COLOR);
         tg.putString(2, row, menuItems[index]);
     }
 
     private void drawNavigation(TextGraphics tg, int row) {
-        tg.setForegroundColor(Navigation.NAVIGATION_TEXT_COLOR);
-        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-        
-        String nav = " " + Navigation.NAVIGATION_ARROWS + " " + Navigation.NAVIGATION_TEXT 
-                   + " " + Navigation.NAVIGATION_TEXT_DELIMITER 
-                   + " " + Navigation.NAVIGATION_ACCEPT_CHARACTER + " " + Navigation.NAVIGATION_ACCEPT_TEXT 
-                   + " " + Navigation.NAVIGATION_TEXT_ACCEPT;
-        
+        tg.setForegroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_COLOR);
+        tg.setBackgroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_BG_COLOR);
+
+        // ↑↓ Navigation | ↵ Accept | Esc Cancel
+        String nav = NavigationToolbar.ARROWS + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.NAVIGATION + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ENTER + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ACCEPT + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ESC + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.CANCEL;
+
         tg.putString(0, row, nav);
     }
 }
