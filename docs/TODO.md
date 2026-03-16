@@ -4,3 +4,4 @@
 - Add configuration for text background colors.
 - Add configuration for text interface element colors.
   This configuration will be stored as entries in .properties file(s) or another suitable format.
+- Add character limit for user input in QuestionDialog.
