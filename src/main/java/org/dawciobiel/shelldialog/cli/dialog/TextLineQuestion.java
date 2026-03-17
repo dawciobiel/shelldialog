@@ -42,12 +42,10 @@ public class TextLineQuestion extends AbstractDialog {
 
     @Override
     protected Value runDialog(Screen screen) throws IOException {
-
         StringBuilder inputBuffer = new StringBuilder();
         TextGraphics tg = screen.newTextGraphics();
 
         while (true) {
-
             render(screen, tg, inputBuffer.toString());
 
             KeyStroke key = screen.readInput();
@@ -76,11 +74,7 @@ public class TextLineQuestion extends AbstractDialog {
 
         Header header = new Header(title, terminalWidth, theme.borderStyle().foreground(), theme.titleStyle().foreground());
         Body body = new Body(inputContent, theme.inputStyle().foreground(), theme.inputStyle().background());
-        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(
-                theme.navigationStyle().foreground(),
-                theme.navigationStyle().foreground(),
-                theme.navigationStyle().background()
-        );
+        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
         Footer footer = new Footer(navigationToolbar, toolbarRenderer);
 
         int row = 0;
@@ -106,11 +100,7 @@ public class TextLineQuestion extends AbstractDialog {
         private final String outputStreamPath = "/dev/tty";
         private DialogTheme theme = DialogTheme.darkTheme();
 
-        private NavigationToolbar navigationToolbar =
-                NavigationToolbar.builder()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build();
+        private NavigationToolbar navigationToolbar = NavigationToolbar.builder().withEnterAccept().withEscapeCancel().build();
 
         /**
          * Creates a new Builder with the specified question title.
