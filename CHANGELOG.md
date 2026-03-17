@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0-SNAPSHOT] - 2023-11-13
+
+### Added
+- New dialog types: `MultiChoiceDialog`, `PasswordDialog`, `YesNoDialog`.
+- `DialogTheme` system for customizable styling (colors, borders).
+- `NavigationToolbarRenderer` for decoupled toolbar rendering.
+- Javadoc documentation for public API (`SelectionMenu`, `TextLineQuestion`).
+
+### Changed
+- Refactored dialogs to use the Builder pattern for consistent construction.
+- Moved `TextWrapper` to `org.dawciobiel.shelldialog.cli.util` package.
+- Updated project version to `1.2.0-SNAPSHOT`.
+- Refactored `NavigationToolbar` logic.
+- Improved `README.md` with new examples and features list.
+
+### Removed
+- Redundant comments and unused code in examples and renderer.
 
 ## [1.1.0-SNAPSHOT] - 2023-10-27
 
