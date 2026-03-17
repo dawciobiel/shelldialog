@@ -24,9 +24,9 @@ import java.util.List;
 
 public class TextLineQuestion implements Showable {
 
-
     private static final String INPUT_STREAM = "/dev/tty";
     private static final String OUTPUT_STREAM = "/dev/tty";
+    public static final String DIALOG_CANCELED_FLAG = "[Dialog canceled]"; // Text value result as flag identifier
 
     private final String title;
     private final BorderType borderType;
@@ -37,14 +37,14 @@ public class TextLineQuestion implements Showable {
     }
 
     public Value show() {
-        FileInputStream ttyInput = null;
+        FileInputStream ttyInput;
         try {
             ttyInput = new FileInputStream(INPUT_STREAM);
         } catch (FileNotFoundException e) {
             return new ErrorValue(e.getLocalizedMessage());
         }
 
-        FileOutputStream ttyOutput = null;
+        FileOutputStream ttyOutput;
         try {
             ttyOutput = new FileOutputStream(OUTPUT_STREAM);
         } catch (FileNotFoundException e) {
@@ -71,9 +71,9 @@ public class TextLineQuestion implements Showable {
                 if (type == KeyType.Enter) {
                     return new TextValue(inputBuffer.toString());
                 } else if (type == KeyType.Escape) {
-                    return new TextValue("Esc");
+                    return new TextValue(DIALOG_CANCELED_FLAG);
                 } else if (type == KeyType.Backspace) {
-                    if (inputBuffer.length() > 0) {
+                    if (!inputBuffer.isEmpty()) {
                         inputBuffer.setLength(inputBuffer.length() - 1);
                     }
                 } else if (type == KeyType.Character) {
@@ -104,13 +104,18 @@ public class TextLineQuestion implements Showable {
         screen.refresh();
     }
 
+    //todo To implement display border based on value `borderType` from .show() method
     private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
         int innerWidth = terminalWidth - 2;
         List<String> wrappedLines = TextWrapper.wrap(title, innerWidth - 1);
 
         tg.setForegroundColor(TextColor.ANSI.BLUE);
 
-        String topBorder = BorderLine.DOUBLE_TOP_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_TOP_RIGHT;
+        // @formatter:off
+        String topBorder = BorderLine.DOUBLE_TOP_LEFT
+                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
+                + BorderLine.DOUBLE_TOP_RIGHT;
+        // @formatter:on
         tg.putString(0, startRow++, topBorder);
 
         for (String line : wrappedLines) {
@@ -119,8 +124,11 @@ public class TextLineQuestion implements Showable {
             tg.putString(terminalWidth - 1, startRow, BorderLine.DOUBLE_VERTICAL);
             startRow++;
         }
-
-        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_BOTTOM_RIGHT;
+        // @formatter:off
+        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT
+                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
+                + BorderLine.DOUBLE_BOTTOM_RIGHT;
+        // @formatter:on
         tg.putString(0, startRow++, bottomBorder);
 
         return startRow;
@@ -136,8 +144,19 @@ public class TextLineQuestion implements Showable {
         tg.setForegroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_COLOR);
         tg.setBackgroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_BG_COLOR);
 
-        // Type your answer | ↵ Accept | Esc Cancel
-        String nav = NavigationToolbar.TYPE_YOUR_ANSWER + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ENTER + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ACCEPT + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ESC + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.CANCEL;
+        // Expected result: "Type your answer | ↵ Accept | Esc Cancel"
+        // @formatter:off
+        String nav = String.join(
+                NavigationToolbar.DELIMITER_SPACER,
+                NavigationToolbar.KEYBOARD_KEYS,
+                NavigationToolbar.DELIMITER_PIPE,
+                NavigationToolbar.ENTER,
+                NavigationToolbar.ACCEPT,
+                NavigationToolbar.DELIMITER_PIPE,
+                NavigationToolbar.ESC,
+                NavigationToolbar.CANCEL
+        );
+        // @formatter:on
 
         tg.putString(0, row, nav);
     }

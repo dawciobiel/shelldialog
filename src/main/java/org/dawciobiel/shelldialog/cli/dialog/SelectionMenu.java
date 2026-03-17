@@ -7,14 +7,14 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.dawciobiel.shelldialog.cli.TextWrapper;
-import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
-import org.dawciobiel.shelldialog.cli.header.border.BorderType;
-import org.dawciobiel.shelldialog.cli.navigation.Arrow;
-import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
+import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
+import org.dawciobiel.shelldialog.cli.header.border.BorderType;
+import org.dawciobiel.shelldialog.cli.navigation.Arrow;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,14 +42,14 @@ public class SelectionMenu implements Showable {
     public Value show() {
         int selectedIndex = 1;
 
-        FileInputStream ttyInput = null;
+        FileInputStream ttyInput;
         try {
             ttyInput = new FileInputStream(INPUT_STREAM);
         } catch (FileNotFoundException e) {
             return new ErrorValue(e.getLocalizedMessage());
         }
 
-        FileOutputStream ttyOutput = null;
+        FileOutputStream ttyOutput;
         try {
             ttyOutput = new FileOutputStream(OUTPUT_STREAM);
         } catch (FileNotFoundException e) {
@@ -109,14 +109,18 @@ public class SelectionMenu implements Showable {
         screen.refresh();
     }
 
+    //todo To implement display border based on value `borderType` from .show() method
     private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
         int innerWidth = terminalWidth - 2;
         List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1);
 
         tg.setForegroundColor(TextColor.ANSI.BLUE);
 
-        //todo To implement display border based on value `borderType` from .show() method
-        String topBorder = BorderLine.DOUBLE_TOP_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_TOP_RIGHT;
+        // @formatter:off
+        String topBorder = BorderLine.DOUBLE_TOP_LEFT
+                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
+                + BorderLine.DOUBLE_TOP_RIGHT;
+        // @formatter:on
         tg.putString(0, startRow++, topBorder);
 
         for (String line : wrappedLines) {
@@ -125,8 +129,11 @@ public class SelectionMenu implements Showable {
             tg.putString(terminalWidth - 1, startRow, BorderLine.DOUBLE_VERTICAL);
             startRow++;
         }
-
-        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth) + BorderLine.DOUBLE_BOTTOM_RIGHT;
+        // @formatter:off
+        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT
+                        + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
+                        + BorderLine.DOUBLE_BOTTOM_RIGHT;
+        // @formatter:on
         tg.putString(0, startRow++, bottomBorder);
 
         return startRow;
@@ -160,7 +167,19 @@ public class SelectionMenu implements Showable {
         tg.setBackgroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_BG_COLOR);
 
         // ↑↓ Navigation | ↵ Accept | Esc Cancel
-        String nav = NavigationToolbar.ARROWS + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.NAVIGATION + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ENTER + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ACCEPT + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.DELIMITER_PIPE + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.ESC + NavigationToolbar.DELIMITER_SPACER + NavigationToolbar.CANCEL;
+        // @formatter:off
+        String nav = String.join(
+                NavigationToolbar.DELIMITER_SPACER,
+                NavigationToolbar.ARROWS,
+                NavigationToolbar.NAVIGATION,
+                NavigationToolbar.DELIMITER_PIPE,
+                NavigationToolbar.ENTER,
+                NavigationToolbar.ACCEPT,
+                NavigationToolbar.DELIMITER_PIPE,
+                NavigationToolbar.ESC,
+                NavigationToolbar.CANCEL
+        );
+        // @formatter:on
 
         tg.putString(0, row, nav);
     }

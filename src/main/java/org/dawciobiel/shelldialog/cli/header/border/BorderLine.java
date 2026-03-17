@@ -5,6 +5,7 @@ import org.dawciobiel.shelldialog.cli.i18n.Messages;
 @SuppressWarnings("unused")
 public final class BorderLine {
 
+    //formatters:off
     /* Borders examples:
             ┌───────┐    ╔───────╗   ╔═══════╗
             │       │    │       │   ║       ║
@@ -26,6 +27,7 @@ public final class BorderLine {
     public static final String SINGLE_TOP_RIGHT = "┐";
     public static final String SINGLE_BOTTOM_LEFT = "└";
     public static final String SINGLE_BOTTOM_RIGHT = "┘";
+    //formatters:on
 
     private BorderLine() {
         throw new UnsupportedOperationException(Messages.getString("error.borderline.instantiation"));

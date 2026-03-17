@@ -5,9 +5,11 @@ import java.util.List;
 
 public class TextWrapper {
 
+    private static final String SPACE = " ";
+
     public static List<String> wrap(String text, int maxWidth) {
         List<String> lines = new ArrayList<>();
-        String[] words = text.split(" ");
+        String[] words = text.split(SPACE);
         StringBuilder currentLine = new StringBuilder();
 
         for (String word : words) {

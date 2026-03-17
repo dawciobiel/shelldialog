@@ -5,6 +5,7 @@ import org.dawciobiel.shelldialog.cli.i18n.Messages;
 
 public final class NavigationToolbar {
 
+    // @formatter:off
     // Delimiters
     public static final String DELIMITER_SPACER = Messages.getString("navigation.delimiter.spacer");
     public static final String DELIMITER_PIPE = Messages.getString("navigation.delimiter.pipe");
@@ -13,7 +14,7 @@ public final class NavigationToolbar {
     public static final String ARROWS = Messages.getString("navigation.arrows");
     public static final String NAVIGATION = Messages.getString("navigation.navigation");
 
-    public static final String TYPE_YOUR_ANSWER = Messages.getString("navigation.type-your-answer");
+    public static final String KEYBOARD_KEYS = Messages.getString("navigation.keyboard");
 
     //  ↵ Accept
     public static final String ENTER = Messages.getString("navigation.enter");
@@ -34,6 +35,7 @@ public final class NavigationToolbar {
     // Navigation hotkeys colors
     public static final TextColor TOOLBAR_HOTKEYS_COLOR = TextColor.ANSI.BLACK_BRIGHT; // ANSI GREY
     public static final TextColor TOOLBAR_HOTKEYS_BG_COLOR = TextColor.ANSI.DEFAULT; // ANSI GREY
+    // @formatter:on
 
     //todo Colors value should be stored in properties file as config
     private NavigationToolbar() {

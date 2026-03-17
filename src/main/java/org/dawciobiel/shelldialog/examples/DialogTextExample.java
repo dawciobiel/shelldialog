@@ -1,8 +1,8 @@
 package org.dawciobiel.shelldialog.examples;
 
-import org.dawciobiel.shelldialog.cli.dialog.TextLineQuestion;
 import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
+import org.dawciobiel.shelldialog.cli.dialog.TextLineQuestion;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
@@ -17,7 +17,10 @@ public class DialogTextExample {
         // Show menu dialog
         String questionTitle = "Provide your answer to the question";
 
+        // Language and encoding
         // Messages.setLocale(Locale.of("pl", "PL"));
+
+        // Dialog
         Showable question = new TextLineQuestion(questionTitle);
 
         // Parse result
@@ -27,7 +30,7 @@ public class DialogTextExample {
     private static void handleResult(Value result, String questionTitle) {
         switch (result) {
             case TextValue v -> {
-                if (v.value().equals("Esc")) {
+                if (v.value().equals(TextLineQuestion.DIALOG_CANCELED_FLAG)) {
                     System.out.println("User cancelled the dialog.");
                 } else {
                     System.out.printf("Question: [ %s ]\nAnswer: [ %s ]\n", questionTitle, v.value());

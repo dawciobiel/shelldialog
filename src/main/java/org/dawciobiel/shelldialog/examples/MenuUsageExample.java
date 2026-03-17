@@ -15,9 +15,19 @@ public class MenuUsageExample {
 
     public static void main(String[] args) {
         // Show menu dialog
-        String[] menuItems = {"Menu Title", "1.Item", "2.Item", "3.Item"};
+        // @formatter:off
+        String[] menuItems = {
+                "Menu Title",
+                "1.Item",
+                "2.Item",
+                "3.Item"
+        };
+        // @formatter:on
 
+        // Language and encoding
         // Messages.setLocale(Locale.of("pl", "PL"));
+
+        // Dialog
         Showable menu = new SelectionMenu(menuItems);
 
         // Parse result
