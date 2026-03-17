@@ -1,163 +1,155 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
 import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import org.dawciobiel.shelldialog.cli.TextWrapper;
-import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
-import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
 import org.dawciobiel.shelldialog.cli.header.border.BorderType;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.ui.Body;
+import org.dawciobiel.shelldialog.cli.ui.Footer;
+import org.dawciobiel.shelldialog.cli.ui.Header;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Objects;
 
-public class TextLineQuestion implements Showable {
-
-    private static final String INPUT_STREAM = "/dev/tty";
-    private static final String OUTPUT_STREAM = "/dev/tty";
+/**
+ * A CLI dialog that prompts the user for a single line of text input.
+ * It supports typing, backspace, confirmation (Enter), and cancellation (Escape).
+ * <p>
+ * The dialog is rendered using the Lanterna library.
+ * </p>
+ */
+public class TextLineQuestion extends AbstractDialog {
 
     private final String title;
     private final BorderType borderType;
+    private final DialogTheme theme;
+    private final NavigationToolbar navigationToolbar;
 
-    public TextLineQuestion(String question) {
-        this.title = question;
-        this.borderType = BorderType.BORDER_ALL;
+    private TextLineQuestion(Builder builder) {
+        super(builder.inputStreamPath, builder.outputStreamPath);
+        this.title = builder.title;
+        this.borderType = builder.borderType;
+        this.theme = builder.theme;
+        this.navigationToolbar = builder.navigationToolbar;
     }
 
-    public Value show() {
-        FileInputStream ttyInput;
-        try {
-            ttyInput = new FileInputStream(INPUT_STREAM);
-        } catch (FileNotFoundException e) {
-            return new ErrorValue(e.getLocalizedMessage());
-        }
-
-        FileOutputStream ttyOutput;
-        try {
-            ttyOutput = new FileOutputStream(OUTPUT_STREAM);
-        } catch (FileNotFoundException e) {
-            return new ErrorValue(e.getLocalizedMessage());
-        }
-
-        DefaultTerminalFactory factory = new DefaultTerminalFactory(ttyOutput, ttyInput, StandardCharsets.UTF_8);
-        factory.setForceTextTerminal(true);
+    @Override
+    protected Value runDialog(Screen screen) throws IOException {
 
         StringBuilder inputBuffer = new StringBuilder();
+        TextGraphics tg = screen.newTextGraphics();
 
-        try (Screen screen = factory.createScreen()) {
-            screen.startScreen();
-            // Cursor will be set in render
+        while (true) {
 
-            TextGraphics tg = screen.newTextGraphics();
+            render(screen, tg, inputBuffer.toString());
 
-            while (true) {
-                render(screen, tg, inputBuffer.toString());
+            KeyStroke key = screen.readInput();
+            KeyType type = key.getKeyType();
 
-                KeyStroke key = screen.readInput();
-                KeyType type = key.getKeyType();
-
-                if (type == KeyType.Enter) {
+            switch (type) {
+                case Enter:
                     return new TextValue(inputBuffer.toString());
-                } else if (type == KeyType.Escape) {
-                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
-                } else if (type == KeyType.Backspace) {
-                    if (!inputBuffer.isEmpty()) {
-                        inputBuffer.setLength(inputBuffer.length() - 1);
-                    }
-                } else if (type == KeyType.Character) {
+                case Escape:
+                    return new TextValue(DIALOG_CANCELED_FLAG);
+                case Backspace:
+                    if (!inputBuffer.isEmpty()) inputBuffer.setLength(inputBuffer.length() - 1);
+                    break;
+                case Character:
                     inputBuffer.append(key.getCharacter());
-                }
+                    break;
+                default:
+                    break;
             }
-        } catch (IOException e) {
-            return new ErrorValue(e.getLocalizedMessage());
         }
     }
 
-    private void render(Screen screen, TextGraphics tg, String content) throws IOException {
+    private void render(Screen screen, TextGraphics tg, String inputContent) throws IOException {
         screen.clear();
-        int currentRow = 0;
         int terminalWidth = screen.getTerminalSize().getColumns();
 
-        // 1. Draw Title
-        currentRow = drawTitle(tg, currentRow, terminalWidth);
+        Header header = new Header(title, terminalWidth, theme.borderStyle().foreground(), theme.titleStyle().foreground());
+        Body body = new Body(inputContent, theme.inputStyle().foreground(), theme.inputStyle().background());
+        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(
+                theme.navigationStyle().foreground(),
+                theme.navigationStyle().foreground(),
+                theme.navigationStyle().background()
+        );
+        Footer footer = new Footer(navigationToolbar, toolbarRenderer);
 
-        // 2. Draw Content (Input)
-        drawContent(tg, currentRow, content);
-        screen.setCursorPosition(new TerminalPosition(2 + content.length(), currentRow));
-        currentRow++;
+        int row = 0;
+        header.render(tg, row);
+        row += 3;
+        body.render(tg, row);
+        row += 2;
+        footer.render(tg, row);
 
-        // 3. Draw Navigation Instructions
-        drawNavigation(tg, currentRow + 1);
-
+        screen.setCursorPosition(new TerminalPosition(2 + inputContent.length(), row - 2));
         screen.refresh();
     }
 
-    //todo To implement display border based on value `borderType` from .show() method
-    private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
-        int innerWidth = terminalWidth - 2;
-        List<String> wrappedLines = TextWrapper.wrap(title, innerWidth - 1);
+    /**
+     * Builder for creating instances of {@link TextLineQuestion}.
+     */
+    public static class Builder {
 
-        tg.setForegroundColor(TextColor.ANSI.BLUE);
+        private final String title;
 
-        // @formatter:off
-        String topBorder = BorderLine.DOUBLE_TOP_LEFT
-                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
-                + BorderLine.DOUBLE_TOP_RIGHT;
-        // @formatter:on
-        tg.putString(0, startRow++, topBorder);
+        private final BorderType borderType = BorderType.BORDER_ALL;
+        private final String inputStreamPath = "/dev/tty";
+        private final String outputStreamPath = "/dev/tty";
+        private DialogTheme theme = DialogTheme.darkTheme();
 
-        for (String line : wrappedLines) {
-            tg.putString(0, startRow, BorderLine.DOUBLE_VERTICAL);
-            tg.putString(2, startRow, line);
-            tg.putString(terminalWidth - 1, startRow, BorderLine.DOUBLE_VERTICAL);
-            startRow++;
+        private NavigationToolbar navigationToolbar =
+                NavigationToolbar.builder()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build();
+
+        /**
+         * Creates a new Builder with the specified question title.
+         *
+         * @param title The title of the question to be displayed.
+         */
+        public Builder(String title) {
+            this.title = Objects.requireNonNull(title);
         }
-        // @formatter:off
-        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT
-                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
-                + BorderLine.DOUBLE_BOTTOM_RIGHT;
-        // @formatter:on
-        tg.putString(0, startRow++, bottomBorder);
 
-        return startRow;
+        /**
+         * Sets the theme for the dialog.
+         *
+         * @param theme The {@link DialogTheme} to use.
+         * @return This Builder instance.
+         */
+        public Builder theme(DialogTheme theme) {
+            this.theme = Objects.requireNonNull(theme);
+            return this;
+        }
+
+        /**
+         * Sets the navigation toolbar for the dialog.
+         *
+         * @param toolbar The {@link NavigationToolbar} to use.
+         * @return This Builder instance.
+         */
+        public Builder navigationToolbar(NavigationToolbar toolbar) {
+            this.navigationToolbar = Objects.requireNonNull(toolbar);
+            return this;
+        }
+
+        /**
+         * Builds the {@link TextLineQuestion} instance.
+         *
+         * @return A new {@link TextLineQuestion}.
+         */
+        public TextLineQuestion build() {
+            return new TextLineQuestion(this);
+        }
     }
-
-    private void drawContent(TextGraphics tg, int row, String content) {
-        tg.setForegroundColor(NavigationToolbar.MENUITEM_COLOR);
-        tg.setBackgroundColor(NavigationToolbar.MENUITEM_BG_COLOR);
-        tg.putString(2, row, content);
-    }
-
-    private void drawNavigation(TextGraphics tg, int row) {
-        tg.setForegroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_COLOR);
-        tg.setBackgroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_BG_COLOR);
-
-        // Expected result: "Type your answer | ↵ Accept | Esc Cancel"
-        // @formatter:off
-        String nav = String.join(
-                NavigationToolbar.DELIMITER_SPACER,
-                NavigationToolbar.KEYBOARD_KEYS,
-                NavigationToolbar.DELIMITER_PIPE,
-                NavigationToolbar.ENTER,
-                NavigationToolbar.ACCEPT,
-                NavigationToolbar.DELIMITER_PIPE,
-                NavigationToolbar.ESC,
-                NavigationToolbar.CANCEL
-        );
-        // @formatter:on
-
-        tg.putString(0, row, nav);
-    }
-
 }

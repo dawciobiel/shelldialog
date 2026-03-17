@@ -7,27 +7,29 @@ import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 import org.dawciobiel.shelldialog.cli.i18n.Messages;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 
 /**
  * Example usage of the {@link SelectionMenu} class.
  */
-public class DialogTextExample {
+public class TextLineQuestionExample {
 
     public static void main(String[] args) {
-        // Show menu dialog
         String questionTitle = "Provide your answer to the question";
 
-        // Language and encoding
-        // Messages.setLocale(Locale.of("pl", "PL"));
+        TextLineQuestion dialog = new TextLineQuestion.Builder(questionTitle)
+                .navigationToolbar(NavigationToolbar.builder()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .withArrowsNavigation().build())
+                .build();
 
-        // Dialog
-        Showable question = new TextLineQuestion(questionTitle);
+        Value result = dialog.show();
 
-        // Parse result
-        handleResult(question.show(), questionTitle);
+        handleResult(questionTitle, result);
     }
 
-    private static void handleResult(Value result, String questionTitle) {
+    private static void handleResult(String questionTitle, Value result) {
         switch (result) {
             case TextValue v -> {
                 if (v.value().equals(Showable.DIALOG_CANCELED_FLAG)) {

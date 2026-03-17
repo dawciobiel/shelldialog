@@ -1,5 +1,7 @@
 package org.dawciobiel.shelldialog.examples;
 
+
+import com.googlecode.lanterna.TextColor;
 import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
@@ -7,14 +9,17 @@ import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 import org.dawciobiel.shelldialog.cli.i18n.Messages;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+
+import static org.dawciobiel.shelldialog.cli.style.TextStyle.ofAnsi;
 
 /**
  * Example usage of the {@link SelectionMenu} class.
  */
-public class MenuUsageExample {
+public class SelectionMenuExample {
 
     public static void main(String[] args) {
-        // Show menu dialog
         // @formatter:off
         String[] menuItems = {
                 "Menu Title",
@@ -24,17 +29,36 @@ public class MenuUsageExample {
         };
         // @formatter:on
 
-        // Language and encoding
-        // Messages.setLocale(Locale.of("pl", "PL"));
+        // @formatter:off
+        NavigationToolbar toolbar = NavigationToolbar.builder()
+                .withArrowsNavigation()
+                .withEnterAccept()
+                .withEscapeCancel()
+                .build();
+        // @formatter:on
 
-        // Dialog
-        Showable menu = new SelectionMenu(menuItems);
+        // @formatter:off
+        DialogTheme theme = DialogTheme.builder()
+                .borderStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+                .titleStyle(ofAnsi(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                .inputStyle(ofAnsi(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                .navigationStyle(ofAnsi(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
+                .build();
+        // @formatter:on
 
-        // Parse result
-        handleResult(menu.show(), menuItems);
+        // @formatter:off
+        SelectionMenu menu = new SelectionMenu.Builder(menuItems)
+                .navigationToolbar(toolbar)
+                .theme(theme)
+                .build();
+        // @formatter:on
+
+        Value result = menu.show();
+
+        handleResult(menuItems, result);
     }
 
-    private static void handleResult(Value result, String[] menuItems) {
+    private static void handleResult(String[] menuItems, Value result) {
         switch (result) {
             case IntegerValue v -> System.out.printf("Selected menu item [ %s ]%n", menuItems[v.value()]);
             case TextValue v -> {

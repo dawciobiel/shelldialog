@@ -4,8 +4,7 @@ import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 
 public interface Showable {
 
-    String DIALOG_CANCELED_FLAG = "[DIALOG_CANCELED]"; // Text value result as flag identifier
+    String DIALOG_CANCELED_FLAG = "__CANCELED__";
 
     Value show();
-
 }

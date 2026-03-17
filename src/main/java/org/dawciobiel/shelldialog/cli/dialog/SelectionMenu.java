@@ -1,186 +1,207 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import org.dawciobiel.shelldialog.cli.TextWrapper;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.Value;
-import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
-import org.dawciobiel.shelldialog.cli.header.border.BorderType;
 import org.dawciobiel.shelldialog.cli.navigation.Arrow;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.ui.Body;
+import org.dawciobiel.shelldialog.cli.ui.Footer;
+import org.dawciobiel.shelldialog.cli.ui.Header;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Objects;
 
 /**
- * CLI implementation of a selection menu using Lanterna.
+ * A CLI selection menu that allows the user to choose an option from a list.
+ * It supports keyboard navigation (up/down arrows), selection (Enter), and cancellation (Escape).
+ * <p>
+ * The menu is rendered using the Lanterna library.
+ * </p>
  */
 public class SelectionMenu implements Showable {
 
-    private static final String INPUT_STREAM = "/dev/tty";
-    private static final String OUTPUT_STREAM = "/dev/tty";
-
     private final String[] menuItems;
-    private final BorderType borderType;
+    private final DialogTheme theme;
+    private final NavigationToolbar navigationToolbar;
+    private final String inputStreamPath;
+    private final String outputStreamPath;
 
-    public SelectionMenu(String[] menuItems) {
-        this.menuItems = menuItems;
-        this.borderType = BorderType.BORDER_ALL;
+    private SelectionMenu(Builder builder) {
+        this.menuItems = builder.menuItems;
+        this.theme = builder.theme;
+        this.navigationToolbar = builder.navigationToolbar;
+        this.inputStreamPath = builder.inputStreamPath;
+        this.outputStreamPath = builder.outputStreamPath;
     }
 
+    /**
+     * Displays the selection menu to the user and waits for input.
+     *
+     * @return A {@link Value} representing the result of the interaction:
+     *         <ul>
+     *             <li>{@link IntegerValue}: The index of the selected item (0-based, where 0 is the title, so selection starts at 1).</li>
+     *             <li>{@link TextValue}: Containing {@link Showable#DIALOG_CANCELED_FLAG} if the user cancelled the dialog.</li>
+     *             <li>{@link ErrorValue}: If an I/O error occurred.</li>
+     *         </ul>
+     */
+    @Override
     public Value show() {
+
         int selectedIndex = 1;
 
-        FileInputStream ttyInput;
-        try {
-            ttyInput = new FileInputStream(INPUT_STREAM);
-        } catch (FileNotFoundException e) {
-            return new ErrorValue(e.getLocalizedMessage());
-        }
+        try (FileInputStream ttyInput = new FileInputStream(inputStreamPath); FileOutputStream ttyOutput = new FileOutputStream(outputStreamPath)) {
 
-        FileOutputStream ttyOutput;
-        try {
-            ttyOutput = new FileOutputStream(OUTPUT_STREAM);
-        } catch (FileNotFoundException e) {
-            return new ErrorValue(e.getLocalizedMessage());
-        }
+            DefaultTerminalFactory factory = new DefaultTerminalFactory(ttyOutput, ttyInput, StandardCharsets.UTF_8);
+            factory.setForceTextTerminal(true);
 
-        DefaultTerminalFactory factory = new DefaultTerminalFactory(ttyOutput, ttyInput, StandardCharsets.UTF_8);
-        factory.setForceTextTerminal(true);
+            try (Screen screen = factory.createScreen()) {
+                screen.startScreen();
+                screen.setCursorPosition(null); // Hide cursor
+                TextGraphics tg = screen.newTextGraphics();
 
-        try (Screen screen = factory.createScreen()) {
-            screen.startScreen();
-            screen.setCursorPosition(null); // Hide cursor
+                NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
 
-            TextGraphics tg = screen.newTextGraphics();
+                while (true) {
+                    render(screen, tg, selectedIndex, toolbarRenderer);
 
-            while (true) {
-                render(screen, tg, selectedIndex);
+                    KeyStroke key = screen.readInput();
+                    KeyType type = key.getKeyType();
 
-                KeyStroke key = screen.readInput();
-                KeyType type = key.getKeyType();
-
-                if (type == KeyType.ArrowUp) {
-                    if (selectedIndex > 1) selectedIndex--;
-                } else if (type == KeyType.ArrowDown) {
-                    if (selectedIndex < menuItems.length - 1) selectedIndex++;
-                } else if (type == KeyType.Enter) {
-                    return new IntegerValue(selectedIndex);
-                } else if (type == KeyType.Escape) {
-                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
+                    switch (type) {
+                        case ArrowUp -> {
+                            if (selectedIndex > 1) selectedIndex--;
+                        }
+                        case ArrowDown -> {
+                            if (selectedIndex < menuItems.length - 1) selectedIndex++;
+                        }
+                        case Enter -> {
+                            return new IntegerValue(selectedIndex);
+                        }
+                        case Escape -> {
+                            return new TextValue(Showable.DIALOG_CANCELED_FLAG);
+                        }
+                        default -> {
+                        }
+                    }
                 }
             }
+
         } catch (IOException e) {
             return new ErrorValue(e.getLocalizedMessage());
         }
     }
 
-    private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
+    private void render(Screen screen, TextGraphics tg, int selectedIndex, NavigationToolbarRenderer toolbarRenderer) throws IOException {
         screen.clear();
-        int currentRow = 0;
         int terminalWidth = screen.getTerminalSize().getColumns();
 
-        // 1. Draw Title
-        currentRow = drawTitle(tg, currentRow, terminalWidth);
+        Header header = new Header(menuItems[0], terminalWidth, theme.borderStyle().foreground(), theme.titleStyle().foreground());
+        int row = 0;
+        header.render(tg, row);
+        row += 3;
 
-        // 2. Draw Menu Items
         for (int i = 1; i < menuItems.length; i++) {
-            if (i == selectedIndex) {
-                drawSelectedItem(tg, currentRow++, i);
-            } else {
-                drawUnselectedItem(tg, currentRow++, i);
-            }
+            renderMenuItem(tg, row++, menuItems[i], i == selectedIndex);
         }
 
-        // 3. Draw Navigation Instructions
-        drawNavigation(tg, currentRow + 1);
+        Footer footer = new Footer(navigationToolbar, toolbarRenderer);
+        footer.render(tg, row + 1);
 
         screen.refresh();
     }
 
-    //todo To implement display border based on value `borderType` from .show() method
-    private int drawTitle(TextGraphics tg, int startRow, int terminalWidth) {
-        int innerWidth = terminalWidth - 2;
-        List<String> wrappedLines = TextWrapper.wrap(menuItems[0], innerWidth - 1);
+    private void renderMenuItem(TextGraphics tg, int row, String item, boolean selected) throws IOException {
+        var style = theme.inputStyle();
 
-        tg.setForegroundColor(TextColor.ANSI.BLUE);
+        String text = (selected ? Arrow.ARROW_LEFT : Arrow.ARROW_EMPTY) + item + (selected ? Arrow.ARROW_RIGHT : Arrow.ARROW_EMPTY);
 
-        // @formatter:off
-        String topBorder = BorderLine.DOUBLE_TOP_LEFT
-                + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
-                + BorderLine.DOUBLE_TOP_RIGHT;
-        // @formatter:on
-        tg.putString(0, startRow++, topBorder);
+        new Body(text, style.foreground(), style.background()).render(tg, row);
+    }
 
-        for (String line : wrappedLines) {
-            tg.putString(0, startRow, BorderLine.DOUBLE_VERTICAL);
-            tg.putString(2, startRow, line);
-            tg.putString(terminalWidth - 1, startRow, BorderLine.DOUBLE_VERTICAL);
-            startRow++;
+    /**
+     * Builder for creating instances of {@link SelectionMenu}.
+     */
+    public static class Builder {
+
+        private final String[] menuItems;
+        private DialogTheme theme = DialogTheme.darkTheme();
+        private NavigationToolbar navigationToolbar = NavigationToolbar.builder().withArrowsNavigation().withEnterAccept().withEscapeCancel().build();
+        private String inputStreamPath = "/dev/tty";
+        private String outputStreamPath = "/dev/tty";
+
+        /**
+         * Creates a new Builder with the specified menu items.
+         * The first item in the array is considered the title of the menu.
+         *
+         * @param menuItems An array of strings representing the menu items.
+         */
+        public Builder(String[] menuItems) {
+            this.menuItems = Objects.requireNonNull(menuItems);
         }
-        // @formatter:off
-        String bottomBorder = BorderLine.DOUBLE_BOTTOM_LEFT
-                        + BorderLine.DOUBLE_HORIZONTAL.repeat(innerWidth)
-                        + BorderLine.DOUBLE_BOTTOM_RIGHT;
-        // @formatter:on
-        tg.putString(0, startRow++, bottomBorder);
 
-        return startRow;
-    }
+        /**
+         * Sets the theme for the dialog.
+         *
+         * @param theme The {@link DialogTheme} to use.
+         * @return This Builder instance.
+         */
+        public Builder theme(DialogTheme theme) {
+            this.theme = Objects.requireNonNull(theme);
+            return this;
+        }
 
-    private void drawSelectedItem(TextGraphics tg, int row, int index) {
-        // Draw Left Arrow
-        tg.setForegroundColor(Arrow.ARROW_COLOR);
-        tg.setBackgroundColor(Arrow.ARROW_BG_COLOR);
-        tg.putString(0, row, Arrow.ARROW_LEFT);
+        /**
+         * Sets the navigation toolbar for the dialog.
+         *
+         * @param toolbar The {@link NavigationToolbar} to use.
+         * @return This Builder instance.
+         */
+        public Builder navigationToolbar(NavigationToolbar toolbar) {
+            this.navigationToolbar = Objects.requireNonNull(toolbar);
+            return this;
+        }
 
-        // Draw Text
-        tg.setForegroundColor(NavigationToolbar.MENUITEM_SELECTED_COLOR);
-        tg.setBackgroundColor(NavigationToolbar.MENUITEM_SELECTED_BG_COLOR);
-        tg.putString(2, row, menuItems[index]);
+        /**
+         * Sets the input stream path (e.g., "/dev/tty").
+         *
+         * @param path The path to the input stream.
+         * @return This Builder instance.
+         */
+        public Builder inputStream(String path) {
+            this.inputStreamPath = Objects.requireNonNull(path);
+            return this;
+        }
 
-        // Reset Background for Right Arrow
-        tg.setForegroundColor(Arrow.ARROW_COLOR);
-        tg.setBackgroundColor(Arrow.ARROW_BG_COLOR);
-        tg.putString(2 + menuItems[index].length(), row, Arrow.ARROW_RIGHT);
-    }
+        /**
+         * Sets the output stream path (e.g., "/dev/tty").
+         *
+         * @param path The path to the output stream.
+         * @return This Builder instance.
+         */
+        public Builder outputStream(String path) {
+            this.outputStreamPath = Objects.requireNonNull(path);
+            return this;
+        }
 
-    private void drawUnselectedItem(TextGraphics tg, int row, int index) {
-        tg.setForegroundColor(NavigationToolbar.MENUITEM_COLOR);
-        tg.setBackgroundColor(NavigationToolbar.MENUITEM_BG_COLOR);
-        tg.putString(2, row, menuItems[index]);
-    }
-
-    private void drawNavigation(TextGraphics tg, int row) {
-        tg.setForegroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_COLOR);
-        tg.setBackgroundColor(NavigationToolbar.TOOLBAR_HOTKEYS_BG_COLOR);
-
-        // ↑↓ Navigation | ↵ Accept | Esc Cancel
-        // @formatter:off
-        String nav = String.join(
-                NavigationToolbar.DELIMITER_SPACER,
-                NavigationToolbar.ARROWS,
-                NavigationToolbar.NAVIGATION,
-                NavigationToolbar.DELIMITER_PIPE,
-                NavigationToolbar.ENTER,
-                NavigationToolbar.ACCEPT,
-                NavigationToolbar.DELIMITER_PIPE,
-                NavigationToolbar.ESC,
-                NavigationToolbar.CANCEL
-        );
-        // @formatter:on
-
-        tg.putString(0, row, nav);
+        /**
+         * Builds the {@link SelectionMenu} instance.
+         *
+         * @return A new {@link SelectionMenu}.
+         */
+        public SelectionMenu build() {
+            return new SelectionMenu(this);
+        }
     }
 }

@@ -1,45 +1,69 @@
 package org.dawciobiel.shelldialog.cli.navigation;
 
-import com.googlecode.lanterna.TextColor;
-import org.dawciobiel.shelldialog.cli.i18n.Messages;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public final class NavigationToolbar {
 
-    // @formatter:off
-    // Delimiters
-    public static final String DELIMITER_SPACER = Messages.getString("navigation.delimiter.spacer");
-    public static final String DELIMITER_PIPE = Messages.getString("navigation.delimiter.pipe");
+    private final List<NavigationItem> items;
+    private final String itemSeparator;
+    private final String hotkeyLabelSeparator;
 
-    //  ↑↓ Navigation
-    public static final String ARROWS = Messages.getString("navigation.arrows");
-    public static final String NAVIGATION = Messages.getString("navigation.navigation");
-
-    public static final String KEYBOARD_KEYS = Messages.getString("navigation.keyboard");
-
-    //  ↵ Accept
-    public static final String ENTER = Messages.getString("navigation.enter");
-    public static final String ACCEPT = Messages.getString("navigation.accept");
-
-    // Esc Cancel
-    public static final String ESC = Messages.getString("navigation.esc");
-    public static final String CANCEL = Messages.getString("navigation.cancel");
-
-    // Menu items colors
-    public static final TextColor MENUITEM_COLOR = TextColor.ANSI.DEFAULT;
-    public static final TextColor MENUITEM_BG_COLOR = TextColor.ANSI.DEFAULT;
-
-    // Menu items selected colors
-    public static final TextColor MENUITEM_SELECTED_COLOR = TextColor.ANSI.WHITE;
-    public static final TextColor MENUITEM_SELECTED_BG_COLOR = TextColor.ANSI.BLUE;
-
-    // Navigation hotkeys colors
-    public static final TextColor TOOLBAR_HOTKEYS_COLOR = TextColor.ANSI.BLACK_BRIGHT; // ANSI GREY
-    public static final TextColor TOOLBAR_HOTKEYS_BG_COLOR = TextColor.ANSI.DEFAULT; // ANSI GREY
-    // @formatter:on
-
-    //todo Colors value should be stored in properties file as config
-    private NavigationToolbar() {
-        throw new UnsupportedOperationException(Messages.getString("error.navigation.instantiation"));
+    private NavigationToolbar(Builder builder) {
+        this.items = List.copyOf(builder.items);
+        this.itemSeparator = builder.itemSeparator;
+        this.hotkeyLabelSeparator = builder.hotkeyLabelSeparator;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public List<NavigationItem> getItems() {
+        return items;
+    }
+
+    public String getItemSeparator() {
+        return itemSeparator;
+    }
+
+    public String getHotkeyLabelSeparator() {
+        return hotkeyLabelSeparator;
+    }
+
+    public static final class Builder {
+        private final List<NavigationItem> items = new ArrayList<>();
+        private String itemSeparator = NavigationLabels.SEPARATOR_ITEM;
+        private String hotkeyLabelSeparator = NavigationLabels.SEPARATOR_HOTKEYLABEL;
+
+        public Builder withArrowsNavigation() {
+            items.add(new NavigationItem(NavigationLabels.ARROWS, NavigationLabels.NAVIGATION_TEXT));
+            return this;
+        }
+
+        public Builder withEnterAccept() {
+            items.add(new NavigationItem(NavigationLabels.ENTER, NavigationLabels.ACCEPT));
+            return this;
+        }
+
+        public Builder withEscapeCancel() {
+            items.add(new NavigationItem(NavigationLabels.ESC, NavigationLabels.CANCEL));
+            return this;
+        }
+
+        public Builder itemSeparator(String sep) {
+            this.itemSeparator = Objects.requireNonNull(sep);
+            return this;
+        }
+
+        public Builder hotkeyLabelSeparator(String sep) {
+            this.hotkeyLabelSeparator = Objects.requireNonNull(sep);
+            return this;
+        }
+
+        public NavigationToolbar build() {
+            return new NavigationToolbar(this);
+        }
+    }
 }

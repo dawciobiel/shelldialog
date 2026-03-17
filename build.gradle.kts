@@ -16,8 +16,8 @@ java {
     }
 
     application {
-        mainClass = "org.dawciobiel.shelldialog.examples.DialogTextExample"
-//        mainClass = "org.dawciobiel.shelldialog.examples.MenuUsageExample"
+        mainClass = "org.dawciobiel.shelldialog.examples.SelectionMenuExample"
+//        mainClass = "org.dawciobiel.shelldialog.examples.TextLineQuestionExample"
     }
 }
 
