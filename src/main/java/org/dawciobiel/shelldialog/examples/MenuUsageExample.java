@@ -37,7 +37,11 @@ public class MenuUsageExample {
     private static void handleResult(Value result, String[] menuItems) {
         switch (result) {
             case IntegerValue v -> System.out.printf("Selected menu item [ %s ]%n", menuItems[v.value()]);
-            case TextValue v -> System.out.printf("User left menu dialog by: %s button%n", v.value());
+            case TextValue v -> {
+                if (Showable.DIALOG_CANCELED_FLAG.equals(v.getTextValue())) {
+                    System.out.print("User cancelled the dialog");
+                }
+            }
             case ErrorValue v -> handleError(v);
         }
     }

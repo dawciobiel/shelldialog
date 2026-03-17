@@ -26,7 +26,6 @@ public class TextLineQuestion implements Showable {
 
     private static final String INPUT_STREAM = "/dev/tty";
     private static final String OUTPUT_STREAM = "/dev/tty";
-    public static final String DIALOG_CANCELED_FLAG = "[Dialog canceled]"; // Text value result as flag identifier
 
     private final String title;
     private final BorderType borderType;
@@ -71,7 +70,7 @@ public class TextLineQuestion implements Showable {
                 if (type == KeyType.Enter) {
                     return new TextValue(inputBuffer.toString());
                 } else if (type == KeyType.Escape) {
-                    return new TextValue(DIALOG_CANCELED_FLAG);
+                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
                 } else if (type == KeyType.Backspace) {
                     if (!inputBuffer.isEmpty()) {
                         inputBuffer.setLength(inputBuffer.length() - 1);

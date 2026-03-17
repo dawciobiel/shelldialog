@@ -78,7 +78,7 @@ public class SelectionMenu implements Showable {
                 } else if (type == KeyType.Enter) {
                     return new IntegerValue(selectedIndex);
                 } else if (type == KeyType.Escape) {
-                    return new TextValue("Esc");
+                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
                 }
             }
         } catch (IOException e) {

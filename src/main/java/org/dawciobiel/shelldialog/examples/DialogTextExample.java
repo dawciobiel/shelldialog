@@ -30,8 +30,8 @@ public class DialogTextExample {
     private static void handleResult(Value result, String questionTitle) {
         switch (result) {
             case TextValue v -> {
-                if (v.value().equals(TextLineQuestion.DIALOG_CANCELED_FLAG)) {
-                    System.out.println("User cancelled the dialog.");
+                if (v.value().equals(Showable.DIALOG_CANCELED_FLAG)) {
+                    System.out.println("User cancelled the dialog");
                 } else {
                     System.out.printf("Question: [ %s ]\nAnswer: [ %s ]\n", questionTitle, v.value());
                 }
