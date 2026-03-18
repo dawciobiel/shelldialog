@@ -5,20 +5,20 @@ plugins {
 }
 
 group = "org.dawciobiel"
-version = "1.2.0-SNAPSHOT" // Zmieniono z 1.1.0-SNAPSHOT
+version = "1.2.0-SNAPSHOT"
 
-description = "A Java library for building interactive console dialogs, menus, and wizards."
+description =
+    "A Java library for building interactive console dialogs, menus, and wizards."
 
 // Java configuration
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
 
-    application {
-        mainClass = "org.dawciobiel.shelldialog.examples.SelectionMenuExample"
-//        mainClass = "org.dawciobiel.shelldialog.examples.TextLineQuestionExample"
-    }
+application {
+    mainClass = "org.dawciobiel.shelldialog.Main"
 }
 
 // Repositories
@@ -76,8 +76,10 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:git://github.com/dawciobiel/shelldialog.git"
-                    developerConnection = "scm:git:ssh://github.com/dawciobiel/shelldialog.git"
+                    connection =
+                        "scm:git:git://github.com/dawciobiel/shelldialog.git"
+                    developerConnection =
+                        "scm:git:ssh://github.com/dawciobiel/shelldialog.git"
                     url = "https://github.com/dawciobiel/shelldialog"
                 }
             }

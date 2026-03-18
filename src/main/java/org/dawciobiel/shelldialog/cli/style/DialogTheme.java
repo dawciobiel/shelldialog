@@ -8,12 +8,30 @@ public final class DialogTheme {
     private final TextStyle titleStyle;
     private final TextStyle inputStyle;
     private final TextStyle navigationStyle;
+    private final TextStyle menuItemStyle;
+    private final TextStyle menuItemSelectedStyle;
 
     private DialogTheme(Builder builder) {
         this.borderStyle = builder.borderStyle;
         this.titleStyle = builder.titleStyle;
         this.inputStyle = builder.inputStyle;
         this.navigationStyle = builder.navigationStyle;
+        this.menuItemStyle = builder.menuItemStyle;
+        this.menuItemSelectedStyle = builder.menuItemSelectedStyle;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static DialogTheme darkTheme() {
+        return builder().borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+                        .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                        .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                        .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
+                        .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
+                        .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                        .build();
     }
 
     public TextStyle borderStyle() {
@@ -32,17 +50,12 @@ public final class DialogTheme {
         return navigationStyle;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public TextStyle menuItemStyle() {
+        return menuItemStyle;
     }
 
-    public static DialogTheme darkTheme() {
-        return builder()
-                .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
-                .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
-                .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
-                .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
-                .build();
+    public TextStyle menuItemSelectedStyle() {
+        return menuItemSelectedStyle;
     }
 
     public static final class Builder {
@@ -50,6 +63,8 @@ public final class DialogTheme {
         private TextStyle titleStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle inputStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle navigationStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
+        private TextStyle menuItemStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
+        private TextStyle menuItemSelectedStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
 
         public Builder borderStyle(TextStyle style) {
             this.borderStyle = style;
@@ -68,6 +83,16 @@ public final class DialogTheme {
 
         public Builder navigationStyle(TextStyle style) {
             this.navigationStyle = style;
+            return this;
+        }
+
+        public Builder menuItemStyle(TextStyle style) {
+            this.menuItemStyle = style;
+            return this;
+        }
+
+        public Builder menuItemSelectedStyle(TextStyle style) {
+            this.menuItemSelectedStyle = style;
             return this;
         }
 

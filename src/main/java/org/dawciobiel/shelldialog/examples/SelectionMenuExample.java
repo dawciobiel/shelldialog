@@ -22,10 +22,11 @@ public class SelectionMenuExample {
     public static void main(String[] args) {
         // @formatter:off
         String[] menuItems = {
-                "Menu Title",
-                "1.Item",
-                "2.Item",
-                "3.Item"
+                "Title for menu with many items below",
+                "1. First menu item",
+                "2. Second but not the last one",
+                "4. And another one",
+                "3. Last happy item on it."
         };
         // @formatter:on
 
@@ -39,9 +40,15 @@ public class SelectionMenuExample {
 
         // @formatter:off
         DialogTheme theme = DialogTheme.builder()
-                .borderStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
-                .titleStyle(ofAnsi(TextColor.ANSI.WHITE_BRIGHT, TextColor.ANSI.DEFAULT))
+                .borderStyle(ofAnsi(TextColor.ANSI.BLUE_BRIGHT, TextColor.ANSI.DEFAULT))
+
+                .titleStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+
+                .menuItemStyle(ofAnsi(TextColor.ANSI.GREEN, TextColor.ANSI.DEFAULT))
+                .menuItemSelectedStyle(ofAnsi(TextColor.ANSI.WHITE, TextColor.ANSI.BLUE))
+
                 .inputStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+
                 .navigationStyle(ofAnsi(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
                 .build();
         // @formatter:on
@@ -60,7 +67,8 @@ public class SelectionMenuExample {
 
     private static void handleResult(String[] menuItems, Value result) {
         switch (result) {
-            case IntegerValue v -> System.out.printf("Selected menu item [ %s ]%n", menuItems[v.value()]);
+            case IntegerValue v ->
+                    System.out.printf("Selected menu item [ %s ]%n", menuItems[v.value()]);
             case TextValue v -> {
                 if (Showable.DIALOG_CANCELED_FLAG.equals(v.getTextValue())) {
                     System.out.print("User cancelled the dialog");

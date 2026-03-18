@@ -12,6 +12,7 @@ import org.dawciobiel.shelldialog.cli.navigation.Arrow;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
 import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.style.TextStyle;
 import org.dawciobiel.shelldialog.cli.ui.Body;
 import org.dawciobiel.shelldialog.cli.ui.Footer;
 import org.dawciobiel.shelldialog.cli.ui.Header;
@@ -109,7 +110,7 @@ public class SelectionDialog extends AbstractDialog {
     }
 
     private void renderMenuItem(TextGraphics tg, int row, String item, boolean selected) throws IOException {
-        var style = theme.inputStyle();
+        TextStyle style = selected ? theme.menuItemSelectedStyle() : theme.menuItemStyle();
 
         String text = (selected ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY) + item + (selected ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY);
 
