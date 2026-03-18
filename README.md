@@ -1,15 +1,15 @@
 # ShellDialog
 
-**Current version: 1.2.0-SNAPSHOT**
+**Current version: 1.3.0-SNAPSHOT**
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
 ## Features
 
 - **Multiple Dialog Types:**
-    - `SelectionMenu`: Classic single-choice menu.
+    - `SelectionDialog`: Classic single-choice menu.
     - `MultiChoiceDialog`: Select multiple options from a list.
-    - `TextLineQuestion`: Prompt for single-line text input.
+    - `TextLineDialog`: Prompt for single-line text input.
     - `PasswordDialog`: Secure text input (masked characters).
     - `YesNoDialog`: Simple binary choice (Yes/No).
 - **Theming System:** Customize colors and styles using `DialogTheme`.
@@ -25,7 +25,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 
 Here is a basic example of how to use ShellDialog with the new Builder API:
 
-### Selection Menu
+### Selection Dialog
 
 ```java
 public static void main(String[] args) {
@@ -38,7 +38,7 @@ public static void main(String[] args) {
     };
 
     // Build the menu
-    SelectionMenu menu = new SelectionMenu.Builder(menuItems)
+    SelectionDialog menu = new SelectionDialog.Builder(menuItems)
         .theme(DialogTheme.darkTheme()) // Optional: set theme
         .build();
 
@@ -61,7 +61,7 @@ public static void main(String[] args) {
 ### Text Input Dialog
 
 ```java
-TextLineQuestion dialog = new TextLineQuestion.Builder("What is your name?")
+TextLineDialog dialog = new TextLineDialog.Builder("What is your name?")
     .build();
 
 Value result = dialog.show();
@@ -77,18 +77,20 @@ if (result instanceof TextValue v) {
 
 ## Building
 
-To build the project, use Maven or Gradle:
+To build the project, use Gradle:
 
 ```bash
-./gradlew build
-```
-or
-```bash
-mvn clean package
+./gradlew clean build
 ```
 
 ## Launching
 
+You can run the examples using the built JAR file. Pass the dialog type as an argument:
+
 ```bash
-java -jar build/libs/shelldialog-1.2.0-SNAPSHOT.jar
+# Launch Selection Dialog example
+java -jar build/libs/shelldialog-1.3.0-SNAPSHOT.jar selection
+
+# Launch Text Line Dialog example
+java -jar build/libs/shelldialog-1.3.0-SNAPSHOT.jar textline
 ```
