@@ -25,14 +25,14 @@ import java.util.Objects;
  * The dialog is rendered using the Lanterna library.
  * </p>
  */
-public class TextLineQuestion extends AbstractDialog {
+public class TextLineDialog extends AbstractDialog {
 
     private final String title;
     private final BorderType borderType;
     private final DialogTheme theme;
     private final NavigationToolbar navigationToolbar;
 
-    private TextLineQuestion(Builder builder) {
+    private TextLineDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
         this.title = builder.title;
         this.borderType = builder.borderType;
@@ -89,7 +89,7 @@ public class TextLineQuestion extends AbstractDialog {
     }
 
     /**
-     * Builder for creating instances of {@link TextLineQuestion}.
+     * Builder for creating instances of {@link TextLineDialog}.
      */
     public static class Builder {
 
@@ -134,12 +134,12 @@ public class TextLineQuestion extends AbstractDialog {
         }
 
         /**
-         * Builds the {@link TextLineQuestion} instance.
+         * Builds the {@link TextLineDialog} instance.
          *
-         * @return A new {@link TextLineQuestion}.
+         * @return A new {@link TextLineDialog}.
          */
-        public TextLineQuestion build() {
-            return new TextLineQuestion(this);
+        public TextLineDialog build() {
+            return new TextLineDialog(this);
         }
     }
 }

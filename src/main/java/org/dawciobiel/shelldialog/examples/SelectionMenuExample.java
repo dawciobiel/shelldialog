@@ -2,7 +2,7 @@ package org.dawciobiel.shelldialog.examples;
 
 
 import com.googlecode.lanterna.TextColor;
-import org.dawciobiel.shelldialog.cli.dialog.SelectionMenu;
+import org.dawciobiel.shelldialog.cli.dialog.SelectionDialog;
 import org.dawciobiel.shelldialog.cli.dialog.Showable;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
@@ -15,7 +15,7 @@ import org.dawciobiel.shelldialog.cli.style.DialogTheme;
 import static org.dawciobiel.shelldialog.cli.style.TextStyle.ofAnsi;
 
 /**
- * Example usage of the {@link SelectionMenu} class.
+ * Example usage of the {@link SelectionDialog} class.
  */
 public class SelectionMenuExample {
 
@@ -47,7 +47,7 @@ public class SelectionMenuExample {
         // @formatter:on
 
         // @formatter:off
-        SelectionMenu menu = new SelectionMenu.Builder(menuItems)
+        SelectionDialog menu = new SelectionDialog.Builder(menuItems)
                 .navigationToolbar(toolbar)
                 .theme(theme)
                 .build();

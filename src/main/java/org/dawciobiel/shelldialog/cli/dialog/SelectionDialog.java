@@ -4,7 +4,6 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
 import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
@@ -17,10 +16,7 @@ import org.dawciobiel.shelldialog.cli.ui.Body;
 import org.dawciobiel.shelldialog.cli.ui.Footer;
 import org.dawciobiel.shelldialog.cli.ui.Header;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -30,20 +26,17 @@ import java.util.Objects;
  * The menu is rendered using the Lanterna library.
  * </p>
  */
-public class SelectionMenu implements Showable {
+public class SelectionDialog extends AbstractDialog {
 
     private final String[] menuItems;
     private final DialogTheme theme;
     private final NavigationToolbar navigationToolbar;
-    private final String inputStreamPath;
-    private final String outputStreamPath;
 
-    private SelectionMenu(Builder builder) {
+    private SelectionDialog(Builder builder) {
+        super(builder.inputStreamPath, builder.outputStreamPath);
         this.menuItems = builder.menuItems;
         this.theme = builder.theme;
         this.navigationToolbar = builder.navigationToolbar;
-        this.inputStreamPath = builder.inputStreamPath;
-        this.outputStreamPath = builder.outputStreamPath;
     }
 
     /**
@@ -57,49 +50,36 @@ public class SelectionMenu implements Showable {
      *         </ul>
      */
     @Override
-    public Value show() {
+    protected Value runDialog(Screen screen) throws IOException {
 
         int selectedIndex = 1;
+        screen.setCursorPosition(null); // Hide cursor
+        TextGraphics tg = screen.newTextGraphics();
 
-        try (FileInputStream ttyInput = new FileInputStream(inputStreamPath); FileOutputStream ttyOutput = new FileOutputStream(outputStreamPath)) {
+        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
 
-            DefaultTerminalFactory factory = new DefaultTerminalFactory(ttyOutput, ttyInput, StandardCharsets.UTF_8);
-            factory.setForceTextTerminal(true);
+        while (true) {
+            render(screen, tg, selectedIndex, toolbarRenderer);
 
-            try (Screen screen = factory.createScreen()) {
-                screen.startScreen();
-                screen.setCursorPosition(null); // Hide cursor
-                TextGraphics tg = screen.newTextGraphics();
+            KeyStroke key = screen.readInput();
+            KeyType type = key.getKeyType();
 
-                NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
-
-                while (true) {
-                    render(screen, tg, selectedIndex, toolbarRenderer);
-
-                    KeyStroke key = screen.readInput();
-                    KeyType type = key.getKeyType();
-
-                    switch (type) {
-                        case ArrowUp -> {
-                            if (selectedIndex > 1) selectedIndex--;
-                        }
-                        case ArrowDown -> {
-                            if (selectedIndex < menuItems.length - 1) selectedIndex++;
-                        }
-                        case Enter -> {
-                            return new IntegerValue(selectedIndex);
-                        }
-                        case Escape -> {
-                            return new TextValue(Showable.DIALOG_CANCELED_FLAG);
-                        }
-                        default -> {
-                        }
-                    }
+            switch (type) {
+                case ArrowUp -> {
+                    if (selectedIndex > 1) selectedIndex--;
+                }
+                case ArrowDown -> {
+                    if (selectedIndex < menuItems.length - 1) selectedIndex++;
+                }
+                case Enter -> {
+                    return new IntegerValue(selectedIndex);
+                }
+                case Escape -> {
+                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
+                }
+                default -> {
                 }
             }
-
-        } catch (IOException e) {
-            return new ErrorValue(e.getLocalizedMessage());
         }
     }
 
@@ -131,7 +111,7 @@ public class SelectionMenu implements Showable {
     }
 
     /**
-     * Builder for creating instances of {@link SelectionMenu}.
+     * Builder for creating instances of {@link SelectionDialog}.
      */
     public static class Builder {
 
@@ -196,12 +176,12 @@ public class SelectionMenu implements Showable {
         }
 
         /**
-         * Builds the {@link SelectionMenu} instance.
+         * Builds the {@link SelectionDialog} instance.
          *
-         * @return A new {@link SelectionMenu}.
+         * @return A new {@link SelectionDialog}.
          */
-        public SelectionMenu build() {
-            return new SelectionMenu(this);
+        public SelectionDialog build() {
+            return new SelectionDialog(this);
         }
     }
 }
