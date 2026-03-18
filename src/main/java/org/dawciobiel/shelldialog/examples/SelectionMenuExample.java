@@ -40,8 +40,8 @@ public class SelectionMenuExample {
         // @formatter:off
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
-                .titleStyle(ofAnsi(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
-                .inputStyle(ofAnsi(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                .titleStyle(ofAnsi(TextColor.ANSI.WHITE_BRIGHT, TextColor.ANSI.DEFAULT))
+                .inputStyle(ofAnsi(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                 .navigationStyle(ofAnsi(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
                 .build();
         // @formatter:on

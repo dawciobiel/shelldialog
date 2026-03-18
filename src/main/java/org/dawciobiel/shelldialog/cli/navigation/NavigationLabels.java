@@ -4,21 +4,25 @@ import org.dawciobiel.shelldialog.cli.i18n.Messages;
 
 public final class NavigationLabels {
 
-    public static final String SEPARATOR_ITEM = Messages.getString("navigation.separator.item");
-    public static final String SEPARATOR_HOTKEYLABEL = Messages.getString("navigation.separator.hotkeylabel");
+    // Separators between UI elements
+    public static final String SEP_ITEM = Messages.getString("navigationtoolbar.sep_item");
+    public static final String SEP_HOTKEYLABEL = Messages.getString("navigationtoolbar.sep_hotkeylabel");
 
-    public static final String ARROWS = Messages.getString("navigation.arrows");
-    public static final String NAVIGATION_TEXT = Messages.getString("navigation.navigation");
+    // Arrow characters used as indicators/markers in menus
+    public static final String MARKER_EMPTY = Messages.getString("marker.empty");
+    public static final String MARKER_LEFT = Messages.getString("marker.left");
+    public static final String MARKER_RIGHT = Messages.getString("marker.right");
 
-    public static final String ENTER = Messages.getString("navigation.enter");
-    public static final String ACCEPT = Messages.getString("navigation.accept");
+    // Key names (physical markings on the keyboard)
+    public static final String KEY_ARROWS = Messages.getString("navigationtoolbar.key_arrows");
+    public static final String KEY_ENTER = Messages.getString("navigationtoolbar.key_enter");
+    public static final String KEY_ESCAPE = Messages.getString("navigationtoolbar.key_escape");
 
-    public static final String ESC = Messages.getString("navigation.esc");
-    public static final String CANCEL = Messages.getString("navigation.cancel");
+    // Actions (what the key does)
+    public static final String ACTION_NAVIGATION = Messages.getString("navigationtoolbar.action_navigation");
+    public static final String ACTION_ACCEPT = Messages.getString("navigationtoolbar.action_accept");
+    public static final String ACTION_CANCEL = Messages.getString("navigationtoolbar.action_cancel");
 
-    public static final String ARROW_EMPTY = Messages.getString("arrow.empty");
-    public static final String ARROW_LEFT = Messages.getString("arrow.left");
-    public static final String ARROW_RIGHT = Messages.getString("arrow.right");
 
     private NavigationLabels() {
     }

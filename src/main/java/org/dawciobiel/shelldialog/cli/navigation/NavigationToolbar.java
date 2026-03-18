@@ -34,21 +34,21 @@ public final class NavigationToolbar {
 
     public static final class Builder {
         private final List<NavigationItem> items = new ArrayList<>();
-        private String itemSeparator = NavigationLabels.SEPARATOR_ITEM;
-        private String hotkeyLabelSeparator = NavigationLabels.SEPARATOR_HOTKEYLABEL;
+        private String itemSeparator = NavigationLabels.SEP_ITEM;
+        private String hotkeyLabelSeparator = NavigationLabels.SEP_HOTKEYLABEL;
 
         public Builder withArrowsNavigation() {
-            items.add(new NavigationItem(NavigationLabels.ARROWS, NavigationLabels.NAVIGATION_TEXT));
+            items.add(new NavigationItem(NavigationLabels.KEY_ARROWS, NavigationLabels.ACTION_NAVIGATION));
             return this;
         }
 
         public Builder withEnterAccept() {
-            items.add(new NavigationItem(NavigationLabels.ENTER, NavigationLabels.ACCEPT));
+            items.add(new NavigationItem(NavigationLabels.KEY_ENTER, NavigationLabels.ACTION_ACCEPT));
             return this;
         }
 
         public Builder withEscapeCancel() {
-            items.add(new NavigationItem(NavigationLabels.ESC, NavigationLabels.CANCEL));
+            items.add(new NavigationItem(NavigationLabels.KEY_ESCAPE, NavigationLabels.ACTION_CANCEL));
             return this;
         }
 

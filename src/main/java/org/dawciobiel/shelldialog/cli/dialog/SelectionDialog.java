@@ -43,11 +43,11 @@ public class SelectionDialog extends AbstractDialog {
      * Displays the selection menu to the user and waits for input.
      *
      * @return A {@link Value} representing the result of the interaction:
-     *         <ul>
-     *             <li>{@link IntegerValue}: The index of the selected item (0-based, where 0 is the title, so selection starts at 1).</li>
-     *             <li>{@link TextValue}: Containing {@link Showable#DIALOG_CANCELED_FLAG} if the user cancelled the dialog.</li>
-     *             <li>{@link ErrorValue}: If an I/O error occurred.</li>
-     *         </ul>
+     * <ul>
+     *     <li>{@link IntegerValue}: The index of the selected item (0-based, where 0 is the title, so selection starts at 1).</li>
+     *     <li>{@link TextValue}: Containing {@link Showable#DIALOG_CANCELED_FLAG} if the user cancelled the dialog.</li>
+     *     <li>{@link ErrorValue}: If an I/O error occurred.</li>
+     * </ul>
      */
     @Override
     protected Value runDialog(Screen screen) throws IOException {
@@ -56,7 +56,10 @@ public class SelectionDialog extends AbstractDialog {
         screen.setCursorPosition(null); // Hide cursor
         TextGraphics tg = screen.newTextGraphics();
 
-        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
+        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle()
+                                                                                       .foreground(), theme.navigationStyle()
+                                                                                                           .foreground(), theme.navigationStyle()
+                                                                                                                               .background());
 
         while (true) {
             render(screen, tg, selectedIndex, toolbarRenderer);
@@ -85,9 +88,12 @@ public class SelectionDialog extends AbstractDialog {
 
     private void render(Screen screen, TextGraphics tg, int selectedIndex, NavigationToolbarRenderer toolbarRenderer) throws IOException {
         screen.clear();
-        int terminalWidth = screen.getTerminalSize().getColumns();
+        int terminalWidth = screen.getTerminalSize()
+                                  .getColumns();
 
-        Header header = new Header(menuItems[0], terminalWidth, theme.borderStyle().foreground(), theme.titleStyle().foreground());
+        Header header = new Header(menuItems[0], terminalWidth, theme.borderStyle()
+                                                                     .foreground(), theme.titleStyle()
+                                                                                         .foreground());
         int row = 0;
         header.render(tg, row);
         row += 3;
@@ -105,7 +111,7 @@ public class SelectionDialog extends AbstractDialog {
     private void renderMenuItem(TextGraphics tg, int row, String item, boolean selected) throws IOException {
         var style = theme.inputStyle();
 
-        String text = (selected ? Arrow.ARROW_LEFT : Arrow.ARROW_EMPTY) + item + (selected ? Arrow.ARROW_RIGHT : Arrow.ARROW_EMPTY);
+        String text = (selected ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY) + item + (selected ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY);
 
         new Body(text, style.foreground(), style.background()).render(tg, row);
     }
@@ -117,7 +123,11 @@ public class SelectionDialog extends AbstractDialog {
 
         private final String[] menuItems;
         private DialogTheme theme = DialogTheme.darkTheme();
-        private NavigationToolbar navigationToolbar = NavigationToolbar.builder().withArrowsNavigation().withEnterAccept().withEscapeCancel().build();
+        private NavigationToolbar navigationToolbar = NavigationToolbar.builder()
+                                                                       .withArrowsNavigation()
+                                                                       .withEnterAccept()
+                                                                       .withEscapeCancel()
+                                                                       .build();
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
