@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-SNAPSHOT] - 2024-05-23
+
+**Major Release** introducing a completely new architecture for Dialogs and UI components. This release is not backward compatible.
+
+### Added
+- New UI components: `TitleArea`, `ContentArea`, `InputArea`, `NavigationArea` with Builder pattern.
+- `DialogOption` interface and `SimpleDialogOption` implementation for typed selection results.
+- New examples: `SingleChoiceExample` and `TextLineExample`.
+- `cli.style` package for UI style definitions (`Arrow`, `BorderLine`, `BorderType`).
+
+### Changed
+- **Breaking Change:** Complete architecture overhaul of Dialog classes.
+- **Breaking Change:** Dialogs now return `Optional<T>` instead of custom `Value` types.
+- **Breaking Change:** `SelectionDialog` renamed to `SingleChoiceDialog`.
+- **Breaking Change:** `AbstractDialog` is now generic `AbstractDialog<T>`.
+- `BorderLine` constants now loaded from `ui.properties`.
+- Titles now support multi-line text via `List<String>` in `TitleArea`.
+- Updated `pom.xml` to version `2.0.0-SNAPSHOT`.
+
+### Removed
+- **Breaking Change:** `Value`, `TextValue`, `IntegerValue`, `ErrorValue` result classes.
+- Old examples: `SelectionMenuExample`, `TextLineQuestionExample`.
+- Frame borders from titles (temporarily) to simplify rendering.
+
 ## [1.3.0-SNAPSHOT] - 2024-05-21
 
 ### Added

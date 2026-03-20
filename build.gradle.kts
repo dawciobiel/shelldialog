@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.dawciobiel"
-version = "1.3.0-SNAPSHOT"
+version = "2.0.0-SNAPSHOT"
 
 description =
     "A Java library for building interactive console dialogs, menus, and wizards."
