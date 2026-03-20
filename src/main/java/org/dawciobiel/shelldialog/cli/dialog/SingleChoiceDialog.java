@@ -4,16 +4,17 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.navigation.Arrow;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
-import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
+import org.dawciobiel.shelldialog.cli.style.Arrow;
 import org.dawciobiel.shelldialog.cli.style.DialogTheme;
 import org.dawciobiel.shelldialog.cli.style.TextStyle;
-import org.dawciobiel.shelldialog.cli.ui.Body;
-import org.dawciobiel.shelldialog.cli.ui.Footer;
-import org.dawciobiel.shelldialog.cli.ui.Header;
+import org.dawciobiel.shelldialog.cli.ui.ContentArea;
+import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
+import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -24,15 +25,17 @@ import java.util.Optional;
  * The menu is rendered using the Lanterna library.
  * </p>
  */
-public class SingleChoiceDialog extends AbstractDialog<Integer> {
+public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
-    private final String[] menuItems;
+    private final String title;
+    private final List<DialogOption> options;
     private final DialogTheme theme;
     private final NavigationToolbar navigationToolbar;
 
     private SingleChoiceDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
-        this.menuItems = builder.menuItems;
+        this.title = builder.title;
+        this.options = builder.options;
         this.theme = builder.theme;
         this.navigationToolbar = builder.navigationToolbar;
     }
@@ -40,36 +43,33 @@ public class SingleChoiceDialog extends AbstractDialog<Integer> {
     /**
      * Displays the selection menu to the user and waits for input.
      *
-     * @return An {@link Optional} containing the index of the selected item (0-based, where 0 is the title, so selection starts at 1)
+     * @return An {@link Optional} containing the selected {@link DialogOption}
      *         or {@link Optional#empty()} if canceled.
      */
     @Override
-    protected Optional<Integer> runDialog(Screen screen) throws IOException {
+    protected Optional<DialogOption> runDialog(Screen screen) throws IOException {
 
-        int selectedIndex = 1;
+        int selectedIndex = 0;
         screen.setCursorPosition(null); // Hide cursor
         TextGraphics tg = screen.newTextGraphics();
 
-        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle()
-                                                                                       .foreground(), theme.navigationStyle()
-                                                                                                           .foreground(), theme.navigationStyle()
-                                                                                                                               .background());
-
         while (true) {
-            render(screen, tg, selectedIndex, toolbarRenderer);
+            render(screen, tg, selectedIndex);
 
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
 
             switch (type) {
                 case ArrowUp -> {
-                    if (selectedIndex > 1) selectedIndex--;
+                    if (selectedIndex > 0) selectedIndex--;
                 }
                 case ArrowDown -> {
-                    if (selectedIndex < menuItems.length - 1) selectedIndex++;
+                    if (selectedIndex < options.size() - 1) selectedIndex++;
                 }
                 case Enter -> {
-                    return Optional.of(selectedIndex);
+                    if (selectedIndex >= 0 && selectedIndex < options.size()) {
+                        return Optional.of(options.get(selectedIndex));
+                    }
                 }
                 case Escape -> {
                     return Optional.empty();
@@ -80,24 +80,31 @@ public class SingleChoiceDialog extends AbstractDialog<Integer> {
         }
     }
 
-    private void render(Screen screen, TextGraphics tg, int selectedIndex, NavigationToolbarRenderer toolbarRenderer) throws IOException {
+    private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
         screen.clear();
-        int terminalWidth = screen.getTerminalSize()
-                                  .getColumns();
 
-        Header header = new Header(menuItems[0], terminalWidth, theme.borderStyle()
-                                                                     .foreground(), theme.titleStyle()
-                                                                                         .foreground());
+        TitleArea titleArea = new TitleArea.Builder()
+                .withTitle(title)
+                .withTheme(theme)
+                .build();
+        
         int row = 0;
-        header.render(tg, row);
-        row += 3;
+        titleArea.render(tg, row);
+        row += titleArea.getHeight();
 
-        for (int i = 1; i < menuItems.length; i++) {
-            renderMenuItem(tg, row++, menuItems[i], i == selectedIndex);
+        row++; // Add blank line
+
+        for (int i = 0; i < options.size(); i++) {
+            renderMenuItem(tg, row++, options.get(i).getLabel(), i == selectedIndex);
         }
+        row++; // Add blank line
 
-        Footer footer = new Footer(navigationToolbar, toolbarRenderer);
-        footer.render(tg, row + 1);
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(navigationToolbar)
+                .withTheme(theme)
+                .build();
+        
+        navigationArea.render(tg, row);
 
         screen.refresh();
     }
@@ -107,7 +114,12 @@ public class SingleChoiceDialog extends AbstractDialog<Integer> {
 
         String text = (selected ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY) + item + (selected ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY);
 
-        new Body(text, style.foreground(), style.background()).render(tg, row);
+        new ContentArea.Builder()
+                .withContent(text)
+                .withForegroundColor(style.foreground())
+                .withBackgroundColor(style.background())
+                .build()
+                .render(tg, row);
     }
 
     /**
@@ -115,7 +127,8 @@ public class SingleChoiceDialog extends AbstractDialog<Integer> {
      */
     public static class Builder {
 
-        private final String[] menuItems;
+        private final String title;
+        private final List<DialogOption> options = new ArrayList<>();
         private DialogTheme theme = DialogTheme.darkTheme();
         private NavigationToolbar navigationToolbar = NavigationToolbar.builder()
                                                                        .withArrowsNavigation()
@@ -132,7 +145,15 @@ public class SingleChoiceDialog extends AbstractDialog<Integer> {
          * @param menuItems An array of strings representing the menu items.
          */
         public Builder(String[] menuItems) {
-            this.menuItems = Objects.requireNonNull(menuItems);
+            Objects.requireNonNull(menuItems);
+            if (menuItems.length < 1) {
+                throw new IllegalArgumentException("Menu items must contain at least a title");
+            }
+            this.title = menuItems[0];
+            for (int i = 1; i < menuItems.length; i++) {
+                // Using i as the code (preserving 1-based index from the original array structure)
+                this.options.add(new SimpleDialogOption(i, menuItems[i]));
+            }
         }
 
         /**

@@ -5,18 +5,16 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.Value;
-import org.dawciobiel.shelldialog.cli.header.border.BorderType;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
-import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
+import org.dawciobiel.shelldialog.cli.style.BorderType;
 import org.dawciobiel.shelldialog.cli.style.DialogTheme;
-import org.dawciobiel.shelldialog.cli.ui.Body;
-import org.dawciobiel.shelldialog.cli.ui.Footer;
-import org.dawciobiel.shelldialog.cli.ui.Header;
+import org.dawciobiel.shelldialog.cli.ui.InputArea;
+import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
+import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A CLI dialog that prompts the user for a single line of text input.
@@ -25,7 +23,7 @@ import java.util.Objects;
  * The dialog is rendered using the Lanterna library.
  * </p>
  */
-public class TextLineDialog extends AbstractDialog {
+public class TextLineDialog extends AbstractDialog<String> {
 
     private final String title;
     private final BorderType borderType;
@@ -41,7 +39,7 @@ public class TextLineDialog extends AbstractDialog {
     }
 
     @Override
-    protected Value runDialog(Screen screen) throws IOException {
+    protected Optional<String> runDialog(Screen screen) throws IOException {
         StringBuilder inputBuffer = new StringBuilder();
         TextGraphics tg = screen.newTextGraphics();
 
@@ -53,9 +51,9 @@ public class TextLineDialog extends AbstractDialog {
 
             switch (type) {
                 case Enter:
-                    return new TextValue(inputBuffer.toString());
+                    return Optional.of(inputBuffer.toString());
                 case Escape:
-                    return new TextValue(DIALOG_CANCELED_FLAG);
+                    return Optional.empty();
                 case Backspace:
                     if (!inputBuffer.isEmpty()) inputBuffer.setLength(inputBuffer.length() - 1);
                     break;
@@ -70,21 +68,35 @@ public class TextLineDialog extends AbstractDialog {
 
     private void render(Screen screen, TextGraphics tg, String inputContent) throws IOException {
         screen.clear();
-        int terminalWidth = screen.getTerminalSize().getColumns();
 
-        Header header = new Header(title, terminalWidth, theme.borderStyle().foreground(), theme.titleStyle().foreground());
-        Body body = new Body(inputContent, theme.inputStyle().foreground(), theme.inputStyle().background());
-        NavigationToolbarRenderer toolbarRenderer = new NavigationToolbarRenderer(theme.navigationStyle().foreground(), theme.navigationStyle().foreground(), theme.navigationStyle().background());
-        Footer footer = new Footer(navigationToolbar, toolbarRenderer);
+        TitleArea titleArea = new TitleArea.Builder()
+                .withTitle(title)
+                .withTheme(theme)
+                .build();
+
+        InputArea inputArea = new InputArea.Builder()
+                .withContent(inputContent)
+                .withTheme(theme)
+                .build();
+
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(navigationToolbar)
+                .withTheme(theme)
+                .build();
 
         int row = 0;
-        header.render(tg, row);
-        row += 3;
-        body.render(tg, row);
-        row += 2;
-        footer.render(tg, row);
+        titleArea.render(tg, row);
+        row += titleArea.getHeight();
+        
+        row++; // Add a blank line for spacing
+        
+        int inputRow = row;
+        inputArea.render(tg, row++);
+        row++; // Add a blank line for spacing
 
-        screen.setCursorPosition(new TerminalPosition(2 + inputContent.length(), row - 2));
+        navigationArea.render(tg, row);
+
+        screen.setCursorPosition(new TerminalPosition(2 + inputContent.length(), inputRow));
         screen.refresh();
     }
 
