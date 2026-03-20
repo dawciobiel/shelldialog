@@ -5,12 +5,6 @@ import org.dawciobiel.shelldialog.cli.i18n.UIProperties;
 public final class BorderLine {
 
     // @formatter:off
-    /* Borders examples:
-            ┌───────┐    ╔───────╗   ╔═══════╗
-            │       │    │       │   ║       ║
-            └───────┘    ╚───────╝   ╚═══════╝
-     */
-
     public static final String NO = UIProperties.getString("border.no");
 
     public static final String DOUBLE_HORIZONTAL = UIProperties.getString("border.double.horizontal");
