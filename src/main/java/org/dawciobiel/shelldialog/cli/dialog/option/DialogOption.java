@@ -1,4 +1,4 @@
-package org.dawciobiel.shelldialog.cli.dialog;
+package org.dawciobiel.shelldialog.cli.dialog.option;
 
 public interface DialogOption {
     int getCode();

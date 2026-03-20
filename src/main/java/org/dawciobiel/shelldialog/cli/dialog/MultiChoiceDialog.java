@@ -1,6 +1,7 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
 import com.googlecode.lanterna.screen.Screen;
+import org.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 
 import java.io.IOException;
 import java.util.List;

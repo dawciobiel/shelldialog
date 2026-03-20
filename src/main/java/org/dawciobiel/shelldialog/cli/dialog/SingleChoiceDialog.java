@@ -4,6 +4,8 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
+import org.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
+import org.dawciobiel.shelldialog.cli.dialog.option.SimpleDialogOption;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import org.dawciobiel.shelldialog.cli.style.Arrow;
 import org.dawciobiel.shelldialog.cli.style.DialogTheme;
