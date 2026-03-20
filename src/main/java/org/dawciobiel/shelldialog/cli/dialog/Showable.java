@@ -1,10 +1,8 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
-import org.dawciobiel.shelldialog.cli.dialog.result.Value;
+import java.util.Optional;
 
-public interface Showable {
+public interface Showable<T> {
 
-    String DIALOG_CANCELED_FLAG = "__CANCELED__";
-
-    Value show();
+    Optional<T> show();
 }

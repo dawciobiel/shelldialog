@@ -1,6 +1,7 @@
-package org.dawciobiel.shelldialog.cli.navigation;
+package org.dawciobiel.shelldialog.cli.style;
 
 import com.googlecode.lanterna.TextColor;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationLabels;
 
 public final class Arrow {
 

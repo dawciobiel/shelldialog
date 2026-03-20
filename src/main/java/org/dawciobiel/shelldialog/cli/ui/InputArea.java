@@ -5,13 +5,13 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 import java.io.IOException;
 
-public class Body implements Renderable {
+public class InputArea implements Renderable {
 
     private final String content;
     private final TextColor foreground;
     private final TextColor background;
 
-    public Body(String content, TextColor foreground, TextColor background) {
+    public InputArea(String content, TextColor foreground, TextColor background) {
         this.content = content;
         this.foreground = foreground;
         this.background = background;

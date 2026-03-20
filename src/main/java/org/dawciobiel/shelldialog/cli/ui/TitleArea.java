@@ -6,14 +6,14 @@ import org.dawciobiel.shelldialog.cli.header.border.BorderLine;
 
 import java.io.IOException;
 
-public class Header implements Renderable {
+public class TitleArea implements Renderable {
 
     private final String title;
     private final int width;
     private final TextColor borderColor;
     private final TextColor titleColor;
 
-    public Header(String title, int width, TextColor borderColor, TextColor titleColor) {
+    public TitleArea(String title, int width, TextColor borderColor, TextColor titleColor) {
         this.title = title;
         this.width = width;
         this.borderColor = borderColor;

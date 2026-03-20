@@ -4,10 +4,6 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.IntegerValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.TextValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 import org.dawciobiel.shelldialog.cli.navigation.Arrow;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
@@ -19,6 +15,7 @@ import org.dawciobiel.shelldialog.cli.ui.Header;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A CLI selection menu that allows the user to choose an option from a list.
@@ -27,13 +24,13 @@ import java.util.Objects;
  * The menu is rendered using the Lanterna library.
  * </p>
  */
-public class SelectionDialog extends AbstractDialog {
+public class SingleChoiceDialog extends AbstractDialog<Integer> {
 
     private final String[] menuItems;
     private final DialogTheme theme;
     private final NavigationToolbar navigationToolbar;
 
-    private SelectionDialog(Builder builder) {
+    private SingleChoiceDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
         this.menuItems = builder.menuItems;
         this.theme = builder.theme;
@@ -43,15 +40,11 @@ public class SelectionDialog extends AbstractDialog {
     /**
      * Displays the selection menu to the user and waits for input.
      *
-     * @return A {@link Value} representing the result of the interaction:
-     * <ul>
-     *     <li>{@link IntegerValue}: The index of the selected item (0-based, where 0 is the title, so selection starts at 1).</li>
-     *     <li>{@link TextValue}: Containing {@link Showable#DIALOG_CANCELED_FLAG} if the user cancelled the dialog.</li>
-     *     <li>{@link ErrorValue}: If an I/O error occurred.</li>
-     * </ul>
+     * @return An {@link Optional} containing the index of the selected item (0-based, where 0 is the title, so selection starts at 1)
+     *         or {@link Optional#empty()} if canceled.
      */
     @Override
-    protected Value runDialog(Screen screen) throws IOException {
+    protected Optional<Integer> runDialog(Screen screen) throws IOException {
 
         int selectedIndex = 1;
         screen.setCursorPosition(null); // Hide cursor
@@ -76,10 +69,10 @@ public class SelectionDialog extends AbstractDialog {
                     if (selectedIndex < menuItems.length - 1) selectedIndex++;
                 }
                 case Enter -> {
-                    return new IntegerValue(selectedIndex);
+                    return Optional.of(selectedIndex);
                 }
                 case Escape -> {
-                    return new TextValue(Showable.DIALOG_CANCELED_FLAG);
+                    return Optional.empty();
                 }
                 default -> {
                 }
@@ -118,7 +111,7 @@ public class SelectionDialog extends AbstractDialog {
     }
 
     /**
-     * Builder for creating instances of {@link SelectionDialog}.
+     * Builder for creating instances of {@link SingleChoiceDialog}.
      */
     public static class Builder {
 
@@ -187,12 +180,12 @@ public class SelectionDialog extends AbstractDialog {
         }
 
         /**
-         * Builds the {@link SelectionDialog} instance.
+         * Builds the {@link SingleChoiceDialog} instance.
          *
-         * @return A new {@link SelectionDialog}.
+         * @return A new {@link SingleChoiceDialog}.
          */
-        public SelectionDialog build() {
-            return new SelectionDialog(this);
+        public SingleChoiceDialog build() {
+            return new SingleChoiceDialog(this);
         }
     }
 }

@@ -2,15 +2,14 @@ package org.dawciobiel.shelldialog.cli.dialog;
 
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import org.dawciobiel.shelldialog.cli.dialog.result.ErrorValue;
-import org.dawciobiel.shelldialog.cli.dialog.result.Value;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
-public abstract class AbstractDialog implements Showable {
+public abstract class AbstractDialog<T> implements Showable<T> {
 
     private final String inputStreamPath;
     private final String outputStreamPath;
@@ -25,12 +24,11 @@ public abstract class AbstractDialog implements Showable {
      * This method sets up the Lanterna screen and handles I/O exceptions.
      * The actual dialog logic is implemented in {@link #runDialog(Screen)}.
      *
-     * @return A {@link Value} representing the result of the interaction.
-     *         The specific type of Value depends on the concrete dialog implementation.
-     *         Returns {@link ErrorValue} if an I/O error occurs.
+     * @return An {@link Optional} containing the result of the interaction if successful,
+     *         or {@link Optional#empty()} if canceled or an error occurred.
      */
     @Override
-    public Value show() {
+    public Optional<T> show() {
 
         try (FileInputStream ttyInput = new FileInputStream(inputStreamPath);
              FileOutputStream ttyOutput = new FileOutputStream(outputStreamPath)) {
@@ -46,9 +44,11 @@ public abstract class AbstractDialog implements Showable {
             }
 
         } catch (IOException e) {
-            return new ErrorValue(e.getLocalizedMessage());
+            // In a real application, you might want to log this error or rethrow a custom runtime exception
+            // For now, returning empty to signal failure/cancellation as requested by the architecture change
+            return Optional.empty();
         }
     }
 
-    protected abstract Value runDialog(Screen screen) throws IOException;
+    protected abstract Optional<T> runDialog(Screen screen) throws IOException;
 }

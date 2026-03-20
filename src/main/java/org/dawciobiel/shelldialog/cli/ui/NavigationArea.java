@@ -6,12 +6,12 @@ import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
 
 import java.io.IOException;
 
-public class Footer implements Renderable {
+public class NavigationArea implements Renderable {
 
     private final NavigationToolbar toolbar;
     private final NavigationToolbarRenderer renderer;
 
-    public Footer(NavigationToolbar toolbar, NavigationToolbarRenderer renderer) {
+    public NavigationArea(NavigationToolbar toolbar, NavigationToolbarRenderer renderer) {
         this.toolbar = toolbar;
         this.renderer = renderer;
     }
