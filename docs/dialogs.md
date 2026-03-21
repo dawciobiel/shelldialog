@@ -5,6 +5,9 @@ This document describes the current usage of:
 - `TextLineDialog`
 - `SingleChoiceDialog`
 - `PasswordDialog`
+- `YesNoDialog`
+- `PasswordDialog`
+- `YesNoDialog`
 
 Both dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
 The dialog builder also controls the shared frame shown around the whole dialog.
@@ -147,7 +150,7 @@ List<DialogOption> options = List.of(
 NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
-                        .withArrowsNavigation()
+                        .withVerticalArrowsNavigation()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
@@ -243,3 +246,80 @@ Optional<char[]> result = dialog.show();
 - All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
 - UI areas control only their own content styles.
 - The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
+
+## YesNoDialog
+
+`YesNoDialog` is used for binary confirmation flows.
+
+### Required parts
+
+To build `YesNoDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `ContentArea` for regular answers
+- `ContentArea` for the selected answer
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<Boolean>`.
+
+- `Optional.of(true)` when the user confirms the affirmative answer
+- `Optional.of(false)` when the user confirms the negative answer
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `ArrowLeft`: selects the affirmative answer
+- `ArrowRight`: selects the negative answer
+- `Enter`: confirms the selected answer
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Confirm action")
+        .withTheme(theme)
+        .build();
+
+ContentArea contentArea = new ContentArea.Builder()
+        .withContent("Do you want to continue?")
+        .withTheme(theme)
+        .build();
+
+ContentArea answerArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ContentArea selectedAnswerArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+        .build();
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withHorizontalArrowsNavigation()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+YesNoDialog dialog = new YesNoDialog.Builder(
+        titleArea,
+        contentArea,
+        answerArea,
+        selectedAnswerArea,
+        navigationArea
+)
+        .withTheme(theme)
+        .build();
+
+Optional<Boolean> result = dialog.show();
+```

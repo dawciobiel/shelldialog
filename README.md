@@ -10,6 +10,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `SingleChoiceDialog`: Classic single-choice menu.
     - `TextLineDialog`: Prompt for single-line text input.
     - `PasswordDialog`: Prompt for masked password input.
+    - `YesNoDialog`: Confirm or decline an action.
 - **Theming System:** Customize colors and styles using `DialogTheme`.
 - **Composable UI Areas:** Build dialogs from `TitleArea`, `ContentArea`, `InputArea`, and `NavigationArea`.
 - **Builder Pattern:** Fluent API for constructing dialogs and UI components.
@@ -50,6 +51,9 @@ java -jar build/libs/shelldialog-2.1.0.jar textline
 
 # Launch Password Dialog example
 java -jar build/libs/shelldialog-2.1.0.jar password
+
+# Launch Yes/No Dialog example
+java -jar build/libs/shelldialog-2.1.0.jar yesno
 ```
 
 ## Version information
