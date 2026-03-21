@@ -22,10 +22,10 @@ public class ContentArea implements Renderable {
     }
 
     @Override
-    public void render(TextGraphics tg, int startRow) throws IOException {
+    public void render(TextGraphics tg, int startColumn, int startRow) throws IOException {
         tg.setForegroundColor(foreground);
         tg.setBackgroundColor(background);
-        tg.putString(2, startRow, content);
+        tg.putString(startColumn, startRow, content);
     }
 
     /**
@@ -35,6 +35,11 @@ public class ContentArea implements Renderable {
      */
     public int getHeight() {
         return 1;
+    }
+
+    @Override
+    public int getWidth() {
+        return content.length();
     }
 
     /**

@@ -34,8 +34,8 @@ public final class NavigationToolbarRenderer {
      * @param toolbar the toolbar to render
      * @param row the row where rendering starts
      */
-    public void render(TextGraphics tg, NavigationToolbar toolbar, int row) {
-        int col = 0;
+    public void render(TextGraphics tg, NavigationToolbar toolbar, int startColumn, int row) {
+        int col = startColumn;
         List<NavigationItem> items = toolbar.getItems();
         String spacer = toolbar.getHotkeyLabelSeparator();
         String separator = toolbar.getItemSeparator();
@@ -61,5 +61,31 @@ public final class NavigationToolbarRenderer {
                 col += separator.length();
             }
         }
+    }
+
+    /**
+     * Calculates the width occupied by the rendered toolbar.
+     *
+     * @param toolbar the toolbar to measure
+     * @return the rendered width in terminal cells
+     */
+    public int measureWidth(NavigationToolbar toolbar) {
+        int width = 0;
+        List<NavigationItem> items = toolbar.getItems();
+        String spacer = toolbar.getHotkeyLabelSeparator();
+        String separator = toolbar.getItemSeparator();
+
+        for (int i = 0; i < items.size(); i++) {
+            NavigationItem item = items.get(i);
+            width += item.hotkey().length();
+            width += spacer.length();
+            width += item.label().length();
+
+            if (i < items.size() - 1) {
+                width += separator.length();
+            }
+        }
+
+        return width;
     }
 }

@@ -1,12 +1,15 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.style.BorderType;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.style.TextStyle;
 import org.dawciobiel.shelldialog.cli.ui.ContentArea;
+import org.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import org.dawciobiel.shelldialog.cli.ui.InputArea;
 import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import org.dawciobiel.shelldialog.cli.ui.TitleArea;
@@ -17,6 +20,7 @@ import java.util.Optional;
 
 /**
  * A CLI dialog that prompts the user for a single line of text input.
+ * It composes preconfigured UI areas inside a shared optional frame.
  * It supports typing, backspace, confirmation (Enter), and cancellation (Escape).
  * <p>
  * The dialog is rendered using the Lanterna library.
@@ -27,16 +31,18 @@ public class TextLineDialog extends AbstractDialog<String> {
     private final TitleArea titleArea;
     private final ContentArea contentArea;
     private final InputArea inputArea;
-    private final BorderType borderType;
+    private final boolean borderVisible;
     private final NavigationArea navigationArea;
+    private final DialogFrame dialogFrame;
 
     private TextLineDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
         this.titleArea = builder.titleArea;
         this.contentArea = builder.contentArea;
         this.inputArea = builder.inputArea;
-        this.borderType = builder.borderType;
+        this.borderVisible = builder.borderVisible;
         this.navigationArea = builder.navigationArea;
+        this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
     /**
@@ -74,25 +80,39 @@ public class TextLineDialog extends AbstractDialog<String> {
         screen.clear();
 
         InputArea currentInputArea = inputArea.withContent(inputContent);
+        int contentWidth = Math.max(
+                Math.max(titleArea.getWidth(), contentArea.getWidth()),
+                Math.max(currentInputArea.getWidth(), navigationArea.getWidth())
+        );
+        int contentHeight = titleArea.getHeight()
+                + 1
+                + contentArea.getHeight()
+                + 1
+                + currentInputArea.getHeight()
+                + 1
+                + navigationArea.getHeight();
+        DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
+        dialogFrame.render(tg, layout);
 
-        int row = 0;
-        titleArea.render(tg, row);
+        int column = layout.contentColumn();
+        int row = layout.contentRow();
+        titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
         row++; // Add a blank line for spacing
 
-        contentArea.render(tg, row);
+        contentArea.render(tg, column, row);
         row += contentArea.getHeight();
 
         row++; // Add a blank line for spacing
 
         int inputRow = row;
-        currentInputArea.render(tg, row++);
+        currentInputArea.render(tg, column, row++);
         row++; // Add a blank line for spacing
 
-        navigationArea.render(tg, row);
+        navigationArea.render(tg, column, row);
 
-        screen.setCursorPosition(new TerminalPosition(2 + inputContent.length(), inputRow));
+        screen.setCursorPosition(new TerminalPosition(column + inputContent.length(), inputRow));
         screen.refresh();
     }
 
@@ -106,7 +126,8 @@ public class TextLineDialog extends AbstractDialog<String> {
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
-        private final BorderType borderType = BorderType.BORDER_ALL;
+        private boolean borderVisible = true;
+        private TextStyle borderStyle = TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT);
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
 
@@ -123,6 +144,51 @@ public class TextLineDialog extends AbstractDialog<String> {
             this.contentArea = Objects.requireNonNull(contentArea);
             this.inputArea = Objects.requireNonNull(inputArea);
             this.navigationArea = Objects.requireNonNull(navigationArea);
+        }
+
+        /**
+         * Enables or disables the shared dialog border.
+         *
+         * @param visible {@code true} to render the border, {@code false} to omit it
+         * @return this builder
+         */
+        public Builder withBorder(boolean visible) {
+            this.borderVisible = visible;
+            return this;
+        }
+
+        /**
+         * Sets the style used for the shared dialog border.
+         *
+         * @param style the border style
+         * @return this builder
+         */
+        public Builder withBorderStyle(TextStyle style) {
+            this.borderStyle = Objects.requireNonNull(style);
+            return this;
+        }
+
+        /**
+         * Sets the foreground color used for the shared dialog border.
+         *
+         * @param color the border foreground color
+         * @return this builder
+         */
+        public Builder withBorderColor(TextColor color) {
+            this.borderStyle = TextStyle.of(Objects.requireNonNull(color), borderStyle.background());
+            return this;
+        }
+
+        /**
+         * Applies the dialog border style from the provided theme.
+         * This affects only the shared dialog frame.
+         *
+         * @param theme the theme supplying the border style
+         * @return this builder
+         */
+        public Builder withTheme(DialogTheme theme) {
+            this.borderStyle = Objects.requireNonNull(theme).borderStyle();
+            return this;
         }
 
         /**

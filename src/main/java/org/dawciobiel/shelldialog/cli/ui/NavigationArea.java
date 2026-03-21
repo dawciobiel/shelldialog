@@ -21,8 +21,18 @@ public class NavigationArea implements Renderable {
     }
 
     @Override
-    public void render(TextGraphics tg, int startRow) throws IOException {
-        renderer.render(tg, toolbar, startRow);
+    public void render(TextGraphics tg, int startColumn, int startRow) throws IOException {
+        renderer.render(tg, toolbar, startColumn, startRow);
+    }
+
+    @Override
+    public int getWidth() {
+        return renderer.measureWidth(toolbar);
+    }
+
+    @Override
+    public int getHeight() {
+        return 1;
     }
 
     /**

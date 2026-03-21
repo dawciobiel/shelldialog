@@ -22,10 +22,20 @@ public class InputArea implements Renderable {
     }
 
     @Override
-    public void render(TextGraphics tg, int startRow) throws IOException {
+    public void render(TextGraphics tg, int startColumn, int startRow) throws IOException {
         tg.setForegroundColor(foreground);
         tg.setBackgroundColor(background);
-        tg.putString(2, startRow, content);
+        tg.putString(startColumn, startRow, content);
+    }
+
+    @Override
+    public int getWidth() {
+        return content.length();
+    }
+
+    @Override
+    public int getHeight() {
+        return 1;
     }
 
     /**

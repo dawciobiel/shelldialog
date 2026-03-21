@@ -1,12 +1,16 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import org.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import org.dawciobiel.shelldialog.cli.style.Arrow;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.style.TextStyle;
 import org.dawciobiel.shelldialog.cli.ui.ContentArea;
+import org.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 
@@ -17,6 +21,7 @@ import java.util.Optional;
 
 /**
  * A CLI selection menu that allows the user to choose an option from a list.
+ * It composes preconfigured UI areas inside a shared optional frame.
  * It supports keyboard navigation (up/down arrows), selection (Enter), and cancellation (Escape).
  * <p>
  * The menu is rendered using the Lanterna library.
@@ -29,6 +34,8 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     private final ContentArea selectedMenuItemArea;
     private final List<DialogOption> options;
     private final NavigationArea navigationArea;
+    private final boolean borderVisible;
+    private final DialogFrame dialogFrame;
 
     private SingleChoiceDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
@@ -37,6 +44,8 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
         this.options = builder.options;
         this.navigationArea = builder.navigationArea;
+        this.borderVisible = builder.borderVisible;
+        this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
     /**
@@ -78,27 +87,48 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
     private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
         screen.clear();
-        
-        int row = 0;
-        titleArea.render(tg, row);
+
+        int optionsWidth = options.stream()
+                .mapToInt(option -> menuItemWidth(option.getLabel()))
+                .max()
+                .orElse(0);
+        int contentWidth = Math.max(
+                Math.max(titleArea.getWidth(), optionsWidth),
+                navigationArea.getWidth()
+        );
+        int contentHeight = titleArea.getHeight()
+                + 1
+                + options.size()
+                + 1
+                + navigationArea.getHeight();
+        DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
+        dialogFrame.render(tg, layout);
+
+        int column = layout.contentColumn();
+        int row = layout.contentRow();
+        titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
         row++; // Add blank line
 
         for (int i = 0; i < options.size(); i++) {
-            renderMenuItem(tg, row++, options.get(i).getLabel(), i == selectedIndex);
+            renderMenuItem(tg, column, row++, options.get(i).getLabel(), i == selectedIndex);
         }
         row++; // Add blank line
-        
-        navigationArea.render(tg, row);
+
+        navigationArea.render(tg, column, row);
 
         screen.refresh();
     }
 
-    private void renderMenuItem(TextGraphics tg, int row, String item, boolean selected) throws IOException {
+    private void renderMenuItem(TextGraphics tg, int column, int row, String item, boolean selected) throws IOException {
         String text = (selected ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY) + item + (selected ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY);
         ContentArea currentArea = (selected ? selectedMenuItemArea : menuItemArea).withContent(text);
-        currentArea.render(tg, row);
+        currentArea.render(tg, column, row);
+    }
+
+    private int menuItemWidth(String item) {
+        return (Arrow.MARKER_EMPTY + item + Arrow.MARKER_EMPTY).length();
     }
 
     /**
@@ -111,6 +141,8 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         private final ContentArea selectedMenuItemArea;
         private final List<DialogOption> options;
         private final NavigationArea navigationArea;
+        private boolean borderVisible = true;
+        private TextStyle borderStyle = TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT);
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -130,6 +162,50 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
             this.selectedMenuItemArea = Objects.requireNonNull(selectedMenuItemArea);
             this.options = List.copyOf(Objects.requireNonNull(options));
             this.navigationArea = Objects.requireNonNull(navigationArea);
+        }
+
+        /**
+         * Enables or disables the shared dialog border.
+         *
+         * @param visible {@code true} to render the border, {@code false} to omit it
+         * @return this builder
+         */
+        public Builder withBorder(boolean visible) {
+            this.borderVisible = visible;
+            return this;
+        }
+
+        /**
+         * Sets the style used for the shared dialog border.
+         *
+         * @param style the border style
+         * @return this builder
+         */
+        public Builder withBorderStyle(TextStyle style) {
+            this.borderStyle = Objects.requireNonNull(style);
+            return this;
+        }
+
+        /**
+         * Sets the foreground color used for the shared dialog border.
+         *
+         * @param color the border foreground color
+         * @return this builder
+         */
+        public Builder withBorderColor(TextColor color) {
+            this.borderStyle = TextStyle.of(Objects.requireNonNull(color), borderStyle.background());
+            return this;
+        }
+
+        /**
+         * Applies the dialog border style from the provided theme.
+         *
+         * @param theme the theme supplying the border style
+         * @return this builder
+         */
+        public Builder withTheme(DialogTheme theme) {
+            this.borderStyle = Objects.requireNonNull(theme).borderStyle();
+            return this;
         }
 
         /**

@@ -15,20 +15,18 @@ import java.util.List;
 public class TitleArea implements Renderable {
 
     private final List<String> titleLines;
-    private final TextColor borderColor;
     private final TextColor titleColor;
 
     private TitleArea(Builder builder) {
         this.titleLines = new ArrayList<>(builder.titleLines);
-        this.borderColor = builder.borderColor;
         this.titleColor = builder.titleColor;
     }
 
     @Override
-    public void render(TextGraphics tg, int startRow) throws IOException {
+    public void render(TextGraphics tg, int startColumn, int startRow) throws IOException {
         tg.setForegroundColor(titleColor);
         for (int i = 0; i < titleLines.size(); i++) {
-            tg.putString(2, startRow + i, titleLines.get(i));
+            tg.putString(startColumn, startRow + i, titleLines.get(i));
         }
     }
 
@@ -40,12 +38,19 @@ public class TitleArea implements Renderable {
         return titleLines.size();
     }
 
+    @Override
+    public int getWidth() {
+        return titleLines.stream()
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+    }
+
     /**
      * Builder for {@link TitleArea} instances.
      */
     public static class Builder {
         private final List<String> titleLines = new ArrayList<>();
-        private TextColor borderColor = TextColor.ANSI.WHITE;
         private TextColor titleColor = TextColor.ANSI.WHITE;
 
         /**
@@ -96,19 +101,7 @@ public class TitleArea implements Renderable {
          * @return this builder
          */
         public Builder withTheme(DialogTheme theme) {
-            this.borderColor = theme.borderStyle().foreground();
             this.titleColor = theme.titleStyle().foreground();
-            return this;
-        }
-
-        /**
-         * Sets the border color associated with this title area.
-         *
-         * @param color the border color
-         * @return this builder
-         */
-        public Builder withBorderColor(TextColor color) {
-            this.borderColor = color;
             return this;
         }
 
