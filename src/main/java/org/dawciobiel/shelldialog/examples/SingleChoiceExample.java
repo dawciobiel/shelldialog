@@ -76,6 +76,7 @@ public class SingleChoiceExample {
                 options,
                 navigationArea
         )
+                .withBorderColor(TextColor.ANSI.BLUE)
                 .build();
 
         Optional<DialogOption> result = dialog.show();

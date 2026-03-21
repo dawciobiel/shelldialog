@@ -69,6 +69,7 @@ public class TextLineExample {
                 .build();
 
         TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
+                .withTheme(theme)
                 .build();
 
         Optional<String> result = dialog.show();

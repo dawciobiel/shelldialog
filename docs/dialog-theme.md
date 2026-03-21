@@ -1,6 +1,6 @@
 # DialogTheme
 
-`DialogTheme` is a style container used by UI area builders.
+`DialogTheme` is a style container used by UI area builders and dialog builders.
 
 It does not render anything on its own. Instead, UI components read style values from it during construction.
 
@@ -46,6 +46,8 @@ DialogTheme theme = DialogTheme.darkTheme();
 - `ContentArea.withTheme(theme)` uses `contentStyle()`
 - `InputArea.withTheme(theme)` uses `inputStyle()`
 - `NavigationArea.withTheme(theme)` uses `navigationStyle()`
+- `TextLineDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `SingleChoiceDialog.Builder.withTheme(theme)` uses `borderStyle()`
 
 The menu-specific styles are intended for choice dialogs:
 
@@ -65,3 +67,13 @@ ContentArea area = new ContentArea.Builder()
 ```
 
 copies the colors from `theme` into the area. Changing the theme object later does not update already built UI areas.
+
+The same applies to dialog builders:
+
+```java
+TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
+        .withTheme(theme)
+        .build();
+```
+
+In this case `borderStyle()` is copied into the dialog configuration during construction.

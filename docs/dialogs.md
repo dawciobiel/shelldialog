@@ -6,6 +6,7 @@ This document describes the current usage of:
 - `SingleChoiceDialog`
 
 Both dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
+The dialog builder also controls the shared frame shown around the whole dialog.
 
 ## TextLineDialog
 
@@ -68,7 +69,10 @@ TextLineDialog dialog = new TextLineDialog.Builder(
         contentArea,
         inputArea,
         navigationArea
-).build();
+)
+        .withBorder(true)
+        .withTheme(theme)
+        .build();
 
 Optional<String> result = dialog.show();
 ```
@@ -156,7 +160,10 @@ SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
         selectedMenuItemArea,
         options,
         navigationArea
-).build();
+)
+        .withBorder(true)
+        .withTheme(theme)
+        .build();
 
 Optional<DialogOption> result = dialog.show();
 ```
@@ -164,5 +171,5 @@ Optional<DialogOption> result = dialog.show();
 ## Notes
 
 - Both dialogs read from `/dev/tty` and write to `/dev/tty` by default.
-- Both builders currently expose only construction-time composition. The dialog behavior is not configured through `DialogTheme` directly anymore.
-- UI styling is applied by configuring the areas before they are passed to the dialog.
+- UI areas control only their own content styles.
+- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.

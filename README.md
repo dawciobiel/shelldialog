@@ -14,7 +14,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 - **Builder Pattern:** Fluent API for constructing dialogs and UI components.
 - **Navigation Toolbar:** Customizable bottom toolbar with shortcuts.
 - **Clean UI:**
-    - Customizable borders.
+    - Optional shared border around the whole dialog.
     - Automatic text wrapping for long titles.
     - Keyboard navigation support (Arrow keys, Enter, Escape, Space for multi-selection).
 - **Modern Java:** Built with Java 21 features.

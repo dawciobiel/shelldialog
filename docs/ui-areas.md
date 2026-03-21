@@ -12,6 +12,8 @@ The main UI areas are:
 - `NavigationArea`
 
 Dialogs are now built by composing these areas first.
+The areas are responsible only for rendering their own content.
+The shared dialog border is configured on dialog builders, not on individual areas.
 
 ## TitleArea
 
@@ -22,7 +24,6 @@ Dialogs are now built by composing these areas first.
 - `withTitle(String... lines)`
 - `withTitle(List<String> lines)`
 - `withTheme(DialogTheme theme)`
-- `withBorderColor(TextColor color)`
 - `withTitleColor(TextColor color)`
 
 ### Notes
@@ -88,6 +89,37 @@ In `TextLineDialog`, the configured `InputArea` acts as a style template. The di
 ```java
 InputArea inputArea = new InputArea.Builder()
         .withTheme(theme)
+        .build();
+```
+
+## Shared dialog border
+
+The border around the whole dialog is not part of any `*Area`.
+It is configured on the dialog builder itself.
+
+Examples:
+
+```java
+TextLineDialog dialog = new TextLineDialog.Builder(
+        titleArea,
+        contentArea,
+        inputArea,
+        navigationArea
+)
+        .withBorder(true)
+        .withTheme(theme)
+        .build();
+```
+
+```java
+SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
+        titleArea,
+        menuItemArea,
+        selectedMenuItemArea,
+        options,
+        navigationArea
+)
+        .withBorderColor(TextColor.ANSI.BLUE)
         .build();
 ```
 
