@@ -5,9 +5,8 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import org.dawciobiel.shelldialog.cli.style.BorderType;
-import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.ui.ContentArea;
 import org.dawciobiel.shelldialog.cli.ui.InputArea;
 import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import org.dawciobiel.shelldialog.cli.ui.TitleArea;
@@ -25,17 +24,19 @@ import java.util.Optional;
  */
 public class TextLineDialog extends AbstractDialog<String> {
 
-    private final String title;
+    private final TitleArea titleArea;
+    private final ContentArea contentArea;
+    private final InputArea inputArea;
     private final BorderType borderType;
-    private final DialogTheme theme;
-    private final NavigationToolbar navigationToolbar;
+    private final NavigationArea navigationArea;
 
     private TextLineDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
-        this.title = builder.title;
+        this.titleArea = builder.titleArea;
+        this.contentArea = builder.contentArea;
+        this.inputArea = builder.inputArea;
         this.borderType = builder.borderType;
-        this.theme = builder.theme;
-        this.navigationToolbar = builder.navigationToolbar;
+        this.navigationArea = builder.navigationArea;
     }
 
     @Override
@@ -69,29 +70,21 @@ public class TextLineDialog extends AbstractDialog<String> {
     private void render(Screen screen, TextGraphics tg, String inputContent) throws IOException {
         screen.clear();
 
-        TitleArea titleArea = new TitleArea.Builder()
-                .withTitle(title)
-                .withTheme(theme)
-                .build();
-
-        InputArea inputArea = new InputArea.Builder()
-                .withContent(inputContent)
-                .withTheme(theme)
-                .build();
-
-        NavigationArea navigationArea = new NavigationArea.Builder()
-                .withToolbar(navigationToolbar)
-                .withTheme(theme)
-                .build();
+        InputArea currentInputArea = inputArea.withContent(inputContent);
 
         int row = 0;
         titleArea.render(tg, row);
         row += titleArea.getHeight();
-        
+
         row++; // Add a blank line for spacing
-        
+
+        contentArea.render(tg, row);
+        row += contentArea.getHeight();
+
+        row++; // Add a blank line for spacing
+
         int inputRow = row;
-        inputArea.render(tg, row++);
+        currentInputArea.render(tg, row++);
         row++; // Add a blank line for spacing
 
         navigationArea.render(tg, row);
@@ -105,44 +98,28 @@ public class TextLineDialog extends AbstractDialog<String> {
      */
     public static class Builder {
 
-        private final String title;
+        private final TitleArea titleArea;
+        private final ContentArea contentArea;
+        private final InputArea inputArea;
+        private final NavigationArea navigationArea;
 
         private final BorderType borderType = BorderType.BORDER_ALL;
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
-        private DialogTheme theme = DialogTheme.darkTheme();
-
-        private NavigationToolbar navigationToolbar = NavigationToolbar.builder().withEnterAccept().withEscapeCancel().build();
 
         /**
-         * Creates a new Builder with the specified question title.
+         * Creates a new Builder with the specified title, content, input and navigation areas.
          *
-         * @param title The title of the question to be displayed.
+         * @param titleArea The preconfigured {@link TitleArea} to render.
+         * @param contentArea The preconfigured {@link ContentArea} to render.
+         * @param inputArea The preconfigured {@link InputArea} to render.
+         * @param navigationArea The preconfigured {@link NavigationArea} to render.
          */
-        public Builder(String title) {
-            this.title = Objects.requireNonNull(title);
-        }
-
-        /**
-         * Sets the theme for the dialog.
-         *
-         * @param theme The {@link DialogTheme} to use.
-         * @return This Builder instance.
-         */
-        public Builder theme(DialogTheme theme) {
-            this.theme = Objects.requireNonNull(theme);
-            return this;
-        }
-
-        /**
-         * Sets the navigation toolbar for the dialog.
-         *
-         * @param toolbar The {@link NavigationToolbar} to use.
-         * @return This Builder instance.
-         */
-        public Builder navigationToolbar(NavigationToolbar toolbar) {
-            this.navigationToolbar = Objects.requireNonNull(toolbar);
-            return this;
+        public Builder(TitleArea titleArea, ContentArea contentArea, InputArea inputArea, NavigationArea navigationArea) {
+            this.titleArea = Objects.requireNonNull(titleArea);
+            this.contentArea = Objects.requireNonNull(contentArea);
+            this.inputArea = Objects.requireNonNull(inputArea);
+            this.navigationArea = Objects.requireNonNull(navigationArea);
         }
 
         /**

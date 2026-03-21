@@ -25,6 +25,14 @@ public class InputArea implements Renderable {
         tg.putString(2, startRow, content);
     }
 
+    public InputArea withContent(String content) {
+        return new Builder()
+                .withContent(content)
+                .withForegroundColor(foreground)
+                .withBackgroundColor(background)
+                .build();
+    }
+
     public static class Builder {
         private String content = "";
         private TextColor foreground = TextColor.ANSI.WHITE;

@@ -1,15 +1,57 @@
 package org.dawciobiel.shelldialog.examples;
 
+import com.googlecode.lanterna.TextColor;
 import org.dawciobiel.shelldialog.cli.dialog.TextLineDialog;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.style.DialogTheme;
+import org.dawciobiel.shelldialog.cli.style.TextStyle;
+import org.dawciobiel.shelldialog.cli.ui.ContentArea;
+import org.dawciobiel.shelldialog.cli.ui.InputArea;
+import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
+import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.util.Optional;
 
-import static java.lang.System.*;
+import static java.lang.System.out;
 
 public class TextLineExample {
 
     public static void main(String[] args) {
-        TextLineDialog dialog = new TextLineDialog.Builder("Please enter your name:")
+        DialogTheme theme = DialogTheme.builder()
+                .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+                .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
+                .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
+                .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
+                .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                .build();
+
+        TitleArea titleArea = new TitleArea.Builder()
+                .withTitle("Please enter your name")
+                .withTheme(theme)
+                .build();
+
+        ContentArea contentArea = new ContentArea.Builder()
+                .withContent("Your answer will be used in the greeting.")
+                .withTheme(theme)
+                .build();
+
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(
+                        NavigationToolbar.builder()
+                                .withEnterAccept()
+                                .withEscapeCancel()
+                                .build()
+                )
+                .withTheme(theme)
+                .build();
+
+        InputArea inputArea = new InputArea.Builder()
+                .withTheme(theme)
+                .build();
+
+        TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .build();
 
         Optional<String> result = dialog.show();

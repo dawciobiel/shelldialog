@@ -25,6 +25,10 @@ public class ContentArea implements Renderable {
         tg.putString(2, startRow, content);
     }
 
+    public int getHeight() {
+        return 1;
+    }
+
     public static class Builder {
         private String content = "";
         private TextColor foreground = TextColor.ANSI.WHITE;
@@ -36,8 +40,8 @@ public class ContentArea implements Renderable {
         }
 
         public Builder withTheme(DialogTheme theme) {
-            this.foreground = theme.menuItemStyle().foreground();
-            this.background = theme.menuItemStyle().background();
+            this.foreground = theme.contentStyle().foreground();
+            this.background = theme.contentStyle().background();
             return this;
         }
 

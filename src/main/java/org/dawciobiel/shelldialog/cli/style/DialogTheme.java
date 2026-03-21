@@ -6,6 +6,7 @@ public final class DialogTheme {
 
     private final TextStyle borderStyle;
     private final TextStyle titleStyle;
+    private final TextStyle contentStyle;
     private final TextStyle inputStyle;
     private final TextStyle navigationStyle;
     private final TextStyle menuItemStyle;
@@ -14,6 +15,7 @@ public final class DialogTheme {
     private DialogTheme(Builder builder) {
         this.borderStyle = builder.borderStyle;
         this.titleStyle = builder.titleStyle;
+        this.contentStyle = builder.contentStyle;
         this.inputStyle = builder.inputStyle;
         this.navigationStyle = builder.navigationStyle;
         this.menuItemStyle = builder.menuItemStyle;
@@ -27,6 +29,7 @@ public final class DialogTheme {
     public static DialogTheme darkTheme() {
         return builder().borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                         .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                        .contentStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
                         .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
                         .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
                         .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
@@ -40,6 +43,10 @@ public final class DialogTheme {
 
     public TextStyle titleStyle() {
         return titleStyle;
+    }
+
+    public TextStyle contentStyle() {
+        return contentStyle;
     }
 
     public TextStyle inputStyle() {
@@ -61,6 +68,7 @@ public final class DialogTheme {
     public static final class Builder {
         private TextStyle borderStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle titleStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
+        private TextStyle contentStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle inputStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle navigationStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle menuItemStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
@@ -73,6 +81,11 @@ public final class DialogTheme {
 
         public Builder titleStyle(TextStyle style) {
             this.titleStyle = style;
+            return this;
+        }
+
+        public Builder contentStyle(TextStyle style) {
+            this.contentStyle = style;
             return this;
         }
 
