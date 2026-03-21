@@ -1,5 +1,6 @@
 package org.dawciobiel.shelldialog;
 
+import org.dawciobiel.shelldialog.examples.PasswordExample;
 import org.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import org.dawciobiel.shelldialog.examples.TextLineExample;
 
@@ -21,13 +22,14 @@ public class Main {
 
         switch (arg.toLowerCase()) {
             case "--version", "-v", "version" -> System.out.println(Version.get());
+            case "password" -> PasswordExample.main(args);
             case "singlechoice" -> SingleChoiceExample.main(args);
             case "textline" -> TextLineExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, textline, version");
+                System.out.println("singlechoice, textline, password, version");
             }
         }
     }
