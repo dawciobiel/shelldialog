@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Dialog border rendering now uses a shared frame configured directly on dialog builders.
 
 ### Removed
+- Public `BorderType` API.
 
 ## [2.1.0] - 2026-03-21
 
@@ -33,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New UI components: `TitleArea`, `ContentArea`, `InputArea`, `NavigationArea` with Builder pattern.
 - `DialogOption` interface and `SimpleDialogOption` implementation for typed selection results.
 - New examples: `SingleChoiceExample` and `TextLineExample`.
-- `cli.style` package for UI style definitions (`Arrow`, `BorderLine`, `BorderType`).
+- `cli.style` package for UI style definitions (`Arrow`, `BorderLine`).
 
 ### Changed
 - **Breaking Change:** Complete architecture overhaul of Dialog classes.

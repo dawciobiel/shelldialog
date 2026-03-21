@@ -4,6 +4,7 @@ This document describes the current usage of:
 
 - `TextLineDialog`
 - `SingleChoiceDialog`
+- `PasswordDialog`
 
 Both dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
 The dialog builder also controls the shared frame shown around the whole dialog.
@@ -168,8 +169,77 @@ SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
 Optional<DialogOption> result = dialog.show();
 ```
 
+## PasswordDialog
+
+`PasswordDialog` is used for masked single-line password input.
+
+### Required parts
+
+To build `PasswordDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `InputArea`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<char[]>`.
+
+- `Optional.of(value)` when the user confirms with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `Character`: appends typed character to the password buffer
+- `Backspace`: removes the last character
+- `Enter`: confirms input
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Enter your password")
+        .withTheme(theme)
+        .build();
+
+ContentArea contentArea = new ContentArea.Builder()
+        .withContent("The typed password is masked on screen.")
+        .withTheme(theme)
+        .build();
+
+InputArea inputArea = new InputArea.Builder()
+        .withTheme(theme)
+        .build();
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+PasswordDialog dialog = new PasswordDialog.Builder(
+        titleArea,
+        contentArea,
+        inputArea,
+        navigationArea
+)
+        .withTheme(theme)
+        .withMaskCharacter('*')
+        .build();
+
+Optional<char[]> result = dialog.show();
+```
+
 ## Notes
 
-- Both dialogs read from `/dev/tty` and write to `/dev/tty` by default.
+- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
 - UI areas control only their own content styles.
 - The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
