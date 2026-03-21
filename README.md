@@ -47,3 +47,11 @@ java -jar build/libs/shelldialog-2.1.0.jar singlechoice
 # Launch Text Line Dialog example
 java -jar build/libs/shelldialog-2.1.0.jar textline
 ```
+
+## Version information
+
+The library version can be checked in three ways:
+
+- from the JAR file name, for example `shelldialog-2.1.1-SNAPSHOT.jar`
+- from `META-INF/MANIFEST.MF` inside the JAR
+- from the command line with `java -jar build/libs/shelldialog-2.1.1-SNAPSHOT.jar --version`
