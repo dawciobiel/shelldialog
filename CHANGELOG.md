@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0-SNAPSHOT] - 2026-03-21
+## [2.1.0] - 2026-03-21
 
 ### Added
 - `contentStyle` in `DialogTheme` and its builder for `ContentArea` styling.
@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking Change:** `TextLineDialog` is now composed from preconfigured `TitleArea`, `ContentArea`, `InputArea`, and `NavigationArea`.
 - **Breaking Change:** `SingleChoiceDialog` is now composed from preconfigured `TitleArea`, `NavigationArea`, and `ContentArea` templates for regular and selected menu items.
 - Updated `TextLineExample` and `SingleChoiceExample` to demonstrate explicit UI area composition and per-component styling.
-- Updated project version in Gradle and Maven to `2.1.0-SNAPSHOT`.
+- Updated project version in Gradle and Maven to `2.1.0`.
 
 ## [2.0.0-SNAPSHOT] - 2024-05-23
 
