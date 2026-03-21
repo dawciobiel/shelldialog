@@ -3,6 +3,7 @@ package org.dawciobiel.shelldialog.examples;
 import com.googlecode.lanterna.TextColor;
 import org.dawciobiel.shelldialog.cli.dialog.TextLineDialog;
 import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import org.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
 import org.dawciobiel.shelldialog.cli.style.DialogTheme;
 import org.dawciobiel.shelldialog.cli.style.TextStyle;
 import org.dawciobiel.shelldialog.cli.ui.ContentArea;
@@ -18,14 +19,13 @@ public class TextLineExample {
 
     public static void main(String[] args) {
         DialogTheme theme = DialogTheme.builder()
-                .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
-                .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
-                .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
-                .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
-                .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
-                .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
-                .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
-                .build();
+                                       .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+                                       .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                                       .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
+                                       .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                                       .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
+                                       .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                                       .build();
 
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Please enter your name")
@@ -40,11 +40,17 @@ public class TextLineExample {
         NavigationArea navigationArea = new NavigationArea.Builder()
                 .withToolbar(
                         NavigationToolbar.builder()
-                                .withEnterAccept()
-                                .withEscapeCancel()
-                                .build()
+                                         .withEnterAccept()
+                                         .withEscapeCancel()
+                                         .build()
                 )
-                .withTheme(theme)
+                .withRenderer(
+                        new NavigationToolbarRenderer(
+                                TextColor.ANSI.MAGENTA_BRIGHT,
+                                TextColor.ANSI.WHITE,
+                                TextColor.ANSI.DEFAULT
+                        )
+                )
                 .build();
 
         InputArea inputArea = new InputArea.Builder()

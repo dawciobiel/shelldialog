@@ -29,6 +29,14 @@ public class ContentArea implements Renderable {
         return 1;
     }
 
+    public ContentArea withContent(String content) {
+        return new Builder()
+                .withContent(content)
+                .withForegroundColor(foreground)
+                .withBackgroundColor(background)
+                .build();
+    }
+
     public static class Builder {
         private String content = "";
         private TextColor foreground = TextColor.ANSI.WHITE;
