@@ -2,6 +2,7 @@ package org.dawciobiel.shelldialog;
 
 import org.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import org.dawciobiel.shelldialog.examples.TextLineExample;
+import org.dawciobiel.shelldialog.examples.YesNoExample;
 
 /**
  * Entry point used for launching bundled example dialogs from the command line.
@@ -23,11 +24,12 @@ public class Main {
             case "--version", "-v", "version" -> System.out.println(Version.get());
             case "singlechoice" -> SingleChoiceExample.main(args);
             case "textline" -> TextLineExample.main(args);
+            case "yesno" -> YesNoExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, textline, version");
+                System.out.println("singlechoice, textline, yesno, version");
             }
         }
     }

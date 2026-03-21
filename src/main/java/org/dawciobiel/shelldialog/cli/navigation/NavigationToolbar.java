@@ -75,7 +75,26 @@ public final class NavigationToolbar {
          * @return this builder
          */
         public Builder withArrowsNavigation() {
-            items.add(new NavigationItem(NavigationLabels.KEY_ARROWS, NavigationLabels.ACTION_NAVIGATION));
+            return withVerticalArrowsNavigation();
+        }
+
+        /**
+         * Appends the standard vertical-arrows navigation item.
+         *
+         * @return this builder
+         */
+        public Builder withVerticalArrowsNavigation() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ARROWS_VERTICAL, NavigationLabels.ACTION_NAVIGATION));
+            return this;
+        }
+
+        /**
+         * Appends the standard horizontal-arrows navigation item.
+         *
+         * @return this builder
+         */
+        public Builder withHorizontalArrowsNavigation() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ARROWS_HORIZONTAL, NavigationLabels.ACTION_NAVIGATION));
             return this;
         }
 

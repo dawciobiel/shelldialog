@@ -158,7 +158,7 @@ NavigationArea navigationArea = new NavigationArea.Builder()
 NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
-                        .withArrowsNavigation()
+                        .withVerticalArrowsNavigation()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
