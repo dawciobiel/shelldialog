@@ -39,6 +39,9 @@ public class TextLineDialog extends AbstractDialog<String> {
         this.navigationArea = builder.navigationArea;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Optional<String> runDialog(Screen screen) throws IOException {
         StringBuilder inputBuffer = new StringBuilder();

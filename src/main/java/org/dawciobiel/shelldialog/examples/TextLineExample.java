@@ -15,8 +15,19 @@ import java.util.Optional;
 
 import static java.lang.System.out;
 
+/**
+ * Demonstrates how to build and show a {@link TextLineDialog}.
+ */
 public class TextLineExample {
 
+    private TextLineExample() {
+    }
+
+    /**
+     * Runs the text-line dialog example.
+     *
+     * @param args command-line arguments, currently ignored
+     */
     public static void main(String[] args) {
         DialogTheme theme = DialogTheme.builder()
                                        .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))

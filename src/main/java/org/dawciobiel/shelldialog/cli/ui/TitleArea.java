@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Renders one or more title lines at the top of a dialog.
+ */
 public class TitleArea implements Renderable {
 
     private final List<String> titleLines;
@@ -37,11 +40,26 @@ public class TitleArea implements Renderable {
         return titleLines.size();
     }
 
+    /**
+     * Builder for {@link TitleArea} instances.
+     */
     public static class Builder {
         private final List<String> titleLines = new ArrayList<>();
         private TextColor borderColor = TextColor.ANSI.WHITE;
         private TextColor titleColor = TextColor.ANSI.WHITE;
 
+        /**
+         * Creates an empty builder with default colors.
+         */
+        public Builder() {
+        }
+
+        /**
+         * Appends title lines.
+         *
+         * @param lines title lines to append; entries containing newline characters are split into separate lines
+         * @return this builder
+         */
         public Builder withTitle(String... lines) {
             if (lines != null) {
                 for (String line : lines) {
@@ -57,7 +75,13 @@ public class TitleArea implements Renderable {
             }
             return this;
         }
-        
+
+        /**
+         * Appends title lines from a list.
+         *
+         * @param lines title lines to append
+         * @return this builder
+         */
         public Builder withTitle(List<String> lines) {
             if (lines != null) {
                 this.titleLines.addAll(lines);
@@ -65,22 +89,45 @@ public class TitleArea implements Renderable {
             return this;
         }
 
+        /**
+         * Applies title colors from the provided theme.
+         *
+         * @param theme the theme supplying title colors
+         * @return this builder
+         */
         public Builder withTheme(DialogTheme theme) {
             this.borderColor = theme.borderStyle().foreground();
             this.titleColor = theme.titleStyle().foreground();
             return this;
         }
-        
+
+        /**
+         * Sets the border color associated with this title area.
+         *
+         * @param color the border color
+         * @return this builder
+         */
         public Builder withBorderColor(TextColor color) {
             this.borderColor = color;
             return this;
         }
 
+        /**
+         * Sets the title text color.
+         *
+         * @param color the title color
+         * @return this builder
+         */
         public Builder withTitleColor(TextColor color) {
             this.titleColor = color;
             return this;
         }
 
+        /**
+         * Builds the title area.
+         *
+         * @return a new {@link TitleArea}
+         */
         public TitleArea build() {
             return new TitleArea(this);
         }

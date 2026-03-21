@@ -3,6 +3,9 @@ package org.dawciobiel.shelldialog.cli.i18n;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * Accesses localized user-facing messages from the {@code messages} resource bundle.
+ */
 public class Messages {
 
     private static final String BUNDLE_NAME = "messages";
@@ -26,6 +29,12 @@ public class Messages {
         resourceBundle = ResourceBundle.getBundle(BUNDLE_NAME, locale);
     }
 
+    /**
+     * Returns the localized value associated with the supplied key.
+     *
+     * @param key the resource-bundle key
+     * @return the localized value, or {@code !key!} when the key cannot be resolved
+     */
     public static String getString(String key) {
         try {
             return resourceBundle.getString(key);

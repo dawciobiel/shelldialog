@@ -7,6 +7,9 @@ import org.dawciobiel.shelldialog.cli.style.DialogTheme;
 
 import java.io.IOException;
 
+/**
+ * Renders the navigation toolbar shown at the bottom of a dialog.
+ */
 public class NavigationArea implements Renderable {
 
     private final NavigationToolbar toolbar;
@@ -22,15 +25,36 @@ public class NavigationArea implements Renderable {
         renderer.render(tg, toolbar, startRow);
     }
 
+    /**
+     * Builder for {@link NavigationArea} instances.
+     */
     public static class Builder {
         private NavigationToolbar toolbar;
         private NavigationToolbarRenderer renderer;
 
+        /**
+         * Creates an empty builder.
+         */
+        public Builder() {
+        }
+
+        /**
+         * Sets the toolbar definition to render.
+         *
+         * @param toolbar the toolbar model
+         * @return this builder
+         */
         public Builder withToolbar(NavigationToolbar toolbar) {
             this.toolbar = toolbar;
             return this;
         }
 
+        /**
+         * Creates a renderer using the navigation colors from the supplied theme.
+         *
+         * @param theme the theme supplying navigation colors
+         * @return this builder
+         */
         public Builder withTheme(DialogTheme theme) {
             this.renderer = new NavigationToolbarRenderer(
                     theme.navigationStyle().foreground(),
@@ -39,12 +63,23 @@ public class NavigationArea implements Renderable {
             );
             return this;
         }
-        
+
+        /**
+         * Sets a custom renderer for the toolbar.
+         *
+         * @param renderer the renderer to use
+         * @return this builder
+         */
         public Builder withRenderer(NavigationToolbarRenderer renderer) {
             this.renderer = renderer;
             return this;
         }
 
+        /**
+         * Builds the navigation area.
+         *
+         * @return a new {@link NavigationArea}
+         */
         public NavigationArea build() {
             return new NavigationArea(this);
         }

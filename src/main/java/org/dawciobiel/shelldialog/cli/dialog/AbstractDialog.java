@@ -9,11 +9,22 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+/**
+ * Base class for dialogs rendered on a Lanterna screen.
+ *
+ * @param <T> the type returned when the dialog is accepted
+ */
 public abstract class AbstractDialog<T> implements Showable<T> {
 
     private final String inputStreamPath;
     private final String outputStreamPath;
 
+    /**
+     * Creates the dialog base with the provided terminal device paths.
+     *
+     * @param inputStreamPath the path used for terminal input
+     * @param outputStreamPath the path used for terminal output
+     */
     protected AbstractDialog(String inputStreamPath, String outputStreamPath) {
         this.inputStreamPath = inputStreamPath;
         this.outputStreamPath = outputStreamPath;
@@ -50,5 +61,12 @@ public abstract class AbstractDialog<T> implements Showable<T> {
         }
     }
 
+    /**
+     * Executes the dialog-specific interaction using an already initialized screen.
+     *
+     * @param screen the active Lanterna screen
+     * @return an optional result produced by the dialog
+     * @throws IOException if screen I/O fails during the interaction
+     */
     protected abstract Optional<T> runDialog(Screen screen) throws IOException;
 }

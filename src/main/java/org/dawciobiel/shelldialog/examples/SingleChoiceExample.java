@@ -15,8 +15,19 @@ import java.util.Optional;
 
 import static java.lang.System.out;
 
+/**
+ * Demonstrates how to build and show a {@link SingleChoiceDialog}.
+ */
 public class SingleChoiceExample {
 
+    private SingleChoiceExample() {
+    }
+
+    /**
+     * Runs the single-choice dialog example.
+     *
+     * @param args command-line arguments, currently ignored
+     */
     public static void main(String[] args) {
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Select your favorite fruit:")

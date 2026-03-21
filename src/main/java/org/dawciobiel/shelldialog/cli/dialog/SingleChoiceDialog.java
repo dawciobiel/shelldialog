@@ -40,10 +40,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     }
 
     /**
-     * Displays the selection menu to the user and waits for input.
-     *
-     * @return An {@link Optional} containing the selected {@link DialogOption}
-     *         or {@link Optional#empty()} if canceled.
+     * {@inheritDoc}
      */
     @Override
     protected Optional<DialogOption> runDialog(Screen screen) throws IOException {

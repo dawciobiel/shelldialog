@@ -3,7 +3,19 @@ package org.dawciobiel.shelldialog;
 import org.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import org.dawciobiel.shelldialog.examples.TextLineExample;
 
+/**
+ * Entry point used for launching bundled example dialogs from the command line.
+ */
 public class Main {
+
+    private Main() {
+    }
+
+    /**
+     * Launches one of the example applications.
+     *
+     * @param args the first argument selects the example name
+     */
     public static void main(String[] args) {
         String arg = args.length > 0 ? args[0] : "singlechoice";
 
