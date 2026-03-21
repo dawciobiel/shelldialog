@@ -40,6 +40,8 @@ tasks.withType<JavaCompile> {
 tasks.jar {
     manifest {
         attributes["Main-Class"] = application.mainClass.get()
+        attributes["Implementation-Title"] = project.name
+        attributes["Implementation-Version"] = project.version.toString()
     }
     from(configurations.runtimeClasspath.get().map {
         if (it.isDirectory) it else zipTree(it)

@@ -20,13 +20,14 @@ public class Main {
         String arg = args.length > 0 ? args[0] : "singlechoice";
 
         switch (arg.toLowerCase()) {
+            case "--version", "-v", "version" -> System.out.println(Version.get());
             case "singlechoice" -> SingleChoiceExample.main(args);
             case "textline" -> TextLineExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice" + ", " + "textline");
+                System.out.println("singlechoice, textline, version");
             }
         }
     }
