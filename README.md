@@ -1,6 +1,6 @@
 # ShellDialog
 
-**Current version: 2.1.0**
+**Current version: 2.1.1-SNAPSHOT**
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
