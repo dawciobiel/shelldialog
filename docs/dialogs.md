@@ -7,8 +7,6 @@ This document describes the current usage of:
 - `MultiChoiceDialog`
 - `PasswordDialog`
 - `YesNoDialog`
-- `PasswordDialog`
-- `YesNoDialog`
 
 Both dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
 The dialog builder also controls the shared frame shown around the whole dialog.
