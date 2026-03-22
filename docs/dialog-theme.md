@@ -48,6 +48,9 @@ DialogTheme theme = DialogTheme.darkTheme();
 - `NavigationArea.withTheme(theme)` uses `navigationStyle()`
 - `TextLineDialog.Builder.withTheme(theme)` uses `borderStyle()`
 - `SingleChoiceDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `PasswordDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `MultiChoiceDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `YesNoDialog.Builder.withTheme(theme)` uses `borderStyle()`
 
 The menu-specific styles are intended for choice dialogs:
 
