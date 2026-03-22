@@ -32,6 +32,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
                 builder.navigationArea,
                 builder.borderVisible,
                 builder.maxLength,
+                builder.normalizedInitialValue(),
                 builder.borderStyle
         );
         this.maxLength = builder.maxLength;
@@ -64,6 +65,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
         private final NavigationArea navigationArea;
 
         private int maxLength = Integer.MAX_VALUE;
+        private String initialValue = "";
         private Function<String, Optional<String>> validator = value -> Optional.empty();
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
@@ -112,6 +114,24 @@ public class TextLineDialog extends AbstractInputDialog<String> {
         public Builder withValidator(Function<String, Optional<String>> validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
+        }
+
+        /**
+         * Sets the initial value shown in the input field when the dialog opens.
+         * If the value is longer than {@code maxLength}, it is truncated during build.
+         *
+         * @param initialValue the initial text value
+         * @return this builder
+         */
+        public Builder withInitialValue(String initialValue) {
+            this.initialValue = Objects.requireNonNull(initialValue);
+            return this;
+        }
+
+        private String normalizedInitialValue() {
+            return initialValue.length() <= maxLength
+                    ? initialValue
+                    : initialValue.substring(0, maxLength);
         }
 
         /**

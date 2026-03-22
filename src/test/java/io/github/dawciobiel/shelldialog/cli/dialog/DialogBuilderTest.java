@@ -95,6 +95,35 @@ class DialogBuilderTest {
     }
 
     @Test
+    void textLineDialogBuilderShouldApplyInitialValue() throws Exception {
+        TextLineDialog dialog = new TextLineDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withInitialValue("Alice")
+                .build();
+
+        assertEquals("Alice", readField(dialog, "initialValue"));
+    }
+
+    @Test
+    void textLineDialogBuilderShouldTrimInitialValueToMaxLength() throws Exception {
+        TextLineDialog dialog = new TextLineDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withMaxLength(4)
+                .withInitialValue("Alice")
+                .build();
+
+        assertEquals("Alic", readField(dialog, "initialValue"));
+    }
+
+    @Test
     void singleChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
                 titleArea(),

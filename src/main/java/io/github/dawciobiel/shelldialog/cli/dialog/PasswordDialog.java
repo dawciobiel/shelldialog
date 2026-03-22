@@ -29,6 +29,7 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
                 builder.navigationArea,
                 builder.borderVisible,
                 builder.maxLength,
+                "",
                 builder.borderStyle
         );
         this.maskCharacter = builder.maskCharacter;

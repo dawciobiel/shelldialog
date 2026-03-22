@@ -71,6 +71,7 @@ public class TextLineExample {
         TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
                 .withMaxLength(12)
+                .withInitialValue("Dawid")
                 .withValidator(value -> value.isBlank()
                         ? Optional.of("Name is required.")
                         : Optional.empty())
