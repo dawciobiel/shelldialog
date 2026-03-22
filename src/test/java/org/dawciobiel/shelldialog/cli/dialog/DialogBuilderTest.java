@@ -356,9 +356,17 @@ class DialogBuilderTest {
     }
 
     private Object readField(Object target, String fieldName) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
+        Class<?> currentClass = target.getClass();
+        while (currentClass != null) {
+            try {
+                Field field = currentClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (NoSuchFieldException ignored) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
     }
 
     private boolean readBooleanField(Object target, String fieldName) throws Exception {

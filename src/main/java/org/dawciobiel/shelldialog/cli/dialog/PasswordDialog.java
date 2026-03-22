@@ -1,20 +1,10 @@
 package org.dawciobiel.shelldialog.cli.dialog;
 
-import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.screen.Screen;
-import org.dawciobiel.shelldialog.cli.style.DialogTheme;
-import org.dawciobiel.shelldialog.cli.style.TextStyle;
-import org.dawciobiel.shelldialog.cli.ui.ContentArea;
-import org.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import org.dawciobiel.shelldialog.cli.ui.InputArea;
 import org.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import org.dawciobiel.shelldialog.cli.ui.TitleArea;
+import org.dawciobiel.shelldialog.cli.ui.ContentArea;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -23,127 +13,42 @@ import java.util.function.Function;
  * A CLI dialog that captures a password as a character array.
  * The typed value is rendered as masked content inside the shared optional frame.
  */
-public class PasswordDialog extends AbstractDialog<char[]> {
+public class PasswordDialog extends AbstractInputDialog<char[]> {
 
-    private final TitleArea titleArea;
-    private final ContentArea contentArea;
-    private final InputArea inputArea;
-    private final boolean borderVisible;
-    private final NavigationArea navigationArea;
-    private final DialogFrame dialogFrame;
     private final char maskCharacter;
     private final int maxLength;
     private final Function<char[], Optional<String>> validator;
 
     private PasswordDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
-        this.titleArea = builder.titleArea;
-        this.contentArea = builder.contentArea;
-        this.inputArea = builder.inputArea;
-        this.borderVisible = builder.borderVisible;
-        this.navigationArea = builder.navigationArea;
-        this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
+        super(
+                builder.inputStreamPath,
+                builder.outputStreamPath,
+                builder.titleArea,
+                builder.contentArea,
+                builder.inputArea,
+                builder.navigationArea,
+                builder.borderVisible,
+                builder.maxLength,
+                builder.borderStyle
+        );
         this.maskCharacter = builder.maskCharacter;
         this.maxLength = builder.maxLength;
         this.validator = builder.validator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected Optional<char[]> runDialog(Screen screen) throws IOException {
-        StringBuilder inputBuffer = new StringBuilder();
-        TextGraphics tg = screen.newTextGraphics();
-        String validationMessage = null;
-
-        while (true) {
-            render(screen, tg, inputBuffer.length(), validationMessage);
-
-            KeyStroke key = screen.readInput();
-            KeyType type = key.getKeyType();
-
-            switch (type) {
-                case Enter -> {
-                    char[] value = inputBuffer.toString().toCharArray();
-                    Optional<String> validationResult = validator.apply(value);
-                    if (validationResult.isPresent()) {
-                        validationMessage = validationResult.get();
-                        break;
-                    }
-                    return Optional.of(value);
-                }
-                case Escape -> {
-                    return Optional.empty();
-                }
-                case Backspace -> {
-                    if (!inputBuffer.isEmpty()) {
-                        inputBuffer.setLength(inputBuffer.length() - 1);
-                        validationMessage = null;
-                    }
-                }
-                case Character -> {
-                    if (inputBuffer.length() < maxLength) {
-                        inputBuffer.append(key.getCharacter());
-                        validationMessage = null;
-                    }
-                }
-                default -> {
-                }
-            }
-        }
+    protected String inputDisplay(String rawInput) {
+        return String.valueOf(maskCharacter).repeat(rawInput.length());
     }
 
-    private void render(Screen screen, TextGraphics tg, int inputLength, String validationMessage) throws IOException {
-        screen.clear();
+    @Override
+    protected Optional<String> validate(String rawInput) {
+        return validator.apply(rawInput.toCharArray());
+    }
 
-        String maskedValue = String.valueOf(maskCharacter).repeat(inputLength);
-        InputArea currentInputArea = inputArea.withContent(maskedValue);
-        ContentArea validationArea = validationMessage == null ? null : contentArea.withContent(validationMessage);
-        int contentWidth = Math.max(
-                Math.max(titleArea.getWidth(), contentArea.getWidth()),
-                Math.max(currentInputArea.getWidth(), navigationArea.getWidth())
-        );
-        if (validationArea != null) {
-            contentWidth = Math.max(contentWidth, validationArea.getWidth());
-        }
-        int contentHeight = titleArea.getHeight()
-                + 1
-                + contentArea.getHeight()
-                + 1
-                + currentInputArea.getHeight();
-        if (validationArea != null) {
-            contentHeight += 1 + validationArea.getHeight();
-        }
-        contentHeight += 1
-                + navigationArea.getHeight();
-        DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
-        dialogFrame.render(tg, layout);
-
-        int column = layout.contentColumn();
-        int row = layout.contentRow();
-        titleArea.render(tg, column, row);
-        row += titleArea.getHeight();
-
-        row++;
-
-        contentArea.render(tg, column, row);
-        row += contentArea.getHeight();
-
-        row++;
-
-        int inputRow = row;
-        currentInputArea.render(tg, column, row++);
-        if (validationArea != null) {
-            row++;
-            validationArea.render(tg, column, row++);
-        }
-        row++;
-
-        navigationArea.render(tg, column, row);
-
-        screen.setCursorPosition(new TerminalPosition(column + inputLength, inputRow));
-        screen.refresh();
+    @Override
+    protected char[] acceptedValue(String rawInput) {
+        return rawInput.toCharArray();
     }
 
     /**
