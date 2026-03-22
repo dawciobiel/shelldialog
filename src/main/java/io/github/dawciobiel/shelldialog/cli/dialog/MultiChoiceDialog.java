@@ -6,6 +6,7 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
+import io.github.dawciobiel.shelldialog.cli.i18n.UIProperties;
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.MultiChoiceMarker;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
@@ -32,6 +33,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
+    private static final String DISABLED_SUFFIX = UIProperties.getString("dialog.option.disabled_suffix");
 
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
@@ -65,7 +67,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
      */
     @Override
     protected Optional<List<DialogOption>> runDialog(Screen screen) throws IOException {
-        int focusedIndex = 0;
+        int focusedIndex = initialFocusedIndex();
         Set<Integer> selectedIndices = new LinkedHashSet<>(initialSelectedIndices);
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
@@ -78,14 +80,10 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
             switch (type) {
                 case ArrowUp -> {
-                    if (focusedIndex > 0) {
-                        focusedIndex--;
-                    }
+                    focusedIndex = previousEnabledIndex(focusedIndex);
                 }
                 case ArrowDown -> {
-                    if (focusedIndex < options.size() - 1) {
-                        focusedIndex++;
-                    }
+                    focusedIndex = nextEnabledIndex(focusedIndex);
                 }
                 case Character -> {
                     Character character = key.getCharacter();
@@ -116,7 +114,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
-                .mapToInt(option -> menuItemWidth(option.getLabel()))
+                .mapToInt(option -> menuItemWidth(displayLabel(option)))
                 .max()
                 .orElse(0),
                 moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
@@ -147,7 +145,9 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         }
 
         for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-            renderMenuItem(tg, column, row++, options.get(i).getLabel(), i == focusedIndex, selectedIndices.contains(i));
+            DialogOption option = options.get(i);
+            boolean focused = i == focusedIndex && option.isEnabled();
+            renderMenuItem(tg, column, row++, option, focused, selectedIndices.contains(i));
         }
 
         if (hasItemsBelow) {
@@ -160,11 +160,12 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         screen.refresh();
     }
 
-    private void renderMenuItem(TextGraphics tg, int column, int row, String item, boolean focused, boolean selected)
+    private void renderMenuItem(TextGraphics tg, int column, int row, DialogOption option, boolean focused, boolean selected)
             throws IOException {
+        String item = displayLabel(option);
         String marker = selected ? MultiChoiceMarker.SELECTED : MultiChoiceMarker.UNSELECTED;
         String text = marker + " " + item;
-        ContentArea currentArea = resolveArea(focused, selected).withContent(text);
+        ContentArea currentArea = resolveArea(focused, selected && option.isEnabled()).withContent(text);
         currentArea.render(tg, column, row);
     }
 
@@ -183,6 +184,10 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
     private int menuItemWidth(String item) {
         return MultiChoiceMarker.UNSELECTED.length() + 1 + item.length();
+    }
+
+    private String displayLabel(DialogOption option) {
+        return option.getLabel() + (option.isEnabled() ? "" : DISABLED_SUFFIX);
     }
 
     private int firstVisibleIndex(int focusedIndex) {
@@ -212,9 +217,39 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     }
 
     private void toggleSelection(Set<Integer> selectedIndices, int focusedIndex) {
+        if (focusedIndex < 0 || focusedIndex >= options.size() || !options.get(focusedIndex).isEnabled()) {
+            return;
+        }
         if (!selectedIndices.add(focusedIndex)) {
             selectedIndices.remove(focusedIndex);
         }
+    }
+
+    private int initialFocusedIndex() {
+        for (int index = 0; index < options.size(); index++) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return 0;
+    }
+
+    private int nextEnabledIndex(int currentIndex) {
+        for (int index = currentIndex + 1; index < options.size(); index++) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return currentIndex;
+    }
+
+    private int previousEnabledIndex(int currentIndex) {
+        for (int index = currentIndex - 1; index >= 0; index--) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return currentIndex;
     }
 
     private List<DialogOption> selectedOptions(Set<Integer> selectedIndices) {
@@ -317,7 +352,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
             LinkedHashSet<Integer> resolvedIndices = new LinkedHashSet<>();
             for (int index = 0; index < options.size(); index++) {
-                if (selectedCodes.contains(options.get(index).getCode())) {
+                if (options.get(index).isEnabled() && selectedCodes.contains(options.get(index).getCode())) {
                     resolvedIndices.add(index);
                 }
             }

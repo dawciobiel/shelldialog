@@ -10,6 +10,7 @@ Each option must provide:
 
 - `int getCode()`
 - `String getLabel()`
+- `boolean isEnabled()`
 
 The dialog renders `getLabel()` and returns the selected option object when the user confirms the selection.
 
@@ -17,16 +18,18 @@ The dialog renders `getLabel()` and returns the selected option object when the 
 
 `SimpleDialogOption` is the default implementation of `DialogOption`.
 
-### Constructor
+### Constructors
 
 ```java
 new SimpleDialogOption(int code, String label)
+new SimpleDialogOption(int code, String label, boolean enabled)
 ```
 
 ### Example
 
 ```java
 SimpleDialogOption apple = new SimpleDialogOption(1, "Apple");
+SimpleDialogOption banana = new SimpleDialogOption(2, "Banana", false);
 ```
 
 ### Typical usage
@@ -34,10 +37,12 @@ SimpleDialogOption apple = new SimpleDialogOption(1, "Apple");
 ```java
 List<DialogOption> options = List.of(
         new SimpleDialogOption(1, "Apple"),
-        new SimpleDialogOption(2, "Banana"),
+        new SimpleDialogOption(2, "Banana", false),
         new SimpleDialogOption(3, "Cherry")
 );
 ```
+
+Disabled options are rendered as unavailable, skipped during keyboard navigation, and cannot be confirmed or toggled.
 
 ## Returned value from SingleChoiceDialog
 

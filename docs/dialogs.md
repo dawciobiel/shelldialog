@@ -124,6 +124,7 @@ To build `SingleChoiceDialog`, you need:
 - `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
 
 When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
+Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be confirmed.
 
 ### Adding menu items
 
@@ -134,7 +135,7 @@ The simplest implementation is `SimpleDialogOption`:
 ```java
 List<DialogOption> options = List.of(
         new SimpleDialogOption(1, "Apple"),
-        new SimpleDialogOption(2, "Banana"),
+        new SimpleDialogOption(2, "Banana", false),
         new SimpleDialogOption(3, "Cherry")
 );
 ```
@@ -315,6 +316,7 @@ To build `MultiChoiceDialog`, you need:
 - `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
 
 When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
+Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be toggled with `Space`.
 
 ### Example
 
