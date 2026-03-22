@@ -36,6 +36,7 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
     private final DialogFrame dialogFrame;
     private final String yesLabel;
     private final String noLabel;
+    private final boolean defaultYesSelected;
 
     private YesNoDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
@@ -48,6 +49,7 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.yesLabel = builder.yesLabel;
         this.noLabel = builder.noLabel;
+        this.defaultYesSelected = builder.defaultYesSelected;
     }
 
     /**
@@ -55,7 +57,7 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
      */
     @Override
     protected Optional<Boolean> runDialog(Screen screen) throws IOException {
-        boolean yesSelected = true;
+        boolean yesSelected = defaultYesSelected;
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
@@ -148,6 +150,7 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
 
         private String yesLabel = DEFAULT_YES_LABEL;
         private String noLabel = DEFAULT_NO_LABEL;
+        private boolean defaultYesSelected = true;
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -198,6 +201,17 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
          */
         public Builder withNoLabel(String label) {
             this.noLabel = Objects.requireNonNull(label);
+            return this;
+        }
+
+        /**
+         * Sets whether the affirmative answer should be selected when the dialog opens.
+         *
+         * @param defaultYesSelected {@code true} to focus "Yes" initially, {@code false} to focus "No"
+         * @return this builder
+         */
+        public Builder withDefaultYesSelected(boolean defaultYesSelected) {
+            this.defaultYesSelected = defaultYesSelected;
             return this;
         }
 
