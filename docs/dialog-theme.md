@@ -12,6 +12,7 @@ It does not render anything on its own. Instead, UI components read style values
 - `titleStyle()`
 - `contentStyle()`
 - `inputStyle()`
+- `validationMessageStyle()`
 - `navigationStyle()`
 - `menuItemStyle()`
 - `menuItemSelectedStyle()`
@@ -28,6 +29,7 @@ DialogTheme theme = DialogTheme.builder()
         .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
         .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
         .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+        .validationMessageStyle(TextStyle.of(TextColor.ANSI.RED_BRIGHT, TextColor.ANSI.DEFAULT))
         .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
         .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
         .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
@@ -47,8 +49,10 @@ DialogTheme theme = DialogTheme.darkTheme();
 - `InputArea.withTheme(theme)` uses `inputStyle()`
 - `NavigationArea.withTheme(theme)` uses `navigationStyle()`
 - `TextLineDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `TextLineDialog.Builder.withTheme(theme)` also uses `validationMessageStyle()` for validation feedback
 - `SingleChoiceDialog.Builder.withTheme(theme)` uses `borderStyle()`
 - `PasswordDialog.Builder.withTheme(theme)` uses `borderStyle()`
+- `PasswordDialog.Builder.withTheme(theme)` also uses `validationMessageStyle()` for validation feedback
 - `MultiChoiceDialog.Builder.withTheme(theme)` uses `borderStyle()`
 - `YesNoDialog.Builder.withTheme(theme)` uses `borderStyle()`
 

@@ -11,6 +11,7 @@ public final class DialogTheme {
     private final TextStyle titleStyle;
     private final TextStyle contentStyle;
     private final TextStyle inputStyle;
+    private final TextStyle validationMessageStyle;
     private final TextStyle navigationStyle;
     private final TextStyle menuItemStyle;
     private final TextStyle menuItemSelectedStyle;
@@ -20,6 +21,7 @@ public final class DialogTheme {
         this.titleStyle = builder.titleStyle;
         this.contentStyle = builder.contentStyle;
         this.inputStyle = builder.inputStyle;
+        this.validationMessageStyle = builder.validationMessageStyle;
         this.navigationStyle = builder.navigationStyle;
         this.menuItemStyle = builder.menuItemStyle;
         this.menuItemSelectedStyle = builder.menuItemSelectedStyle;
@@ -44,6 +46,7 @@ public final class DialogTheme {
                         .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
                         .contentStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
                         .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                        .validationMessageStyle(TextStyle.of(TextColor.ANSI.RED_BRIGHT, TextColor.ANSI.DEFAULT))
                         .navigationStyle(TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT))
                         .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
                         .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
@@ -87,6 +90,15 @@ public final class DialogTheme {
     }
 
     /**
+     * Returns the style used for validation messages rendered below input fields.
+     *
+     * @return the validation message style
+     */
+    public TextStyle validationMessageStyle() {
+        return validationMessageStyle;
+    }
+
+    /**
      * Returns the style used for the navigation toolbar.
      *
      * @return the navigation style
@@ -121,6 +133,7 @@ public final class DialogTheme {
         private TextStyle titleStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle contentStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle inputStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
+        private TextStyle validationMessageStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle navigationStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle menuItemStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
         private TextStyle menuItemSelectedStyle = TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT);
@@ -172,6 +185,17 @@ public final class DialogTheme {
          */
         public Builder inputStyle(TextStyle style) {
             this.inputStyle = style;
+            return this;
+        }
+
+        /**
+         * Sets the style used for validation messages.
+         *
+         * @param style the validation message style
+         * @return this builder
+         */
+        public Builder validationMessageStyle(TextStyle style) {
+            this.validationMessageStyle = style;
             return this;
         }
 

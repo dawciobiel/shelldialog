@@ -43,6 +43,7 @@ class DialogBuilderTest {
     void textLineDialogBuilderShouldApplyBorderStyleFromTheme() throws Exception {
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(TextStyle.of(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK))
+                .validationMessageStyle(TextStyle.of(TextColor.ANSI.RED, TextColor.ANSI.BLUE))
                 .build();
 
         TextLineDialog dialog = new TextLineDialog.Builder(
@@ -56,9 +57,12 @@ class DialogBuilderTest {
 
         DialogFrame frame = (DialogFrame) readField(dialog, "dialogFrame");
         TextStyle borderStyle = (TextStyle) readField(frame, "borderStyle");
+        TextStyle validationMessageStyle = (TextStyle) readField(dialog, "validationMessageStyle");
 
         assertEquals(TextColor.ANSI.GREEN, borderStyle.foreground());
         assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
+        assertEquals(TextColor.ANSI.RED, validationMessageStyle.foreground());
+        assertEquals(TextColor.ANSI.BLUE, validationMessageStyle.background());
     }
 
     @Test
@@ -92,6 +96,23 @@ class DialogBuilderTest {
 
         assertEquals(Optional.of("Required"), validator.apply(""));
         assertEquals(Optional.empty(), validator.apply("value"));
+    }
+
+    @Test
+    void textLineDialogBuilderShouldApplyValidationMessageStyle() throws Exception {
+        TextLineDialog dialog = new TextLineDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withValidationMessageStyle(TextStyle.of(TextColor.ANSI.YELLOW, TextColor.ANSI.RED))
+                .build();
+
+        TextStyle validationMessageStyle = (TextStyle) readField(dialog, "validationMessageStyle");
+
+        assertEquals(TextColor.ANSI.YELLOW, validationMessageStyle.foreground());
+        assertEquals(TextColor.ANSI.RED, validationMessageStyle.background());
     }
 
     @Test
@@ -268,6 +289,23 @@ class DialogBuilderTest {
 
         assertEquals(Optional.of("Too short"), validator.apply("123".toCharArray()));
         assertEquals(Optional.empty(), validator.apply("123456".toCharArray()));
+    }
+
+    @Test
+    void passwordDialogBuilderShouldApplyValidationMessageStyle() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withValidationMessageStyle(TextStyle.of(TextColor.ANSI.YELLOW, TextColor.ANSI.RED))
+                .build();
+
+        TextStyle validationMessageStyle = (TextStyle) readField(dialog, "validationMessageStyle");
+
+        assertEquals(TextColor.ANSI.YELLOW, validationMessageStyle.foreground());
+        assertEquals(TextColor.ANSI.RED, validationMessageStyle.background());
     }
 
     @Test
