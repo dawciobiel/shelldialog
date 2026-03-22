@@ -296,6 +296,10 @@ To build `MultiChoiceDialog`, you need:
 - `Enter`: confirms current selection set
 - `Escape`: cancels dialog
 
+### Optional builder settings
+
+- `withInitiallySelectedOptions(List<DialogOption>)` to preselect options when the dialog opens
+
 ### Example
 
 ```java
@@ -351,6 +355,7 @@ MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
         navigationArea
 )
         .withTheme(theme)
+        .withInitiallySelectedOptions(List.of(options.get(1)))
         .build();
 
 Optional<List<DialogOption>> result = dialog.show();

@@ -254,6 +254,31 @@ class DialogBuilderTest {
         assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
     }
 
+    @Test
+    void multiChoiceDialogBuilderShouldApplyInitiallySelectedOptions() throws Exception {
+        List<DialogOption> availableOptions = options();
+        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                focusedContentArea(),
+                selectedContentArea(),
+                selectedFocusedContentArea(),
+                availableOptions,
+                navigationArea()
+        )
+                .withInitiallySelectedOptions(List.of(
+                        availableOptions.get(1),
+                        new SimpleDialogOption(999, "Unknown")
+                ))
+                .build();
+
+        @SuppressWarnings("unchecked")
+        java.util.Set<Integer> initialSelectedIndices =
+                (java.util.Set<Integer>) readField(dialog, "initialSelectedIndices");
+
+        assertEquals(java.util.Set.of(1), initialSelectedIndices);
+    }
+
     private TitleArea titleArea() {
         return new TitleArea.Builder()
                 .withTitle("Title")

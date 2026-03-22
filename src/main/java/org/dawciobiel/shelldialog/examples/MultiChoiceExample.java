@@ -94,6 +94,10 @@ public class MultiChoiceExample {
                 navigationArea
         )
                 .withTheme(theme)
+                .withInitiallySelectedOptions(List.of(
+                        options.get(1),
+                        options.get(3)
+                ))
                 .build();
 
         Optional<List<DialogOption>> result = dialog.show();

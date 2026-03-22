@@ -16,6 +16,7 @@ import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     private final ContentArea selectedMenuItemArea;
     private final ContentArea selectedFocusedMenuItemArea;
     private final List<DialogOption> options;
+    private final Set<Integer> initialSelectedIndices;
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
@@ -47,6 +49,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
         this.selectedFocusedMenuItemArea = builder.selectedFocusedMenuItemArea;
         this.options = builder.options;
+        this.initialSelectedIndices = builder.initialSelectedIndices;
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
@@ -58,7 +61,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     @Override
     protected Optional<List<DialogOption>> runDialog(Screen screen) throws IOException {
         int focusedIndex = 0;
-        Set<Integer> selectedIndices = new LinkedHashSet<>();
+        Set<Integer> selectedIndices = new LinkedHashSet<>(initialSelectedIndices);
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
@@ -186,6 +189,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         private final ContentArea selectedFocusedMenuItemArea;
         private final List<DialogOption> options;
         private final NavigationArea navigationArea;
+        private Set<Integer> initialSelectedIndices = Set.of();
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -242,6 +246,31 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
          */
         public Builder outputStream(String path) {
             this.outputStreamPath = Objects.requireNonNull(path);
+            return this;
+        }
+
+        /**
+         * Sets the options that should be marked as selected when the dialog opens.
+         * Options are matched by their numeric codes. Unknown codes are ignored.
+         *
+         * @param selectedOptions the options that should start selected
+         * @return this builder
+         */
+        public Builder withInitiallySelectedOptions(List<DialogOption> selectedOptions) {
+            Objects.requireNonNull(selectedOptions);
+            Set<Integer> selectedCodes = new HashSet<>();
+            for (DialogOption option : selectedOptions) {
+                selectedCodes.add(Objects.requireNonNull(option).getCode());
+            }
+
+            LinkedHashSet<Integer> resolvedIndices = new LinkedHashSet<>();
+            for (int index = 0; index < options.size(); index++) {
+                if (selectedCodes.contains(options.get(index).getCode())) {
+                    resolvedIndices.add(index);
+                }
+            }
+
+            this.initialSelectedIndices = Set.copyOf(resolvedIndices);
             return this;
         }
 
