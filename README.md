@@ -49,6 +49,33 @@ To build the executable fat JAR used for running examples locally:
 ./gradlew fatJar
 ```
 
+## Dependency
+
+The library is available from Maven Central under:
+
+- `io.github.dawciobiel:shelldialog:3.0.0`
+
+Gradle:
+
+```gradle
+implementation("io.github.dawciobiel:shelldialog:3.0.0")
+```
+
+Maven:
+
+```xml
+<dependency>
+    <groupId>io.github.dawciobiel</groupId>
+    <artifactId>shelldialog</artifactId>
+    <version>3.0.0</version>
+</dependency>
+```
+
+Artifact pages:
+
+- `https://central.sonatype.com/artifact/io.github.dawciobiel/shelldialog`
+- `https://repo1.maven.org/maven2/io/github/dawciobiel/shelldialog/3.0.0/`
+
 ## Launching
 
 You can run the examples using the executable `-all.jar`. Pass the dialog type as an argument:

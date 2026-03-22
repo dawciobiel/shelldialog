@@ -2,6 +2,17 @@
 
 This project is prepared for publication to Maven Central.
 
+## Published coordinates
+
+The current published artifact coordinates are:
+
+- `io.github.dawciobiel:shelldialog:3.0.0`
+
+Useful links:
+
+- `https://central.sonatype.com/artifact/io.github.dawciobiel/shelldialog`
+- `https://repo1.maven.org/maven2/io/github/dawciobiel/shelldialog/3.0.0/`
+
 ## Artifact layout
 
 - the standard `jar` is the library artifact intended for dependency consumption
