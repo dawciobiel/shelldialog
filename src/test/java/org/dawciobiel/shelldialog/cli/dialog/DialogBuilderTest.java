@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -58,6 +59,39 @@ class DialogBuilderTest {
 
         assertEquals(TextColor.ANSI.GREEN, borderStyle.foreground());
         assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
+    }
+
+    @Test
+    void textLineDialogBuilderShouldApplyMaxLength() throws Exception {
+        TextLineDialog dialog = new TextLineDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withMaxLength(12)
+                .build();
+
+        assertEquals(12, readField(dialog, "maxLength"));
+    }
+
+    @Test
+    void textLineDialogBuilderShouldApplyValidator() throws Exception {
+        TextLineDialog dialog = new TextLineDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                .build();
+
+        @SuppressWarnings("unchecked")
+        java.util.function.Function<String, Optional<String>> validator =
+                (java.util.function.Function<String, Optional<String>>) readField(dialog, "validator");
+
+        assertEquals(Optional.of("Required"), validator.apply(""));
+        assertEquals(Optional.empty(), validator.apply("value"));
     }
 
     @Test

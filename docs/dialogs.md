@@ -40,6 +40,15 @@ To build `TextLineDialog`, you need:
 - `Enter`: confirms input
 - `Escape`: cancels dialog
 
+### Optional validation
+
+`TextLineDialog.Builder` also supports:
+
+- `withMaxLength(int)` to cap the accepted input length
+- `withValidator(Function<String, Optional<String>>)` to validate the value on `Enter`
+
+If the validator returns an error message, the dialog stays open and renders that message below the input field.
+
 ### Example
 
 ```java
