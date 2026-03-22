@@ -312,6 +312,9 @@ To build `MultiChoiceDialog`, you need:
 ### Optional builder settings
 
 - `withInitiallySelectedOptions(List<DialogOption>)` to preselect options when the dialog opens
+- `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
+
+When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
 
 ### Example
 
@@ -369,6 +372,7 @@ MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
 )
         .withTheme(theme)
         .withInitiallySelectedOptions(List.of(options.get(1)))
+        .withVisibleItemCount(3)
         .build();
 
 Optional<List<DialogOption>> result = dialog.show();

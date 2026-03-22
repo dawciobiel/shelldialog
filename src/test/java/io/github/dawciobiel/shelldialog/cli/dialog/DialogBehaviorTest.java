@@ -123,6 +123,55 @@ class DialogBehaviorTest {
     }
 
     @Test
+    void multiChoiceDialogShouldStartViewportAtZeroWhenLimitIsNotReached() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(3);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 1);
+
+        assertEquals(0, firstVisibleIndex);
+    }
+
+    @Test
+    void multiChoiceDialogShouldMoveViewportWhenFocusLeavesVisibleWindow() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(3);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 4);
+        int lastVisibleIndex = (int) invokeMethod(dialog, "lastVisibleIndex", new Class<?>[]{int.class}, firstVisibleIndex);
+
+        assertEquals(2, firstVisibleIndex);
+        assertEquals(5, lastVisibleIndex);
+    }
+
+    @Test
+    void multiChoiceDialogShouldShowAllItemsWhenNoViewportLimitIsConfigured() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(0);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 4);
+        int lastVisibleIndex = (int) invokeMethod(dialog, "lastVisibleIndex", new Class<?>[]{int.class}, firstVisibleIndex);
+
+        assertEquals(0, firstVisibleIndex);
+        assertEquals(options().size(), lastVisibleIndex);
+    }
+
+    @Test
+    void multiChoiceDialogShouldReserveWidthForMoreIndicatorsWhenViewportIsClipped() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(3);
+
+        int width = (int) invokeMethod(dialog, "moreIndicatorWidth", new Class<?>[]{boolean.class, boolean.class}, true, true);
+
+        assertEquals("\u2191 more".length(), width);
+    }
+
+    @Test
+    void multiChoiceDialogShouldNotReserveMoreIndicatorWidthWhenEverythingIsVisible() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(0);
+
+        int width = (int) invokeMethod(dialog, "moreIndicatorWidth", new Class<?>[]{boolean.class, boolean.class}, false, false);
+
+        assertEquals(0, width);
+    }
+
+    @Test
     void singleChoiceDialogShouldStartViewportAtZeroWhenLimitIsNotReached() throws Exception {
         SingleChoiceDialog dialog = singleChoiceDialog(3);
 
@@ -172,7 +221,11 @@ class DialogBehaviorTest {
     }
 
     private MultiChoiceDialog multiChoiceDialog() {
-        return new MultiChoiceDialog.Builder(
+        return multiChoiceDialog(0);
+    }
+
+    private MultiChoiceDialog multiChoiceDialog(int visibleItemCount) {
+        MultiChoiceDialog.Builder builder = new MultiChoiceDialog.Builder(
                 titleArea(),
                 contentArea(),
                 focusedContentArea(),
@@ -180,7 +233,11 @@ class DialogBehaviorTest {
                 selectedFocusedContentArea(),
                 options(),
                 navigationArea()
-        ).build();
+        );
+        if (visibleItemCount > 0) {
+            builder.withVisibleItemCount(visibleItemCount);
+        }
+        return builder.build();
     }
 
     private SingleChoiceDialog singleChoiceDialog(int visibleItemCount) {

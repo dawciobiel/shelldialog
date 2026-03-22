@@ -367,6 +367,23 @@ class DialogBuilderTest {
         assertEquals(java.util.Set.of(1), initialSelectedIndices);
     }
 
+    @Test
+    void multiChoiceDialogBuilderShouldApplyVisibleItemCount() throws Exception {
+        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                focusedContentArea(),
+                selectedContentArea(),
+                selectedFocusedContentArea(),
+                options(),
+                navigationArea()
+        )
+                .withVisibleItemCount(3)
+                .build();
+
+        assertEquals(3, readField(dialog, "visibleItemCount"));
+    }
+
     private TitleArea titleArea() {
         return new TitleArea.Builder()
                 .withTitle("Title")
