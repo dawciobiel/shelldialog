@@ -99,6 +99,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard space-to-select item.
+         *
+         * @return this builder
+         */
+        public Builder withSpaceSelect() {
+            items.add(new NavigationItem(NavigationLabels.KEY_SPACE, NavigationLabels.ACTION_SELECT));
+            return this;
+        }
+
+        /**
          * Appends the standard enter-to-accept item.
          *
          * @return this builder
