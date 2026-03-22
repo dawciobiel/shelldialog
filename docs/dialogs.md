@@ -203,6 +203,11 @@ To build `PasswordDialog`, you need:
 - `Optional.of(value)` when the user confirms with `Enter`
 - `Optional.empty()` when the user cancels with `Escape`
 
+### Security note
+
+`PasswordDialog` exposes password values as `char[]` so callers can clear them after use.
+This reduces the lifetime of sensitive data compared to returning immutable `String` values, but it does not protect against memory inspection, profilers, debuggers, or other tools with sufficient access to the running JVM process.
+
 ### Keyboard behavior
 
 - `Character`: appends typed character to the password buffer
