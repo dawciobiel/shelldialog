@@ -256,6 +256,35 @@ class DialogBuilderTest {
     }
 
     @Test
+    void passwordDialogBuilderShouldApplyInitialValue() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withInitialValue("secret".toCharArray())
+                .build();
+
+        assertEquals("secret", readField(dialog, "initialValue"));
+    }
+
+    @Test
+    void passwordDialogBuilderShouldTrimInitialValueToMaxLength() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withMaxLength(4)
+                .withInitialValue("secret".toCharArray())
+                .build();
+
+        assertEquals("secr", readField(dialog, "initialValue"));
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

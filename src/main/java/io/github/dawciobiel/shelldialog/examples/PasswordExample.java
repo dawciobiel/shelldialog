@@ -70,6 +70,7 @@ public class PasswordExample {
         PasswordDialog dialog = new PasswordDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
                 .withMaxLength(16)
+                .withInitialValue("secret".toCharArray())
                 .withValidator(value -> value.length < 6
                         ? Optional.of("Password must be at least 6 characters long.")
                         : Optional.empty())

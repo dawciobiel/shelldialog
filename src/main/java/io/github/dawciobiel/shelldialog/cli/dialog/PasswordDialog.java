@@ -5,6 +5,7 @@ import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
                 builder.navigationArea,
                 builder.borderVisible,
                 builder.maxLength,
-                "",
+                builder.normalizedInitialValue(),
                 builder.borderStyle
         );
         this.maskCharacter = builder.maskCharacter;
@@ -64,6 +65,7 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
 
         private char maskCharacter = '*';
         private int maxLength = Integer.MAX_VALUE;
+        private char[] initialValue = new char[0];
         private Function<char[], Optional<String>> validator = value -> Optional.empty();
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
@@ -123,6 +125,25 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
         public Builder withValidator(Function<char[], Optional<String>> validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
+        }
+
+        /**
+         * Sets the initial password value shown in masked form when the dialog opens.
+         * If the value is longer than {@code maxLength}, it is truncated during build.
+         *
+         * @param initialValue the initial password value
+         * @return this builder
+         */
+        public Builder withInitialValue(char[] initialValue) {
+            this.initialValue = Arrays.copyOf(Objects.requireNonNull(initialValue), initialValue.length);
+            return this;
+        }
+
+        private String normalizedInitialValue() {
+            char[] normalized = initialValue.length <= maxLength
+                    ? initialValue
+                    : Arrays.copyOf(initialValue, maxLength);
+            return new String(normalized);
         }
 
         /**

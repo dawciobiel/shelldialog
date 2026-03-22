@@ -214,6 +214,7 @@ To build `PasswordDialog`, you need:
 
 `PasswordDialog.Builder` also supports:
 
+- `withInitialValue(char[])` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
 - `withValidator(Function<char[], Optional<String>>)` to validate the value on `Enter`
 
@@ -255,6 +256,7 @@ PasswordDialog dialog = new PasswordDialog.Builder(
         navigationArea
 )
         .withTheme(theme)
+        .withInitialValue("secret".toCharArray())
         .withMaxLength(16)
         .withValidator(value -> value.length < 6
                 ? Optional.of("Password must be at least 6 characters long.")
