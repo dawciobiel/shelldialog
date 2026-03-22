@@ -1,6 +1,6 @@
 # ShellDialog
 
-**Current version: 2.1.1-SNAPSHOT**
+**Current version: 2.2.0**
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
@@ -68,6 +68,6 @@ java -jar build/libs/shelldialog-2.1.0.jar yesno
 
 The library version can be checked in three ways:
 
-- from the JAR file name, for example `shelldialog-2.1.1-SNAPSHOT.jar`
+- from the JAR file name, for example `shelldialog-2.2.0.jar`
 - from `META-INF/MANIFEST.MF` inside the JAR
-- from the command line with `java -jar build/libs/shelldialog-2.1.1-SNAPSHOT.jar --version`
+- from the command line with `java -jar build/libs/shelldialog-2.2.0.jar --version`
