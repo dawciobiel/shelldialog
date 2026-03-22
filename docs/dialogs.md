@@ -124,7 +124,7 @@ To build `SingleChoiceDialog`, you need:
 
 - `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
 
-When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
+When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
 Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be confirmed.
 
 ### Adding menu items
@@ -317,7 +317,7 @@ To build `MultiChoiceDialog`, you need:
 - `withInitiallySelectedOptions(List<DialogOption>)` to preselect options when the dialog opens
 - `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
 
-When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
+When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
 Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be toggled with `Space`.
 
 ### Example
