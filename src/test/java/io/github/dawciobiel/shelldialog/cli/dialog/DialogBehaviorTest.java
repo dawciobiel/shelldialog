@@ -81,6 +81,16 @@ class DialogBehaviorTest {
     }
 
     @Test
+    void multiChoiceDialogShouldIgnoreSelectionToggleForDisabledOption() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(disabledOptions(), 0);
+        Set<Integer> selectedIndices = new LinkedHashSet<>();
+
+        invokeMethod(dialog, "toggleSelection", new Class<?>[]{Set.class, int.class}, selectedIndices, 1);
+
+        assertTrue(selectedIndices.isEmpty());
+    }
+
+    @Test
     void multiChoiceDialogShouldReturnSelectedOptionsInOriginalOrder() throws Exception {
         MultiChoiceDialog dialog = multiChoiceDialog();
         Set<Integer> selectedIndices = new LinkedHashSet<>();
@@ -96,6 +106,17 @@ class DialogBehaviorTest {
         );
 
         assertEquals(List.of("One", "Three"), selectedOptions.stream().map(DialogOption::getLabel).toList());
+    }
+
+    @Test
+    void multiChoiceDialogShouldSkipDisabledItemsWhenMovingFocus() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(disabledOptions(), 0);
+
+        int nextEnabledIndex = (int) invokeMethod(dialog, "nextEnabledIndex", new Class<?>[]{int.class}, 0);
+        int previousEnabledIndex = (int) invokeMethod(dialog, "previousEnabledIndex", new Class<?>[]{int.class}, 2);
+
+        assertEquals(2, nextEnabledIndex);
+        assertEquals(0, previousEnabledIndex);
     }
 
     @Test
@@ -220,18 +241,47 @@ class DialogBehaviorTest {
         assertEquals(0, width);
     }
 
+    @Test
+    void singleChoiceDialogShouldSkipDisabledItemsWhenMovingSelection() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(disabledOptions(), 0);
+
+        int nextEnabledIndex = (int) invokeMethod(dialog, "nextEnabledIndex", new Class<?>[]{int.class}, 0);
+        int previousEnabledIndex = (int) invokeMethod(dialog, "previousEnabledIndex", new Class<?>[]{int.class}, 2);
+
+        assertEquals(2, nextEnabledIndex);
+        assertEquals(0, previousEnabledIndex);
+    }
+
+    @Test
+    void singleChoiceDialogShouldDecorateDisabledLabels() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(disabledOptions(), 0);
+
+        String label = (String) invokeMethod(
+                dialog,
+                "displayLabel",
+                new Class<?>[]{DialogOption.class},
+                disabledOptions().get(1)
+        );
+
+        assertEquals("Two (disabled)", label);
+    }
+
     private MultiChoiceDialog multiChoiceDialog() {
-        return multiChoiceDialog(0);
+        return multiChoiceDialog(options(), 0);
     }
 
     private MultiChoiceDialog multiChoiceDialog(int visibleItemCount) {
+        return multiChoiceDialog(options(), visibleItemCount);
+    }
+
+    private MultiChoiceDialog multiChoiceDialog(List<DialogOption> options, int visibleItemCount) {
         MultiChoiceDialog.Builder builder = new MultiChoiceDialog.Builder(
                 titleArea(),
                 contentArea(),
                 focusedContentArea(),
                 selectedContentArea(),
                 selectedFocusedContentArea(),
-                options(),
+                options,
                 navigationArea()
         );
         if (visibleItemCount > 0) {
@@ -241,11 +291,15 @@ class DialogBehaviorTest {
     }
 
     private SingleChoiceDialog singleChoiceDialog(int visibleItemCount) {
+        return singleChoiceDialog(options(), visibleItemCount);
+    }
+
+    private SingleChoiceDialog singleChoiceDialog(List<DialogOption> options, int visibleItemCount) {
         SingleChoiceDialog.Builder builder = new SingleChoiceDialog.Builder(
                 titleArea(),
                 contentArea(),
                 selectedContentArea(),
-                options(),
+                options,
                 navigationArea()
         );
         if (visibleItemCount > 0) {
@@ -326,6 +380,16 @@ class DialogBehaviorTest {
                 new SimpleDialogOption(2, "Two"),
                 new SimpleDialogOption(3, "Three"),
                 new SimpleDialogOption(4, "Four"),
+                new SimpleDialogOption(5, "Five")
+        );
+    }
+
+    private List<DialogOption> disabledOptions() {
+        return List.of(
+                new SimpleDialogOption(1, "One"),
+                new SimpleDialogOption(2, "Two", false),
+                new SimpleDialogOption(3, "Three"),
+                new SimpleDialogOption(4, "Four", false),
                 new SimpleDialogOption(5, "Five")
         );
     }

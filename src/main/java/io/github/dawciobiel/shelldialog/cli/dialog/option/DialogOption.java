@@ -18,4 +18,13 @@ public interface DialogOption {
      * @return the option label
      */
     String getLabel();
+
+    /**
+     * Returns whether the option can currently be focused and selected.
+     *
+     * @return {@code true} when the option is enabled, otherwise {@code false}
+     */
+    default boolean isEnabled() {
+        return true;
+    }
 }

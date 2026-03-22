@@ -60,7 +60,7 @@ public class MultiChoiceExample {
 
         List<DialogOption> options = List.of(
                 new SimpleDialogOption(1, "Apple"),
-                new SimpleDialogOption(2, "Banana"),
+                new SimpleDialogOption(2, "Banana", false),
                 new SimpleDialogOption(3, "Cherry"),
                 new SimpleDialogOption(4, "Date"),
                 new SimpleDialogOption(5, "Elderberry")
@@ -95,7 +95,7 @@ public class MultiChoiceExample {
         )
                 .withTheme(theme)
                 .withInitiallySelectedOptions(List.of(
-                        options.get(1),
+                        options.get(0),
                         options.get(3)
                 ))
                 .withVisibleItemCount(3)

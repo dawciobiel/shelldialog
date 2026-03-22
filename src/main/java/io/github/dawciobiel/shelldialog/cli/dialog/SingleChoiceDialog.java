@@ -6,6 +6,7 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
+import io.github.dawciobiel.shelldialog.cli.i18n.UIProperties;
 import io.github.dawciobiel.shelldialog.cli.style.Arrow;
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
@@ -31,6 +32,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
+    private static final String DISABLED_SUFFIX = UIProperties.getString("dialog.option.disabled_suffix");
 
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
@@ -59,7 +61,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     @Override
     protected Optional<DialogOption> runDialog(Screen screen) throws IOException {
 
-        int selectedIndex = 0;
+        int selectedIndex = initialSelectedIndex();
         screen.setCursorPosition(null); // Hide cursor
         TextGraphics tg = screen.newTextGraphics();
 
@@ -71,13 +73,13 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
             switch (type) {
                 case ArrowUp -> {
-                    if (selectedIndex > 0) selectedIndex--;
+                    selectedIndex = previousEnabledIndex(selectedIndex);
                 }
                 case ArrowDown -> {
-                    if (selectedIndex < options.size() - 1) selectedIndex++;
+                    selectedIndex = nextEnabledIndex(selectedIndex);
                 }
                 case Enter -> {
-                    if (selectedIndex >= 0 && selectedIndex < options.size()) {
+                    if (selectedIndex >= 0 && selectedIndex < options.size() && options.get(selectedIndex).isEnabled()) {
                         return Optional.of(options.get(selectedIndex));
                     }
                 }
@@ -101,7 +103,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
-                .mapToInt(option -> menuItemWidth(option.getLabel()))
+                .mapToInt(option -> menuItemWidth(displayLabel(option)))
                 .max()
                 .orElse(0),
                 moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
@@ -132,7 +134,8 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         }
 
         for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-            renderMenuItem(tg, column, row++, options.get(i).getLabel(), i == selectedIndex);
+            DialogOption option = options.get(i);
+            renderMenuItem(tg, column, row++, option, i == selectedIndex && option.isEnabled());
         }
 
         if (hasItemsBelow) {
@@ -161,14 +164,49 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         return Math.min(options.size(), firstVisibleIndex + visibleItemCount);
     }
 
-    private void renderMenuItem(TextGraphics tg, int column, int row, String item, boolean selected) throws IOException {
-        String text = (selected ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY) + item + (selected ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY);
-        ContentArea currentArea = (selected ? selectedMenuItemArea : menuItemArea).withContent(text);
+    private void renderMenuItem(TextGraphics tg, int column, int row, DialogOption option, boolean selected) throws IOException {
+        String item = displayLabel(option);
+        boolean enabled = option.isEnabled();
+        String leftMarker = selected && enabled ? Arrow.MARKER_EFT : Arrow.MARKER_EMPTY;
+        String rightMarker = selected && enabled ? Arrow.MARKER_RIGHT : Arrow.MARKER_EMPTY;
+        String text = leftMarker + item + rightMarker;
+        ContentArea currentArea = (selected && enabled ? selectedMenuItemArea : menuItemArea).withContent(text);
         currentArea.render(tg, column, row);
     }
 
     private int menuItemWidth(String item) {
         return (Arrow.MARKER_EMPTY + item + Arrow.MARKER_EMPTY).length();
+    }
+
+    private String displayLabel(DialogOption option) {
+        return option.getLabel() + (option.isEnabled() ? "" : DISABLED_SUFFIX);
+    }
+
+    private int initialSelectedIndex() {
+        for (int index = 0; index < options.size(); index++) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return 0;
+    }
+
+    private int nextEnabledIndex(int currentIndex) {
+        for (int index = currentIndex + 1; index < options.size(); index++) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return currentIndex;
+    }
+
+    private int previousEnabledIndex(int currentIndex) {
+        for (int index = currentIndex - 1; index >= 0; index--) {
+            if (options.get(index).isEnabled()) {
+                return index;
+            }
+        }
+        return currentIndex;
     }
 
     private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {

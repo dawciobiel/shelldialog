@@ -368,6 +368,31 @@ class DialogBuilderTest {
     }
 
     @Test
+    void multiChoiceDialogBuilderShouldIgnoreDisabledInitiallySelectedOptions() throws Exception {
+        List<DialogOption> availableOptions = List.of(
+                new SimpleDialogOption(1, "One"),
+                new SimpleDialogOption(2, "Two", false)
+        );
+        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                focusedContentArea(),
+                selectedContentArea(),
+                selectedFocusedContentArea(),
+                availableOptions,
+                navigationArea()
+        )
+                .withInitiallySelectedOptions(availableOptions)
+                .build();
+
+        @SuppressWarnings("unchecked")
+        java.util.Set<Integer> initialSelectedIndices =
+                (java.util.Set<Integer>) readField(dialog, "initialSelectedIndices");
+
+        assertEquals(java.util.Set.of(0), initialSelectedIndices);
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldApplyVisibleItemCount() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

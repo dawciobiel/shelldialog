@@ -46,7 +46,7 @@ public class SingleChoiceExample {
 
         List<DialogOption> options = List.of(
                 new SimpleDialogOption(1, "Apple"),
-                new SimpleDialogOption(2, "Banana"),
+                new SimpleDialogOption(2, "Banana", false),
                 new SimpleDialogOption(3, "Cherry"),
                 new SimpleDialogOption(4, "Date"),
                 new SimpleDialogOption(5, "Elderberry")
