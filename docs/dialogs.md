@@ -203,6 +203,11 @@ To build `PasswordDialog`, you need:
 - `Optional.of(value)` when the user confirms with `Enter`
 - `Optional.empty()` when the user cancels with `Escape`
 
+### Security note
+
+`PasswordDialog` exposes password values as `char[]` so callers can clear them after use.
+This reduces the lifetime of sensitive data compared to returning immutable `String` values, but it does not protect against memory inspection, profilers, debuggers, or other tools with sufficient access to the running JVM process.
+
 ### Keyboard behavior
 
 - `Character`: appends typed character to the password buffer
@@ -214,6 +219,7 @@ To build `PasswordDialog`, you need:
 
 `PasswordDialog.Builder` also supports:
 
+- `withInitialValue(char[])` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
 - `withValidator(Function<char[], Optional<String>>)` to validate the value on `Enter`
 
@@ -255,6 +261,7 @@ PasswordDialog dialog = new PasswordDialog.Builder(
         navigationArea
 )
         .withTheme(theme)
+        .withInitialValue("secret".toCharArray())
         .withMaxLength(16)
         .withValidator(value -> value.length < 6
                 ? Optional.of("Password must be at least 6 characters long.")
