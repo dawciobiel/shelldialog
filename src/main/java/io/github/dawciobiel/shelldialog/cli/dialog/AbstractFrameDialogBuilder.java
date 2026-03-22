@@ -13,7 +13,14 @@ import java.util.Objects;
  */
 abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T>> {
 
+    /**
+     * Controls whether the shared frame around the dialog is rendered.
+     */
     protected boolean borderVisible = true;
+
+    /**
+     * The visual style used when the shared dialog frame is rendered.
+     */
     protected TextStyle borderStyle = TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT);
 
     /**
@@ -60,5 +67,10 @@ abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T
         return self();
     }
 
+    /**
+     * Returns the concrete builder type for fluent chaining in subclasses.
+     *
+     * @return this builder cast to its concrete type
+     */
     protected abstract T self();
 }

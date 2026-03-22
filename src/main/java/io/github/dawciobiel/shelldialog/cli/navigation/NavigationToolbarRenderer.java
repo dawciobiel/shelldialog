@@ -32,6 +32,7 @@ public final class NavigationToolbarRenderer {
      *
      * @param tg the graphics context used for drawing
      * @param toolbar the toolbar to render
+     * @param startColumn the column where rendering starts
      * @param row the row where rendering starts
      */
     public void render(TextGraphics tg, NavigationToolbar toolbar, int startColumn, int row) {

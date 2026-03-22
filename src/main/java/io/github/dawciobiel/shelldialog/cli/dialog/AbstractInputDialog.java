@@ -95,10 +95,28 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
         }
     }
 
+    /**
+     * Converts the raw input buffer into the text that should be rendered in the input field.
+     *
+     * @param rawInput the current raw input value
+     * @return the text to display to the user
+     */
     protected abstract String inputDisplay(String rawInput);
 
+    /**
+     * Validates the current raw input when the user confirms the dialog.
+     *
+     * @param rawInput the current raw input value
+     * @return an empty optional when the input is valid, or an error message otherwise
+     */
     protected abstract Optional<String> validate(String rawInput);
 
+    /**
+     * Converts the raw input buffer into the accepted dialog result type.
+     *
+     * @param rawInput the current raw input value
+     * @return the accepted dialog result
+     */
     protected abstract T acceptedValue(String rawInput);
 
     private void render(Screen screen, TextGraphics tg, String rawInput, String validationMessage) throws IOException {
