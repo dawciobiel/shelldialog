@@ -29,6 +29,8 @@ repositories {
 // Dependencies
 dependencies {
     implementation("com.googlecode.lanterna:lanterna:3.1.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Compilation configuration
@@ -51,6 +53,7 @@ tasks.jar {
 
 // Tests (equivalent to maven-surefire-plugin)
 tasks.test {
+    useJUnitPlatform()
     forkEvery = 1
     maxParallelForks = 1
 }
