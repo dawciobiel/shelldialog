@@ -80,6 +80,7 @@ public class YesNoExample {
                 navigationArea
         )
                 .withTheme(theme)
+                .withDefaultYesSelected(false)
                 .build();
 
         Optional<Boolean> result = dialog.show();

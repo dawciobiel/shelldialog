@@ -164,6 +164,21 @@ class DialogBuilderTest {
     }
 
     @Test
+    void yesNoDialogBuilderShouldApplyDefaultFocusedAnswer() throws Exception {
+        YesNoDialog dialog = new YesNoDialog.Builder(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withDefaultYesSelected(false)
+                .build();
+
+        assertFalse(readBooleanField(dialog, "defaultYesSelected"));
+    }
+
+    @Test
     void passwordDialogBuilderShouldApplyMaskCharacter() throws Exception {
         PasswordDialog dialog = new PasswordDialog.Builder(
                 titleArea(),

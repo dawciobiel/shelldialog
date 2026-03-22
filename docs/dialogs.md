@@ -396,6 +396,10 @@ To build `YesNoDialog`, you need:
 - `Enter`: confirms the selected answer
 - `Escape`: cancels dialog
 
+### Optional builder settings
+
+- `withDefaultYesSelected(boolean)` to choose which answer is focused when the dialog opens
+
 ### Example
 
 ```java
@@ -439,6 +443,7 @@ YesNoDialog dialog = new YesNoDialog.Builder(
         navigationArea
 )
         .withTheme(theme)
+        .withDefaultYesSelected(false)
         .build();
 
 Optional<Boolean> result = dialog.show();
