@@ -5,6 +5,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
+import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
@@ -27,6 +28,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
+    private final TextStyle validationMessageStyle;
     private final int maxLength;
     private final String initialValue;
 
@@ -38,6 +40,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
             InputArea inputArea,
             NavigationArea navigationArea,
             boolean borderVisible,
+            TextStyle validationMessageStyle,
             int maxLength,
             String initialValue,
             io.github.dawciobiel.shelldialog.cli.style.TextStyle borderStyle
@@ -49,6 +52,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
         this.navigationArea = navigationArea;
         this.borderVisible = borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, borderStyle);
+        this.validationMessageStyle = validationMessageStyle;
         this.maxLength = maxLength;
         this.initialValue = initialValue;
     }
@@ -123,7 +127,11 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
         screen.clear();
 
         InputArea currentInputArea = inputArea.withContent(inputDisplay(rawInput));
-        ContentArea validationArea = validationMessage == null ? null : contentArea.withContent(validationMessage);
+        ContentArea validationArea = validationMessage == null ? null : new ContentArea.Builder()
+                .withContent(validationMessage)
+                .withForegroundColor(validationMessageStyle.foreground())
+                .withBackgroundColor(validationMessageStyle.background())
+                .build();
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), contentArea.getWidth()),
                 Math.max(currentInputArea.getWidth(), navigationArea.getWidth())

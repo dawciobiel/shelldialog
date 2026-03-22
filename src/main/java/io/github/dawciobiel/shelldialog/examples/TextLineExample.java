@@ -34,6 +34,7 @@ public class TextLineExample {
                                        .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
                                        .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
                                        .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                                       .validationMessageStyle(TextStyle.of(TextColor.ANSI.RED_BRIGHT, TextColor.ANSI.DEFAULT))
                                        .menuItemStyle(TextStyle.of(TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT))
                                        .menuItemSelectedStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
                                        .build();

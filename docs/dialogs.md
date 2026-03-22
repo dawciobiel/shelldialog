@@ -45,6 +45,7 @@ To build `TextLineDialog`, you need:
 - `withInitialValue(String)` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
 - `withValidator(Function<String, Optional<String>>)` to validate the value on `Enter`
+- `withValidationMessageStyle(TextStyle)` to style the validation message below the input
 
 If the validator returns an error message, the dialog stays open and renders that message below the input field.
 
@@ -229,6 +230,7 @@ This reduces the lifetime of sensitive data compared to returning immutable `Str
 - `withInitialValue(char[])` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
 - `withValidator(Function<char[], Optional<String>>)` to validate the value on `Enter`
+- `withValidationMessageStyle(TextStyle)` to style the validation message below the input
 
 If the validator returns an error message, the dialog stays open and renders that message below the input field.
 

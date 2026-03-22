@@ -1,5 +1,7 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
+import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
+import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
@@ -31,6 +33,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
                 builder.inputArea,
                 builder.navigationArea,
                 builder.borderVisible,
+                builder.validationMessageStyle,
                 builder.maxLength,
                 builder.normalizedInitialValue(),
                 builder.borderStyle
@@ -66,6 +69,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
 
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
+        private TextStyle validationMessageStyle = TextStyle.ofAnsi(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private Function<String, Optional<String>> validator = value -> Optional.empty();
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
@@ -87,6 +91,19 @@ public class TextLineDialog extends AbstractInputDialog<String> {
 
         @Override
         protected Builder self() {
+            return this;
+        }
+
+        /**
+         * Applies frame and validation message styles from the provided theme.
+         *
+         * @param theme the theme supplying dialog styles
+         * @return this builder
+         */
+        @Override
+        public Builder withTheme(DialogTheme theme) {
+            super.withTheme(theme);
+            this.validationMessageStyle = Objects.requireNonNull(theme).validationMessageStyle();
             return this;
         }
 
@@ -113,6 +130,17 @@ public class TextLineDialog extends AbstractInputDialog<String> {
          */
         public Builder withValidator(Function<String, Optional<String>> validator) {
             this.validator = Objects.requireNonNull(validator);
+            return this;
+        }
+
+        /**
+         * Sets the style used for validation messages rendered below the input field.
+         *
+         * @param validationMessageStyle the validation message style
+         * @return this builder
+         */
+        public Builder withValidationMessageStyle(TextStyle validationMessageStyle) {
+            this.validationMessageStyle = Objects.requireNonNull(validationMessageStyle);
             return this;
         }
 
