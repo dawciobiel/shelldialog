@@ -96,6 +96,97 @@ class DialogBuilderTest {
         assertTrue(readBooleanField(dialog, "borderVisible"));
     }
 
+    @Test
+    void yesNoDialogBuilderShouldAllowDisablingBorder() throws Exception {
+        YesNoDialog dialog = new YesNoDialog.Builder(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withBorder(false)
+                .build();
+
+        assertFalse(readBooleanField(dialog, "borderVisible"));
+        assertNotNull(readField(dialog, "dialogFrame"));
+    }
+
+    @Test
+    void yesNoDialogBuilderShouldApplyCustomLabels() throws Exception {
+        YesNoDialog dialog = new YesNoDialog.Builder(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withYesLabel("Proceed")
+                .withNoLabel("Abort")
+                .build();
+
+        assertEquals("Proceed", readField(dialog, "yesLabel"));
+        assertEquals("Abort", readField(dialog, "noLabel"));
+    }
+
+    @Test
+    void passwordDialogBuilderShouldApplyMaskCharacter() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withMaskCharacter('#')
+                .build();
+
+        assertEquals('#', readField(dialog, "maskCharacter"));
+        assertTrue(readBooleanField(dialog, "borderVisible"));
+    }
+
+    @Test
+    void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
+        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                focusedContentArea(),
+                selectedContentArea(),
+                selectedFocusedContentArea(),
+                options(),
+                navigationArea()
+        )
+                .withBorder(false)
+                .build();
+
+        assertFalse(readBooleanField(dialog, "borderVisible"));
+        assertNotNull(readField(dialog, "dialogFrame"));
+    }
+
+    @Test
+    void multiChoiceDialogBuilderShouldApplyBorderTheme() throws Exception {
+        DialogTheme theme = DialogTheme.builder()
+                .borderStyle(TextStyle.of(TextColor.ANSI.MAGENTA, TextColor.ANSI.BLACK))
+                .build();
+
+        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                focusedContentArea(),
+                selectedContentArea(),
+                selectedFocusedContentArea(),
+                options(),
+                navigationArea()
+        )
+                .withTheme(theme)
+                .build();
+
+        DialogFrame frame = (DialogFrame) readField(dialog, "dialogFrame");
+        TextStyle borderStyle = (TextStyle) readField(frame, "borderStyle");
+
+        assertEquals(TextColor.ANSI.MAGENTA, borderStyle.foreground());
+        assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
+    }
+
     private TitleArea titleArea() {
         return new TitleArea.Builder()
                 .withTitle("Title")
@@ -119,6 +210,22 @@ class DialogBuilderTest {
     private InputArea inputArea() {
         return new InputArea.Builder()
                 .withContent("Input")
+                .build();
+    }
+
+    private ContentArea focusedContentArea() {
+        return new ContentArea.Builder()
+                .withContent("Focused")
+                .withForegroundColor(TextColor.ANSI.BLACK)
+                .withBackgroundColor(TextColor.ANSI.YELLOW)
+                .build();
+    }
+
+    private ContentArea selectedFocusedContentArea() {
+        return new ContentArea.Builder()
+                .withContent("SelectedFocused")
+                .withForegroundColor(TextColor.ANSI.BLACK)
+                .withBackgroundColor(TextColor.ANSI.GREEN)
                 .build();
     }
 
