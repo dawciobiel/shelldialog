@@ -160,6 +160,21 @@ class DialogBuilderTest {
     }
 
     @Test
+    void singleChoiceDialogBuilderShouldApplyVisibleItemCount() throws Exception {
+        SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                options(),
+                navigationArea()
+        )
+                .withVisibleItemCount(3)
+                .build();
+
+        assertEquals(3, readField(dialog, "visibleItemCount"));
+    }
+
+    @Test
     void yesNoDialogBuilderShouldAllowDisablingBorder() throws Exception {
         YesNoDialog dialog = new YesNoDialog.Builder(
                 titleArea(),
