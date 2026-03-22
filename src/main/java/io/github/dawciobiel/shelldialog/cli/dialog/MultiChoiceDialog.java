@@ -30,6 +30,9 @@ import java.util.Set;
  */
 public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
+    private static final String MORE_ABOVE_LABEL = "\u2191 more";
+    private static final String MORE_BELOW_LABEL = "\u2193 more";
+
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
     private final ContentArea focusedMenuItemArea;
@@ -40,6 +43,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
+    private final int visibleItemCount;
 
     private MultiChoiceDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
@@ -53,6 +57,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
+        this.visibleItemCount = builder.visibleItemCount;
     }
 
     /**
@@ -103,17 +108,28 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     private void render(Screen screen, TextGraphics tg, int focusedIndex, Set<Integer> selectedIndices) throws IOException {
         screen.clear();
 
-        int optionsWidth = options.stream()
+        int firstVisibleIndex = firstVisibleIndex(focusedIndex);
+        int lastVisibleIndex = lastVisibleIndex(firstVisibleIndex);
+        List<DialogOption> visibleOptions = options.subList(firstVisibleIndex, lastVisibleIndex);
+        boolean hasItemsAbove = firstVisibleIndex > 0;
+        boolean hasItemsBelow = lastVisibleIndex < options.size();
+
+        int optionsWidth = Math.max(
+                visibleOptions.stream()
                 .mapToInt(option -> menuItemWidth(option.getLabel()))
                 .max()
-                .orElse(0);
+                .orElse(0),
+                moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
+        );
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), optionsWidth),
                 navigationArea.getWidth()
         );
         int contentHeight = titleArea.getHeight()
                 + 1
-                + options.size()
+                + (hasItemsAbove ? 1 : 0)
+                + visibleOptions.size()
+                + (hasItemsBelow ? 1 : 0)
                 + 1
                 + navigationArea.getHeight();
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
@@ -126,9 +142,18 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
         row++;
 
-        for (int i = 0; i < options.size(); i++) {
+        if (hasItemsAbove) {
+            menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
+        }
+
+        for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
             renderMenuItem(tg, column, row++, options.get(i).getLabel(), i == focusedIndex, selectedIndices.contains(i));
         }
+
+        if (hasItemsBelow) {
+            menuItemArea.withContent(MORE_BELOW_LABEL).render(tg, column, row++);
+        }
+
         row++;
 
         navigationArea.render(tg, column, row);
@@ -158,6 +183,32 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
     private int menuItemWidth(String item) {
         return MultiChoiceMarker.UNSELECTED.length() + 1 + item.length();
+    }
+
+    private int firstVisibleIndex(int focusedIndex) {
+        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
+            return 0;
+        }
+        int maxStartIndex = options.size() - visibleItemCount;
+        return Math.min(Math.max(0, focusedIndex - visibleItemCount + 1), maxStartIndex);
+    }
+
+    private int lastVisibleIndex(int firstVisibleIndex) {
+        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
+            return options.size();
+        }
+        return Math.min(options.size(), firstVisibleIndex + visibleItemCount);
+    }
+
+    private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
+        int width = 0;
+        if (hasItemsAbove) {
+            width = MORE_ABOVE_LABEL.length();
+        }
+        if (hasItemsBelow) {
+            width = Math.max(width, MORE_BELOW_LABEL.length());
+        }
+        return width;
     }
 
     private void toggleSelection(Set<Integer> selectedIndices, int focusedIndex) {
@@ -190,6 +241,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         private final List<DialogOption> options;
         private final NavigationArea navigationArea;
         private Set<Integer> initialSelectedIndices = Set.of();
+        private int visibleItemCount = 0;
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -271,6 +323,21 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
             }
 
             this.initialSelectedIndices = Set.copyOf(resolvedIndices);
+            return this;
+        }
+
+        /**
+         * Limits the number of menu items visible at once.
+         * When the focus moves outside the visible window, the dialog scrolls the list.
+         *
+         * @param visibleItemCount the maximum number of visible menu items, must be positive
+         * @return this builder
+         */
+        public Builder withVisibleItemCount(int visibleItemCount) {
+            if (visibleItemCount <= 0) {
+                throw new IllegalArgumentException("visibleItemCount must be positive");
+            }
+            this.visibleItemCount = visibleItemCount;
             return this;
         }
 

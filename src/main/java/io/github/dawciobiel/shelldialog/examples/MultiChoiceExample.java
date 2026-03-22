@@ -98,6 +98,7 @@ public class MultiChoiceExample {
                         options.get(1),
                         options.get(3)
                 ))
+                .withVisibleItemCount(3)
                 .build();
 
         Optional<List<DialogOption>> result = dialog.show();
