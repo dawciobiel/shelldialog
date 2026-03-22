@@ -210,6 +210,15 @@ To build `PasswordDialog`, you need:
 - `Enter`: confirms input
 - `Escape`: cancels dialog
 
+### Optional validation
+
+`PasswordDialog.Builder` also supports:
+
+- `withMaxLength(int)` to cap the accepted input length
+- `withValidator(Function<char[], Optional<String>>)` to validate the value on `Enter`
+
+If the validator returns an error message, the dialog stays open and renders that message below the input field.
+
 ### Example
 
 ```java
@@ -246,6 +255,10 @@ PasswordDialog dialog = new PasswordDialog.Builder(
         navigationArea
 )
         .withTheme(theme)
+        .withMaxLength(16)
+        .withValidator(value -> value.length < 6
+                ? Optional.of("Password must be at least 6 characters long.")
+                : Optional.empty())
         .withMaskCharacter('*')
         .build();
 

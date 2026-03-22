@@ -17,6 +17,7 @@ import org.dawciobiel.shelldialog.cli.ui.TitleArea;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * A CLI dialog that captures a password as a character array.
@@ -31,6 +32,8 @@ public class PasswordDialog extends AbstractDialog<char[]> {
     private final NavigationArea navigationArea;
     private final DialogFrame dialogFrame;
     private final char maskCharacter;
+    private final int maxLength;
+    private final Function<char[], Optional<String>> validator;
 
     private PasswordDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
@@ -41,6 +44,8 @@ public class PasswordDialog extends AbstractDialog<char[]> {
         this.navigationArea = builder.navigationArea;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.maskCharacter = builder.maskCharacter;
+        this.maxLength = builder.maxLength;
+        this.validator = builder.validator;
     }
 
     /**
@@ -50,16 +55,23 @@ public class PasswordDialog extends AbstractDialog<char[]> {
     protected Optional<char[]> runDialog(Screen screen) throws IOException {
         StringBuilder inputBuffer = new StringBuilder();
         TextGraphics tg = screen.newTextGraphics();
+        String validationMessage = null;
 
         while (true) {
-            render(screen, tg, inputBuffer.length());
+            render(screen, tg, inputBuffer.length(), validationMessage);
 
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
 
             switch (type) {
                 case Enter -> {
-                    return Optional.of(inputBuffer.toString().toCharArray());
+                    char[] value = inputBuffer.toString().toCharArray();
+                    Optional<String> validationResult = validator.apply(value);
+                    if (validationResult.isPresent()) {
+                        validationMessage = validationResult.get();
+                        break;
+                    }
+                    return Optional.of(value);
                 }
                 case Escape -> {
                     return Optional.empty();
@@ -67,30 +79,43 @@ public class PasswordDialog extends AbstractDialog<char[]> {
                 case Backspace -> {
                     if (!inputBuffer.isEmpty()) {
                         inputBuffer.setLength(inputBuffer.length() - 1);
+                        validationMessage = null;
                     }
                 }
-                case Character -> inputBuffer.append(key.getCharacter());
+                case Character -> {
+                    if (inputBuffer.length() < maxLength) {
+                        inputBuffer.append(key.getCharacter());
+                        validationMessage = null;
+                    }
+                }
                 default -> {
                 }
             }
         }
     }
 
-    private void render(Screen screen, TextGraphics tg, int inputLength) throws IOException {
+    private void render(Screen screen, TextGraphics tg, int inputLength, String validationMessage) throws IOException {
         screen.clear();
 
         String maskedValue = String.valueOf(maskCharacter).repeat(inputLength);
         InputArea currentInputArea = inputArea.withContent(maskedValue);
+        ContentArea validationArea = validationMessage == null ? null : contentArea.withContent(validationMessage);
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), contentArea.getWidth()),
                 Math.max(currentInputArea.getWidth(), navigationArea.getWidth())
         );
+        if (validationArea != null) {
+            contentWidth = Math.max(contentWidth, validationArea.getWidth());
+        }
         int contentHeight = titleArea.getHeight()
                 + 1
                 + contentArea.getHeight()
                 + 1
-                + currentInputArea.getHeight()
-                + 1
+                + currentInputArea.getHeight();
+        if (validationArea != null) {
+            contentHeight += 1 + validationArea.getHeight();
+        }
+        contentHeight += 1
                 + navigationArea.getHeight();
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
         dialogFrame.render(tg, layout);
@@ -109,6 +134,10 @@ public class PasswordDialog extends AbstractDialog<char[]> {
 
         int inputRow = row;
         currentInputArea.render(tg, column, row++);
+        if (validationArea != null) {
+            row++;
+            validationArea.render(tg, column, row++);
+        }
         row++;
 
         navigationArea.render(tg, column, row);
@@ -128,6 +157,8 @@ public class PasswordDialog extends AbstractDialog<char[]> {
         private final NavigationArea navigationArea;
 
         private char maskCharacter = '*';
+        private int maxLength = Integer.MAX_VALUE;
+        private Function<char[], Optional<String>> validator = value -> Optional.empty();
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
 
@@ -159,6 +190,32 @@ public class PasswordDialog extends AbstractDialog<char[]> {
          */
         public Builder withMaskCharacter(char maskCharacter) {
             this.maskCharacter = maskCharacter;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of characters accepted by the dialog.
+         *
+         * @param maxLength the maximum allowed input length, must be positive
+         * @return this builder
+         */
+        public Builder withMaxLength(int maxLength) {
+            if (maxLength <= 0) {
+                throw new IllegalArgumentException("maxLength must be positive");
+            }
+            this.maxLength = maxLength;
+            return this;
+        }
+
+        /**
+         * Sets the validator used when the user confirms the dialog.
+         * The returned optional should be empty for valid input or contain an error message otherwise.
+         *
+         * @param validator the validation function
+         * @return this builder
+         */
+        public Builder withValidator(Function<char[], Optional<String>> validator) {
+            this.validator = Objects.requireNonNull(validator);
             return this;
         }
 

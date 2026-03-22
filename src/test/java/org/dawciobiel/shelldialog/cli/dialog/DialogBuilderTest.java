@@ -179,6 +179,39 @@ class DialogBuilderTest {
     }
 
     @Test
+    void passwordDialogBuilderShouldApplyMaxLength() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withMaxLength(16)
+                .build();
+
+        assertEquals(16, readField(dialog, "maxLength"));
+    }
+
+    @Test
+    void passwordDialogBuilderShouldApplyValidator() throws Exception {
+        PasswordDialog dialog = new PasswordDialog.Builder(
+                titleArea(),
+                contentArea(),
+                inputArea(),
+                navigationArea()
+        )
+                .withValidator(value -> value.length < 6 ? Optional.of("Too short") : Optional.empty())
+                .build();
+
+        @SuppressWarnings("unchecked")
+        java.util.function.Function<char[], Optional<String>> validator =
+                (java.util.function.Function<char[], Optional<String>>) readField(dialog, "validator");
+
+        assertEquals(Optional.of("Too short"), validator.apply("123".toCharArray()));
+        assertEquals(Optional.empty(), validator.apply("123456".toCharArray()));
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
