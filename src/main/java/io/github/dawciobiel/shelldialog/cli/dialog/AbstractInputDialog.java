@@ -28,6 +28,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
     private final int maxLength;
+    private final String initialValue;
 
     protected AbstractInputDialog(
             String inputStreamPath,
@@ -38,6 +39,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
             NavigationArea navigationArea,
             boolean borderVisible,
             int maxLength,
+            String initialValue,
             io.github.dawciobiel.shelldialog.cli.style.TextStyle borderStyle
     ) {
         super(inputStreamPath, outputStreamPath);
@@ -48,11 +50,12 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
         this.borderVisible = borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, borderStyle);
         this.maxLength = maxLength;
+        this.initialValue = initialValue;
     }
 
     @Override
     protected Optional<T> runDialog(Screen screen) throws IOException {
-        StringBuilder inputBuffer = new StringBuilder();
+        StringBuilder inputBuffer = new StringBuilder(initialValue);
         TextGraphics tg = screen.newTextGraphics();
         String validationMessage = null;
 

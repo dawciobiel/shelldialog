@@ -42,6 +42,7 @@ To build `TextLineDialog`, you need:
 
 `TextLineDialog.Builder` also supports:
 
+- `withInitialValue(String)` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
 - `withValidator(Function<String, Optional<String>>)` to validate the value on `Enter`
 
@@ -84,6 +85,7 @@ TextLineDialog dialog = new TextLineDialog.Builder(
 )
         .withBorder(true)
         .withTheme(theme)
+        .withInitialValue("Dawid")
         .build();
 
 Optional<String> result = dialog.show();
