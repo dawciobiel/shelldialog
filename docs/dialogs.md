@@ -4,6 +4,11 @@ This document describes the current usage of:
 
 - `TextLineDialog`
 - `SingleChoiceDialog`
+- `MultiChoiceDialog`
+- `PasswordDialog`
+- `YesNoDialog`
+- `PasswordDialog`
+- `YesNoDialog`
 
 Both dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
 The dialog builder also controls the shared frame shown around the whole dialog.
@@ -146,7 +151,8 @@ List<DialogOption> options = List.of(
 NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
-                        .withArrowsNavigation()
+                        .withVerticalArrowsNavigation()
+                        .withSpaceSelect()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
@@ -168,8 +174,245 @@ SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
 Optional<DialogOption> result = dialog.show();
 ```
 
+## PasswordDialog
+
+`PasswordDialog` is used for masked single-line password input.
+
+### Required parts
+
+To build `PasswordDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `InputArea`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<char[]>`.
+
+- `Optional.of(value)` when the user confirms with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `Character`: appends typed character to the password buffer
+- `Backspace`: removes the last character
+- `Enter`: confirms input
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Enter your password")
+        .withTheme(theme)
+        .build();
+
+ContentArea contentArea = new ContentArea.Builder()
+        .withContent("The typed password is masked on screen.")
+        .withTheme(theme)
+        .build();
+
+InputArea inputArea = new InputArea.Builder()
+        .withTheme(theme)
+        .build();
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+PasswordDialog dialog = new PasswordDialog.Builder(
+        titleArea,
+        contentArea,
+        inputArea,
+        navigationArea
+)
+        .withTheme(theme)
+        .withMaskCharacter('*')
+        .build();
+
+Optional<char[]> result = dialog.show();
+```
+
+## MultiChoiceDialog
+
+`MultiChoiceDialog` is used for selecting any number of items from a list.
+
+### Required parts
+
+To build `MultiChoiceDialog`, you need:
+
+- `TitleArea`
+- `ContentArea` for regular items
+- `ContentArea` for focused items
+- `ContentArea` for selected items
+- `ContentArea` for selected and focused items
+- `List<DialogOption>`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<List<DialogOption>>`.
+
+- `Optional.of(list)` when the user confirms with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `ArrowUp`: moves focus up
+- `ArrowDown`: moves focus down
+- `Space`: toggles selection of the focused option
+- `Enter`: confirms current selection set
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Select your favorite fruits:")
+        .withTheme(theme)
+        .build();
+
+ContentArea menuItemArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ContentArea focusedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.YELLOW_BRIGHT)
+        .build();
+
+ContentArea selectedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+        .build();
+
+ContentArea selectedFocusedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.WHITE)
+        .build();
+
+List<DialogOption> options = List.of(
+        new SimpleDialogOption(1, "Apple"),
+        new SimpleDialogOption(2, "Banana")
+);
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withVerticalArrowsNavigation()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+        titleArea,
+        menuItemArea,
+        focusedMenuItemArea,
+        selectedMenuItemArea,
+        selectedFocusedMenuItemArea,
+        options,
+        navigationArea
+)
+        .withTheme(theme)
+        .build();
+
+Optional<List<DialogOption>> result = dialog.show();
+```
+
 ## Notes
 
-- Both dialogs read from `/dev/tty` and write to `/dev/tty` by default.
+- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
 - UI areas control only their own content styles.
 - The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
+
+## YesNoDialog
+
+`YesNoDialog` is used for binary confirmation flows.
+
+### Required parts
+
+To build `YesNoDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `ContentArea` for regular answers
+- `ContentArea` for the selected answer
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<Boolean>`.
+
+- `Optional.of(true)` when the user confirms the affirmative answer
+- `Optional.of(false)` when the user confirms the negative answer
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `ArrowLeft`: selects the affirmative answer
+- `ArrowRight`: selects the negative answer
+- `Enter`: confirms the selected answer
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Confirm action")
+        .withTheme(theme)
+        .build();
+
+ContentArea contentArea = new ContentArea.Builder()
+        .withContent("Do you want to continue?")
+        .withTheme(theme)
+        .build();
+
+ContentArea answerArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ContentArea selectedAnswerArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+        .build();
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withHorizontalArrowsNavigation()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+YesNoDialog dialog = new YesNoDialog.Builder(
+        titleArea,
+        contentArea,
+        answerArea,
+        selectedAnswerArea,
+        navigationArea
+)
+        .withTheme(theme)
+        .build();
+
+Optional<Boolean> result = dialog.show();
+```

@@ -23,8 +23,12 @@ public final class NavigationLabels {
     public static final String MARKER_RIGHT = UIProperties.getString("marker.right");
 
     // Key names (physical markings on the keyboard)
-    /** Label describing arrow keys. */
-    public static final String KEY_ARROWS = UIProperties.getString("navigationtoolbar.key_arrows");
+    /** Label describing vertical arrow keys. */
+    public static final String KEY_ARROWS_VERTICAL = UIProperties.getString("navigationtoolbar.key_arrows_vertical");
+    /** Label describing horizontal arrow keys. */
+    public static final String KEY_ARROWS_HORIZONTAL = UIProperties.getString("navigationtoolbar.key_arrows_horizontal");
+    /** Label describing the space key. */
+    public static final String KEY_SPACE = UIProperties.getString("navigationtoolbar.key_space");
     /** Label describing the enter key. */
     public static final String KEY_ENTER = UIProperties.getString("navigationtoolbar.key_enter");
     /** Label describing the escape key. */
@@ -33,6 +37,8 @@ public final class NavigationLabels {
     // Actions (what the key does)
     /** Action label for navigation. */
     public static final String ACTION_NAVIGATION = Messages.getString("navigationtoolbar.action_navigation");
+    /** Action label for selecting an item. */
+    public static final String ACTION_SELECT = Messages.getString("navigationtoolbar.action_select");
     /** Action label for accepting a dialog. */
     public static final String ACTION_ACCEPT = Messages.getString("navigationtoolbar.action_accept");
     /** Action label for canceling a dialog. */
