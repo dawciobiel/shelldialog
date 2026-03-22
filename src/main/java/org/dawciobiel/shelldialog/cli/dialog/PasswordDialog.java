@@ -120,15 +120,13 @@ public class PasswordDialog extends AbstractDialog<char[]> {
     /**
      * Builder for creating instances of {@link PasswordDialog}.
      */
-    public static class Builder {
+    public static class Builder extends AbstractFrameDialogBuilder<Builder> {
 
         private final TitleArea titleArea;
         private final ContentArea contentArea;
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
-        private boolean borderVisible = true;
-        private TextStyle borderStyle = TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT);
         private char maskCharacter = '*';
         private final String inputStreamPath = "/dev/tty";
         private final String outputStreamPath = "/dev/tty";
@@ -148,47 +146,8 @@ public class PasswordDialog extends AbstractDialog<char[]> {
             this.navigationArea = Objects.requireNonNull(navigationArea);
         }
 
-        /**
-         * Enables or disables the shared dialog border.
-         *
-         * @param visible {@code true} to render the border, {@code false} to omit it
-         * @return this builder
-         */
-        public Builder withBorder(boolean visible) {
-            this.borderVisible = visible;
-            return this;
-        }
-
-        /**
-         * Sets the style used for the shared dialog border.
-         *
-         * @param style the border style
-         * @return this builder
-         */
-        public Builder withBorderStyle(TextStyle style) {
-            this.borderStyle = Objects.requireNonNull(style);
-            return this;
-        }
-
-        /**
-         * Sets the foreground color used for the shared dialog border.
-         *
-         * @param color the border foreground color
-         * @return this builder
-         */
-        public Builder withBorderColor(TextColor color) {
-            this.borderStyle = TextStyle.of(Objects.requireNonNull(color), borderStyle.background());
-            return this;
-        }
-
-        /**
-         * Applies the dialog border style from the provided theme.
-         *
-         * @param theme the theme supplying the border style
-         * @return this builder
-         */
-        public Builder withTheme(DialogTheme theme) {
-            this.borderStyle = Objects.requireNonNull(theme).borderStyle();
+        @Override
+        protected Builder self() {
             return this;
         }
 
