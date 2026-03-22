@@ -1,6 +1,6 @@
 # UI Areas
 
-This document describes the UI building blocks from `org.dawciobiel.shelldialog.cli.ui`.
+This document describes the UI building blocks from `io.github.dawciobiel.shelldialog.cli.ui`.
 
 ## Overview
 

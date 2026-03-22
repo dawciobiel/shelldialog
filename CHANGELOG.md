@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-03-22
+
+### Added
+- Maven Central-ready publication setup with sources, Javadoc, signing, and Central publishing metadata.
+- Dedicated `fatJar` / `-all.jar` artifact for running bundled CLI examples without changing the library artifact.
+
+### Changed
+- **Breaking Change:** Maven coordinates changed from `org.dawciobiel:shelldialog` to `io.github.dawciobiel:shelldialog`.
+- **Breaking Change:** Java package namespace changed from `org.dawciobiel.shelldialog` to `io.github.dawciobiel.shelldialog`.
+- Standard `jar` is now the library artifact for dependency consumption, while the executable artifact is published separately as `-all.jar`.
+- Publishing, README, and user documentation were updated for the new namespace and artifact layout.
+
 ## [2.2.0] - 2026-03-22
 
 ### Added

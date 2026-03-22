@@ -1,6 +1,6 @@
 # ShellDialog
 
-**Current version: 2.2.0**
+**Current version: 3.0.0**
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
@@ -28,7 +28,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 
 ### Usage examples
 
-Usage examples are available in package `org.dawciobiel.shelldialog.examples`.
+Usage examples are available in package `io.github.dawciobiel.shelldialog.examples`.
 
 ## Requirements
 
@@ -43,31 +43,37 @@ To build the project, use Gradle:
 ./gradlew clean build
 ```
 
+To build the executable fat JAR used for running examples locally:
+
+```bash
+./gradlew fatJar
+```
+
 ## Launching
 
-You can run the examples using the built JAR file. Pass the dialog type as an argument:
+You can run the examples using the executable `-all.jar`. Pass the dialog type as an argument:
 
 ```bash
 # Launch Selection Dialog example
-java -jar build/libs/shelldialog-2.1.0.jar singlechoice
+java -jar build/libs/shelldialog-3.0.0-all.jar singlechoice
 
 # Launch Multi Choice Dialog example
-java -jar build/libs/shelldialog-2.1.0.jar multichoice
+java -jar build/libs/shelldialog-3.0.0-all.jar multichoice
 
 # Launch Text Line Dialog example
-java -jar build/libs/shelldialog-2.1.0.jar textline
+java -jar build/libs/shelldialog-3.0.0-all.jar textline
 
 # Launch Password Dialog example
-java -jar build/libs/shelldialog-2.1.0.jar password
+java -jar build/libs/shelldialog-3.0.0-all.jar password
 
 # Launch Yes/No Dialog example
-java -jar build/libs/shelldialog-2.1.0.jar yesno
+java -jar build/libs/shelldialog-3.0.0-all.jar yesno
 ```
 
 ## Version information
 
 The library version can be checked in three ways:
 
-- from the JAR file name, for example `shelldialog-2.2.0.jar`
+- from the JAR file name, for example `shelldialog-3.0.0.jar` or `shelldialog-3.0.0-all.jar`
 - from `META-INF/MANIFEST.MF` inside the JAR
-- from the command line with `java -jar build/libs/shelldialog-2.2.0.jar --version`
+- from the command line with `java -jar build/libs/shelldialog-3.0.0-all.jar --version`
