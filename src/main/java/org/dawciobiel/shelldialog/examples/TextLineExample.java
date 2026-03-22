@@ -44,7 +44,7 @@ public class TextLineExample {
                 .build();
 
         ContentArea contentArea = new ContentArea.Builder()
-                .withContent("Your answer will be used in the greeting.")
+                .withContent("Enter 1-12 characters. Empty input is not allowed.")
                 .withTheme(theme)
                 .build();
 
@@ -70,6 +70,10 @@ public class TextLineExample {
 
         TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
+                .withMaxLength(12)
+                .withValidator(value -> value.isBlank()
+                        ? Optional.of("Name is required.")
+                        : Optional.empty())
                 .build();
 
         Optional<String> result = dialog.show();

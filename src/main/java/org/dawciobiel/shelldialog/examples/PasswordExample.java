@@ -43,7 +43,7 @@ public class PasswordExample {
                 .build();
 
         ContentArea contentArea = new ContentArea.Builder()
-                .withContent("The typed password is masked on screen.")
+                .withContent("Enter 6-16 characters. The typed password is masked on screen.")
                 .withTheme(theme)
                 .build();
 
@@ -69,6 +69,10 @@ public class PasswordExample {
 
         PasswordDialog dialog = new PasswordDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
+                .withMaxLength(16)
+                .withValidator(value -> value.length < 6
+                        ? Optional.of("Password must be at least 6 characters long.")
+                        : Optional.empty())
                 .build();
 
         Optional<char[]> result = dialog.show();
