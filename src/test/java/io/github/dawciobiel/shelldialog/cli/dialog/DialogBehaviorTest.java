@@ -193,6 +193,15 @@ class DialogBehaviorTest {
     }
 
     @Test
+    void multiChoiceDialogShouldFormatPositionIndicatorFromFocusedIndex() throws Exception {
+        MultiChoiceDialog dialog = multiChoiceDialog(3);
+
+        String label = (String) invokeMethod(dialog, "positionIndicatorLabel", new Class<?>[]{int.class}, 2);
+
+        assertEquals("3/5", label);
+    }
+
+    @Test
     void singleChoiceDialogShouldStartViewportAtZeroWhenLimitIsNotReached() throws Exception {
         SingleChoiceDialog dialog = singleChoiceDialog(3);
 
@@ -239,6 +248,15 @@ class DialogBehaviorTest {
         int width = (int) invokeMethod(dialog, "moreIndicatorWidth", new Class<?>[]{boolean.class, boolean.class}, false, false);
 
         assertEquals(0, width);
+    }
+
+    @Test
+    void singleChoiceDialogShouldFormatPositionIndicatorFromSelectedIndex() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(3);
+
+        String label = (String) invokeMethod(dialog, "positionIndicatorLabel", new Class<?>[]{int.class}, 2);
+
+        assertEquals("3/5", label);
     }
 
     @Test

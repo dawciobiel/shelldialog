@@ -1,28 +1,19 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.i18n.UIProperties;
-import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.MultiChoiceMarker;
-import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A CLI dialog that allows selecting multiple options from a list.
@@ -111,6 +102,8 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         List<DialogOption> visibleOptions = options.subList(firstVisibleIndex, lastVisibleIndex);
         boolean hasItemsAbove = firstVisibleIndex > 0;
         boolean hasItemsBelow = lastVisibleIndex < options.size();
+        boolean hasViewport = hasViewport();
+        String positionIndicator = hasViewport ? positionIndicatorLabel(focusedIndex) : "";
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -119,6 +112,9 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
                 .orElse(0),
                 moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
         );
+        if (hasViewport) {
+            optionsWidth = Math.max(optionsWidth, positionIndicator.length());
+        }
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), optionsWidth),
                 navigationArea.getWidth()
@@ -128,6 +124,7 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
                 + (hasItemsBelow ? 1 : 0)
+                + (hasViewport ? 1 : 0)
                 + 1
                 + navigationArea.getHeight();
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
@@ -152,6 +149,10 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
 
         if (hasItemsBelow) {
             menuItemArea.withContent(MORE_BELOW_LABEL).render(tg, column, row++);
+        }
+
+        if (hasViewport) {
+            menuItemArea.withContent(positionIndicator).render(tg, column, row++);
         }
 
         row++;
@@ -214,6 +215,14 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
             width = Math.max(width, MORE_BELOW_LABEL.length());
         }
         return width;
+    }
+
+    private boolean hasViewport() {
+        return visibleItemCount > 0 && visibleItemCount < options.size();
+    }
+
+    private String positionIndicatorLabel(int focusedIndex) {
+        return (focusedIndex + 1) + "/" + options.size();
     }
 
     private void toggleSelection(Set<Integer> selectedIndices, int focusedIndex) {
