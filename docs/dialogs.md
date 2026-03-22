@@ -4,6 +4,7 @@ This document describes the current usage of:
 
 - `TextLineDialog`
 - `SingleChoiceDialog`
+- `MultiChoiceDialog`
 - `PasswordDialog`
 - `YesNoDialog`
 - `PasswordDialog`
@@ -151,6 +152,7 @@ NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
                         .withVerticalArrowsNavigation()
+                        .withSpaceSelect()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
@@ -239,6 +241,97 @@ PasswordDialog dialog = new PasswordDialog.Builder(
         .build();
 
 Optional<char[]> result = dialog.show();
+```
+
+## MultiChoiceDialog
+
+`MultiChoiceDialog` is used for selecting any number of items from a list.
+
+### Required parts
+
+To build `MultiChoiceDialog`, you need:
+
+- `TitleArea`
+- `ContentArea` for regular items
+- `ContentArea` for focused items
+- `ContentArea` for selected items
+- `ContentArea` for selected and focused items
+- `List<DialogOption>`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<List<DialogOption>>`.
+
+- `Optional.of(list)` when the user confirms with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `ArrowUp`: moves focus up
+- `ArrowDown`: moves focus down
+- `Space`: toggles selection of the focused option
+- `Enter`: confirms current selection set
+- `Escape`: cancels dialog
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Select your favorite fruits:")
+        .withTheme(theme)
+        .build();
+
+ContentArea menuItemArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ContentArea focusedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.YELLOW_BRIGHT)
+        .build();
+
+ContentArea selectedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+        .build();
+
+ContentArea selectedFocusedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.WHITE)
+        .build();
+
+List<DialogOption> options = List.of(
+        new SimpleDialogOption(1, "Apple"),
+        new SimpleDialogOption(2, "Banana")
+);
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withVerticalArrowsNavigation()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+        titleArea,
+        menuItemArea,
+        focusedMenuItemArea,
+        selectedMenuItemArea,
+        selectedFocusedMenuItemArea,
+        options,
+        navigationArea
+)
+        .withTheme(theme)
+        .build();
+
+Optional<List<DialogOption>> result = dialog.show();
 ```
 
 ## Notes
