@@ -8,9 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.1.1-SNAPSHOT] - 2026-03-21
 
 ### Added
+- `YesNoDialog` for binary confirmation flows with configurable labels and horizontal navigation.
+- `PasswordDialog` for masked password entry returning `char[]`.
+- `MultiChoiceDialog` with separate visual states for focused, selected, and selected+focused rows.
+- New examples: `YesNoExample`, `PasswordExample`, and `MultiChoiceExample`.
+- Version information in JAR manifests and CLI support for `--version`, `-v`, and `version`.
+- JUnit 5 test suite covering dialog layout, area measurement, version fallback, and dialog builder configuration.
+- Navigation toolbar support for horizontal arrows and `Space`-to-select labels.
 
 ### Changed
 - Dialog border rendering now uses a shared frame configured directly on dialog builders.
+- Dialog border color and visibility are configured on dialog builders instead of UI areas.
+- `NavigationToolbar` now distinguishes vertical and horizontal arrow navigation items.
+- README and user documentation were updated for the current dialog API and examples.
 
 ### Removed
 - Public `BorderType` API.
