@@ -122,6 +122,55 @@ class DialogBehaviorTest {
         assertEquals(MultiChoiceMarker.UNSELECTED.length() + 1 + "Alpha".length(), width);
     }
 
+    @Test
+    void singleChoiceDialogShouldStartViewportAtZeroWhenLimitIsNotReached() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(3);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 1);
+
+        assertEquals(0, firstVisibleIndex);
+    }
+
+    @Test
+    void singleChoiceDialogShouldMoveViewportWhenSelectionLeavesVisibleWindow() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(3);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 4);
+        int lastVisibleIndex = (int) invokeMethod(dialog, "lastVisibleIndex", new Class<?>[]{int.class}, firstVisibleIndex);
+
+        assertEquals(2, firstVisibleIndex);
+        assertEquals(5, lastVisibleIndex);
+    }
+
+    @Test
+    void singleChoiceDialogShouldShowAllItemsWhenNoViewportLimitIsConfigured() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(0);
+
+        int firstVisibleIndex = (int) invokeMethod(dialog, "firstVisibleIndex", new Class<?>[]{int.class}, 4);
+        int lastVisibleIndex = (int) invokeMethod(dialog, "lastVisibleIndex", new Class<?>[]{int.class}, firstVisibleIndex);
+
+        assertEquals(0, firstVisibleIndex);
+        assertEquals(options().size(), lastVisibleIndex);
+    }
+
+    @Test
+    void singleChoiceDialogShouldReserveWidthForMoreIndicatorsWhenViewportIsClipped() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(3);
+
+        int width = (int) invokeMethod(dialog, "moreIndicatorWidth", new Class<?>[]{boolean.class, boolean.class}, true, true);
+
+        assertEquals("\u2191 more".length(), width);
+    }
+
+    @Test
+    void singleChoiceDialogShouldNotReserveMoreIndicatorWidthWhenEverythingIsVisible() throws Exception {
+        SingleChoiceDialog dialog = singleChoiceDialog(0);
+
+        int width = (int) invokeMethod(dialog, "moreIndicatorWidth", new Class<?>[]{boolean.class, boolean.class}, false, false);
+
+        assertEquals(0, width);
+    }
+
     private MultiChoiceDialog multiChoiceDialog() {
         return new MultiChoiceDialog.Builder(
                 titleArea(),
@@ -132,6 +181,20 @@ class DialogBehaviorTest {
                 options(),
                 navigationArea()
         ).build();
+    }
+
+    private SingleChoiceDialog singleChoiceDialog(int visibleItemCount) {
+        SingleChoiceDialog.Builder builder = new SingleChoiceDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                options(),
+                navigationArea()
+        );
+        if (visibleItemCount > 0) {
+            builder.withVisibleItemCount(visibleItemCount);
+        }
+        return builder.build();
     }
 
     private Object invokeMethod(Object target, String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
@@ -204,7 +267,9 @@ class DialogBehaviorTest {
         return List.of(
                 new SimpleDialogOption(1, "One"),
                 new SimpleDialogOption(2, "Two"),
-                new SimpleDialogOption(3, "Three")
+                new SimpleDialogOption(3, "Three"),
+                new SimpleDialogOption(4, "Four"),
+                new SimpleDialogOption(5, "Five")
         );
     }
 }

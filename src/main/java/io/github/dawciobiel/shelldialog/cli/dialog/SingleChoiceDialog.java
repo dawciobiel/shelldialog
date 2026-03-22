@@ -29,6 +29,9 @@ import java.util.Optional;
  */
 public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
+    private static final String MORE_ABOVE_LABEL = "\u2191 more";
+    private static final String MORE_BELOW_LABEL = "\u2193 more";
+
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
     private final ContentArea selectedMenuItemArea;
@@ -36,6 +39,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
+    private final int visibleItemCount;
 
     private SingleChoiceDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath);
@@ -46,6 +50,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
+        this.visibleItemCount = builder.visibleItemCount;
     }
 
     /**
@@ -88,17 +93,28 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
         screen.clear();
 
-        int optionsWidth = options.stream()
+        int firstVisibleIndex = firstVisibleIndex(selectedIndex);
+        int lastVisibleIndex = lastVisibleIndex(firstVisibleIndex);
+        List<DialogOption> visibleOptions = options.subList(firstVisibleIndex, lastVisibleIndex);
+        boolean hasItemsAbove = firstVisibleIndex > 0;
+        boolean hasItemsBelow = lastVisibleIndex < options.size();
+
+        int optionsWidth = Math.max(
+                visibleOptions.stream()
                 .mapToInt(option -> menuItemWidth(option.getLabel()))
                 .max()
-                .orElse(0);
+                .orElse(0),
+                moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
+        );
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), optionsWidth),
                 navigationArea.getWidth()
         );
         int contentHeight = titleArea.getHeight()
                 + 1
-                + options.size()
+                + (hasItemsAbove ? 1 : 0)
+                + visibleOptions.size()
+                + (hasItemsBelow ? 1 : 0)
                 + 1
                 + navigationArea.getHeight();
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
@@ -111,14 +127,38 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
 
         row++; // Add blank line
 
-        for (int i = 0; i < options.size(); i++) {
+        if (hasItemsAbove) {
+            menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
+        }
+
+        for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
             renderMenuItem(tg, column, row++, options.get(i).getLabel(), i == selectedIndex);
         }
+
+        if (hasItemsBelow) {
+            menuItemArea.withContent(MORE_BELOW_LABEL).render(tg, column, row++);
+        }
+
         row++; // Add blank line
 
         navigationArea.render(tg, column, row);
 
         screen.refresh();
+    }
+
+    private int firstVisibleIndex(int selectedIndex) {
+        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
+            return 0;
+        }
+        int maxStartIndex = options.size() - visibleItemCount;
+        return Math.min(Math.max(0, selectedIndex - visibleItemCount + 1), maxStartIndex);
+    }
+
+    private int lastVisibleIndex(int firstVisibleIndex) {
+        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
+            return options.size();
+        }
+        return Math.min(options.size(), firstVisibleIndex + visibleItemCount);
     }
 
     private void renderMenuItem(TextGraphics tg, int column, int row, String item, boolean selected) throws IOException {
@@ -131,6 +171,17 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         return (Arrow.MARKER_EMPTY + item + Arrow.MARKER_EMPTY).length();
     }
 
+    private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
+        int width = 0;
+        if (hasItemsAbove) {
+            width = MORE_ABOVE_LABEL.length();
+        }
+        if (hasItemsBelow) {
+            width = Math.max(width, MORE_BELOW_LABEL.length());
+        }
+        return width;
+    }
+
     /**
      * Builder for creating instances of {@link SingleChoiceDialog}.
      */
@@ -141,6 +192,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         private final ContentArea selectedMenuItemArea;
         private final List<DialogOption> options;
         private final NavigationArea navigationArea;
+        private int visibleItemCount = 0;
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -186,6 +238,21 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
          */
         public Builder outputStream(String path) {
             this.outputStreamPath = Objects.requireNonNull(path);
+            return this;
+        }
+
+        /**
+         * Limits the number of menu items visible at once.
+         * When the selection moves outside the visible window, the dialog scrolls the list.
+         *
+         * @param visibleItemCount the maximum number of visible menu items, must be positive
+         * @return this builder
+         */
+        public Builder withVisibleItemCount(int visibleItemCount) {
+            if (visibleItemCount <= 0) {
+                throw new IllegalArgumentException("visibleItemCount must be positive");
+            }
+            this.visibleItemCount = visibleItemCount;
             return this;
         }
 

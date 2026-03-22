@@ -119,6 +119,12 @@ To build `SingleChoiceDialog`, you need:
 - `Enter`: confirms selected option
 - `Escape`: cancels dialog
 
+### Optional builder settings
+
+- `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
+
+When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window.
+
 ### Adding menu items
 
 Menu items are added through `List<DialogOption>`.
@@ -161,7 +167,6 @@ NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
                         .withVerticalArrowsNavigation()
-                        .withSpaceSelect()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
@@ -178,6 +183,7 @@ SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
 )
         .withBorder(true)
         .withTheme(theme)
+        .withVisibleItemCount(3)
         .build();
 
 Optional<DialogOption> result = dialog.show();
