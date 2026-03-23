@@ -25,7 +25,7 @@ import java.util.Optional;
  * The menu is rendered using the Lanterna library.
  * </p>
  */
-public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
+public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
@@ -34,22 +34,18 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
     private final ContentArea selectedMenuItemArea;
-    private final List<DialogOption> options;
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
-    private final int visibleItemCount;
 
     private SingleChoiceDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
+        super(builder.inputStreamPath, builder.outputStreamPath, builder.options, builder.visibleItemCount);
         this.titleArea = builder.titleArea;
         this.menuItemArea = builder.menuItemArea;
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
-        this.options = builder.options;
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
-        this.visibleItemCount = builder.visibleItemCount;
     }
 
     /**
@@ -58,7 +54,7 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
     @Override
     protected Optional<DialogOption> runDialog(Screen screen) throws IOException {
 
-        int selectedIndex = initialSelectedIndex();
+        int selectedIndex = initialFocusedIndex();
         screen.setCursorPosition(null); // Hide cursor
         TextGraphics tg = screen.newTextGraphics();
 
@@ -156,21 +152,6 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         screen.refresh();
     }
 
-    private int firstVisibleIndex(int selectedIndex) {
-        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
-            return 0;
-        }
-        int maxStartIndex = options.size() - visibleItemCount;
-        return Math.min(Math.max(0, selectedIndex - visibleItemCount + 1), maxStartIndex);
-    }
-
-    private int lastVisibleIndex(int firstVisibleIndex) {
-        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
-            return options.size();
-        }
-        return Math.min(options.size(), firstVisibleIndex + visibleItemCount);
-    }
-
     private void renderMenuItem(TextGraphics tg, int column, int row, DialogOption option, boolean selected) throws IOException {
         String item = displayLabel(option);
         boolean enabled = option.isEnabled();
@@ -189,33 +170,6 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
         return option.getLabel() + (option.isEnabled() ? "" : DISABLED_SUFFIX);
     }
 
-    private int initialSelectedIndex() {
-        for (int index = 0; index < options.size(); index++) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return 0;
-    }
-
-    private int nextEnabledIndex(int currentIndex) {
-        for (int index = currentIndex + 1; index < options.size(); index++) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return currentIndex;
-    }
-
-    private int previousEnabledIndex(int currentIndex) {
-        for (int index = currentIndex - 1; index >= 0; index--) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return currentIndex;
-    }
-
     private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
         int width = 0;
         if (hasItemsAbove) {
@@ -225,14 +179,6 @@ public class SingleChoiceDialog extends AbstractDialog<DialogOption> {
             width = Math.max(width, MORE_BELOW_LABEL.length());
         }
         return width;
-    }
-
-    private boolean hasViewport() {
-        return visibleItemCount > 0 && visibleItemCount < options.size();
-    }
-
-    private String positionIndicatorLabel(int selectedIndex) {
-        return (selectedIndex + 1) + "/" + options.size();
     }
 
     /**

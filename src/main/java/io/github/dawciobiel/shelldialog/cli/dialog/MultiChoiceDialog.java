@@ -20,7 +20,7 @@ import java.util.*;
  * It composes preconfigured UI areas inside a shared optional frame.
  * The dialog distinguishes four visual row states: regular, focused, selected, and selected+focused.
  */
-public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
+public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
@@ -31,26 +31,22 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
     private final ContentArea focusedMenuItemArea;
     private final ContentArea selectedMenuItemArea;
     private final ContentArea selectedFocusedMenuItemArea;
-    private final List<DialogOption> options;
     private final Set<Integer> initialSelectedIndices;
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
-    private final int visibleItemCount;
 
     private MultiChoiceDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
+        super(builder.inputStreamPath, builder.outputStreamPath, builder.options, builder.visibleItemCount);
         this.titleArea = builder.titleArea;
         this.menuItemArea = builder.menuItemArea;
         this.focusedMenuItemArea = builder.focusedMenuItemArea;
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
         this.selectedFocusedMenuItemArea = builder.selectedFocusedMenuItemArea;
-        this.options = builder.options;
         this.initialSelectedIndices = builder.initialSelectedIndices;
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
-        this.visibleItemCount = builder.visibleItemCount;
     }
 
     /**
@@ -191,21 +187,6 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         return option.getLabel() + (option.isEnabled() ? "" : DISABLED_SUFFIX);
     }
 
-    private int firstVisibleIndex(int focusedIndex) {
-        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
-            return 0;
-        }
-        int maxStartIndex = options.size() - visibleItemCount;
-        return Math.min(Math.max(0, focusedIndex - visibleItemCount + 1), maxStartIndex);
-    }
-
-    private int lastVisibleIndex(int firstVisibleIndex) {
-        if (visibleItemCount <= 0 || visibleItemCount >= options.size()) {
-            return options.size();
-        }
-        return Math.min(options.size(), firstVisibleIndex + visibleItemCount);
-    }
-
     private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
         int width = 0;
         if (hasItemsAbove) {
@@ -217,14 +198,6 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         return width;
     }
 
-    private boolean hasViewport() {
-        return visibleItemCount > 0 && visibleItemCount < options.size();
-    }
-
-    private String positionIndicatorLabel(int focusedIndex) {
-        return (focusedIndex + 1) + "/" + options.size();
-    }
-
     private void toggleSelection(Set<Integer> selectedIndices, int focusedIndex) {
         if (focusedIndex < 0 || focusedIndex >= options.size() || !options.get(focusedIndex).isEnabled()) {
             return;
@@ -232,33 +205,6 @@ public class MultiChoiceDialog extends AbstractDialog<List<DialogOption>> {
         if (!selectedIndices.add(focusedIndex)) {
             selectedIndices.remove(focusedIndex);
         }
-    }
-
-    private int initialFocusedIndex() {
-        for (int index = 0; index < options.size(); index++) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return 0;
-    }
-
-    private int nextEnabledIndex(int currentIndex) {
-        for (int index = currentIndex + 1; index < options.size(); index++) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return currentIndex;
-    }
-
-    private int previousEnabledIndex(int currentIndex) {
-        for (int index = currentIndex - 1; index >= 0; index--) {
-            if (options.get(index).isEnabled()) {
-                return index;
-            }
-        }
-        return currentIndex;
     }
 
     private List<DialogOption> selectedOptions(Set<Integer> selectedIndices) {

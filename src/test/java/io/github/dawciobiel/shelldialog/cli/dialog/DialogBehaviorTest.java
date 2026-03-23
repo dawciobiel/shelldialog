@@ -327,15 +327,31 @@ class DialogBehaviorTest {
     }
 
     private Object invokeMethod(Object target, String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
-        Method method = target.getClass().getDeclaredMethod(methodName, parameterTypes);
-        method.setAccessible(true);
-        return method.invoke(target, args);
+        Class<?> currentClass = target.getClass();
+        while (currentClass != null) {
+            try {
+                Method method = currentClass.getDeclaredMethod(methodName, parameterTypes);
+                method.setAccessible(true);
+                return method.invoke(target, args);
+            } catch (NoSuchMethodException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        throw new NoSuchMethodException(methodName);
     }
 
     private Object readField(Object target, String fieldName) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
+        Class<?> currentClass = target.getClass();
+        while (currentClass != null) {
+            try {
+                Field field = currentClass.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (NoSuchFieldException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
     }
 
     private TitleArea titleArea() {
