@@ -45,7 +45,7 @@ public class TextLineExample {
                 .build();
 
         ContentArea contentArea = new ContentArea.Builder()
-                .withContent("Enter 1-12 characters. Empty input is not allowed.")
+                .withContent("Enter 1-20 characters. Empty input is not allowed.")
                 .withTheme(theme)
                 .build();
 
@@ -71,8 +71,8 @@ public class TextLineExample {
 
         TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
-                .withMaxLength(12)
-                .withInitialValue("Dawid")
+                .withMaxLength(20)
+                .withInitialValue("abcdef")
                 .withValidator(value -> value.isBlank()
                         ? Optional.of("Name is required.")
                         : Optional.empty())

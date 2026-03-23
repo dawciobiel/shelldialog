@@ -1,10 +1,24 @@
 package io.github.dawciobiel.shelldialog;
 
+import com.googlecode.lanterna.TextColor;
+import io.github.dawciobiel.shelldialog.cli.dialog.SingleChoiceDialog;
+import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
+import io.github.dawciobiel.shelldialog.cli.dialog.option.SimpleDialogOption;
+import io.github.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import io.github.dawciobiel.shelldialog.cli.navigation.NavigationToolbarRenderer;
+import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
+import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
+import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
+import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
+import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 import io.github.dawciobiel.shelldialog.examples.MultiChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.PasswordExample;
 import io.github.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.TextLineExample;
 import io.github.dawciobiel.shelldialog.examples.YesNoExample;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Entry point used for launching bundled example dialogs from the command line.
@@ -17,10 +31,107 @@ public class Main {
     /**
      * Launches one of the example applications.
      *
-     * @param args the first argument selects the example name
+     * @param args the first argument selects the example name. If empty, an interactive menu is shown.
      */
     public static void main(String[] args) {
-        String arg = args.length > 0 ? args[0] : "singlechoice";
+        if (args.length == 0) {
+            runInteractiveLoop();
+        } else {
+            runFromArgs(args);
+        }
+    }
+
+    private static void runInteractiveLoop() {
+        while (true) {
+            SingleChoiceDialog menu = createMainMenu();
+            Optional<DialogOption> result = menu.show();
+
+            if (result.isEmpty()) {
+                break;
+            }
+
+            int code = result.get().getCode();
+            if (code == 0) {
+                break;
+            }
+
+            String[] emptyArgs = new String[0];
+            switch (code) {
+                case 1 -> SingleChoiceExample.main(emptyArgs);
+                case 2 -> MultiChoiceExample.main(emptyArgs);
+                case 3 -> TextLineExample.main(emptyArgs);
+                case 4 -> PasswordExample.main(emptyArgs);
+                case 5 -> YesNoExample.main(emptyArgs);
+            }
+        }
+    }
+
+    private static SingleChoiceDialog createMainMenu() {
+        TitleArea titleArea = new TitleArea.Builder()
+                .withTitle("ShellDialog Examples Gallery")
+                .withTitleColor(TextColor.ANSI.RED_BRIGHT)
+                .build();
+
+        ContentArea menuItemArea = new ContentArea.Builder()
+                .withForegroundColor(TextColor.ANSI.WHITE)
+                .build();
+
+        ContentArea selectedMenuItemArea = new ContentArea.Builder()
+                .withForegroundColor(TextColor.ANSI.BLACK)
+                .withBackgroundColor(TextColor.ANSI.CYAN)
+                .build();
+
+        List<DialogOption> options = List.of(
+                new SimpleDialogOption(1, "Single Choice Dialog"),
+                new SimpleDialogOption(2, "Multi Choice Dialog"),
+                new SimpleDialogOption(3, "Text Line Dialog"),
+                new SimpleDialogOption(4, "Password Dialog"),
+                new SimpleDialogOption(5, "Yes/No Dialog"),
+                new SimpleDialogOption(0, "Exit")
+        );
+
+//        DialogTheme theme = DialogTheme.darkTheme();
+
+        DialogTheme theme = DialogTheme.builder()
+                                       .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
+                                       .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
+                                       .contentStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
+                                       .inputStyle(TextStyle.of(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE))
+                                       .validationMessageStyle(TextStyle.of(TextColor.ANSI.RED_BRIGHT, TextColor.ANSI.DEFAULT))
+                                       .build();
+
+
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(
+                        NavigationToolbar.builder()
+                                         .withArrowsNavigation()
+                                         .withEnterAccept()
+                                         .withEscapeCancel()
+                                         .build()
+                )
+                .withRenderer(
+                        new NavigationToolbarRenderer(
+                                TextColor.ANSI.RED_BRIGHT,
+                                TextColor.ANSI.WHITE,
+                                TextColor.ANSI.DEFAULT
+                        )
+                )
+                .build();
+
+        return new SingleChoiceDialog.Builder(
+                titleArea,
+                menuItemArea,
+                selectedMenuItemArea,
+                options,
+                navigationArea
+        )
+                .withTheme(theme)
+                .withBorderColor(TextColor.ANSI.RED)
+                .build();
+    }
+
+    private static void runFromArgs(String[] args) {
+        String arg = args[0];
 
         switch (arg.toLowerCase()) {
             case "--version", "-v", "version" -> System.out.println(Version.get());
