@@ -11,6 +11,7 @@ import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
+import io.github.dawciobiel.shelldialog.examples.FileExample;
 import io.github.dawciobiel.shelldialog.examples.MultiChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.PasswordExample;
 import io.github.dawciobiel.shelldialog.examples.SingleChoiceExample;
@@ -62,6 +63,7 @@ public class Main {
                 case 3 -> TextLineExample.main(emptyArgs);
                 case 4 -> PasswordExample.main(emptyArgs);
                 case 5 -> YesNoExample.main(emptyArgs);
+                case 6 -> FileExample.main(emptyArgs);
             }
         }
     }
@@ -87,6 +89,7 @@ public class Main {
                 new SimpleDialogOption(3, "Text Line Dialog"),
                 new SimpleDialogOption(4, "Password Dialog"),
                 new SimpleDialogOption(5, "Yes/No Dialog"),
+                new SimpleDialogOption(6, "File Selection Dialog"),
                 new SimpleDialogOption(0, "Exit")
         );
 
@@ -140,11 +143,12 @@ public class Main {
             case "singlechoice" -> SingleChoiceExample.main(args);
             case "textline" -> TextLineExample.main(args);
             case "yesno" -> YesNoExample.main(args);
+            case "file" -> FileExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, multichoice, textline, password, yesno, version");
+                System.out.println("singlechoice, multichoice, textline, password, yesno, file, version");
             }
         }
     }

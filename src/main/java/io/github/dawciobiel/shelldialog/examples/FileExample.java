@@ -1,0 +1,77 @@
+package io.github.dawciobiel.shelldialog.examples;
+
+import com.googlecode.lanterna.TextColor;
+import io.github.dawciobiel.shelldialog.cli.dialog.FileDialog;
+import io.github.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
+import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
+import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
+import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
+import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
+
+import java.nio.file.Path;
+import java.util.Optional;
+
+import static java.lang.System.out;
+
+/**
+ * Demonstrates how to build and show a {@link FileDialog}.
+ */
+public class FileExample {
+
+    private FileExample() {
+    }
+
+    /**
+     * Runs the file dialog example.
+     *
+     * @param args command-line arguments, currently ignored
+     */
+    public static void main(String[] args) {
+        TitleArea titleArea = new TitleArea.Builder()
+                .withTitle("Select a file:")
+                .withTitleColor(TextColor.ANSI.YELLOW_BRIGHT)
+                .build();
+
+        ContentArea menuItemArea = new ContentArea.Builder()
+                .withForegroundColor(TextColor.ANSI.CYAN)
+                .withBackgroundColor(TextColor.ANSI.DEFAULT)
+                .build();
+
+        ContentArea selectedMenuItemArea = new ContentArea.Builder()
+                .withForegroundColor(TextColor.ANSI.BLACK)
+                .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+                .build();
+
+        DialogTheme theme = DialogTheme.darkTheme();
+
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(
+                        NavigationToolbar.builder()
+                                .withArrowsNavigation()
+                                .withEnterAccept()
+                                .withEscapeCancel()
+                                .build()
+                )
+                .withTheme(theme)
+                .build();
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea,
+                menuItemArea,
+                selectedMenuItemArea,
+                navigationArea
+        )
+                .withBorderColor(TextColor.ANSI.BLUE)
+                .withVisibleItemCount(10)
+                .withTheme(theme)
+                .build();
+
+        Optional<Path> result = dialog.show();
+
+        if (result.isPresent()) {
+            out.println("You selected: " + result.get().toAbsolutePath());
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+}

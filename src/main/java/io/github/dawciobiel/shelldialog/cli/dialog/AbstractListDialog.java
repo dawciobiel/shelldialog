@@ -12,7 +12,7 @@ import java.util.List;
  */
 public abstract class AbstractListDialog<T> extends AbstractDialog<T> {
 
-    protected final List<DialogOption> options;
+    protected List<DialogOption> options;
     protected final int visibleItemCount;
 
     protected AbstractListDialog(String inputStreamPath, String outputStreamPath,
