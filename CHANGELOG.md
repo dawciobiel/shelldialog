@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0-SNAPSHOT] - Unreleased
+
+### Added
+- `FileDialog` for selecting files and directories from the file system.
+- `FileExample` demonstrating the usage of `FileDialog`.
+- Interactive examples menu when running the executable JAR without arguments.
+
+### Changed
+- `SingleChoiceDialog` and `MultiChoiceDialog` now extend `AbstractListDialog`, sharing common list navigation and viewport logic.
+- `Main` class refactored to support interactive example selection.
+
 ## [3.0.0] - 2026-03-22
 
 ### Added
