@@ -5,6 +5,7 @@ This document describes the current usage of:
 - `TextLineDialog`
 - `SingleChoiceDialog`
 - `MultiChoiceDialog`
+- `FileDialog`
 - `PasswordDialog`
 - `YesNoDialog`
 
@@ -382,11 +383,82 @@ MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
 Optional<List<DialogOption>> result = dialog.show();
 ```
 
-## Notes
+## FileDialog
 
-- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
-- UI areas control only their own content styles.
-- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
+`FileDialog` is used for browsing files and directories.
+
+### Required parts
+
+To build `FileDialog`, you need:
+
+- `TitleArea`
+- `ContentArea` for regular items
+- `ContentArea` for the selected item
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<Path>`.
+
+- `Optional.of(path)` when the user selects a file or directory (depending on mode) with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `ArrowUp`: moves selection up
+- `ArrowDown`: moves selection down
+- `Enter`: enters directory or selects file
+- `Escape`: cancels dialog
+
+### Optional builder settings
+
+- `withInitialDirectory(Path)` to set the starting directory (defaults to current working directory)
+- `directoriesOnly(boolean)` to enable directory selection mode (defaults to `false` for file selection)
+- `withVisibleItemCount(int)` to limit how many items are shown at once
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Select a file:")
+        .withTheme(theme)
+        .build();
+
+ContentArea menuItemArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ContentArea selectedMenuItemArea = new ContentArea.Builder()
+        .withForegroundColor(TextColor.ANSI.BLACK)
+        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
+        .build();
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withVerticalArrowsNavigation()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+FileDialog dialog = new FileDialog.Builder(
+        titleArea,
+        menuItemArea,
+        selectedMenuItemArea,
+        navigationArea
+)
+        .withTheme(theme)
+        .withInitialDirectory(Paths.get("."))
+        .withVisibleItemCount(10)
+        .build();
+
+Optional<Path> result = dialog.show();
+```
 
 ## YesNoDialog
 
@@ -469,3 +541,9 @@ YesNoDialog dialog = new YesNoDialog.Builder(
 
 Optional<Boolean> result = dialog.show();
 ```
+
+## Notes
+
+- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
+- UI areas control only their own content styles.
+- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
