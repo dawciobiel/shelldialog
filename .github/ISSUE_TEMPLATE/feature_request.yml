@@ -1,43 +1,43 @@
 name: Feature request
 description: Suggest a new feature or enhancement
 title: "[Feature]: "
-labels: ["enhancement"]
-assignees: []
+labels:
+  - enhancement
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe your idea clearly and explain why it would be useful.
 
-* type: markdown
-  attributes:
-  value: |
-  Please describe your idea clearly and explain why it would be useful.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem does this feature solve?
+    validations:
+      required: true
 
-* type: textarea
-  id: problem
-  attributes:
-  label: Problem statement
-  description: What problem does this feature solve?
-  validations:
-  required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the API, expected behavior, or usage example.
+    validations:
+      required: true
 
-* type: textarea
-  id: proposal
-  attributes:
-  label: Proposed solution
-  description: Describe the API, behavior, or usage example.
-  validations:
-  required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional – describe alternative solutions you evaluated.
+    validations:
+      required: false
 
-* type: textarea
-  id: alternatives
-  attributes:
-  label: Alternatives considered
-  description: Optional
-  required: false
-
-* type: textarea
-  id: additional
-  attributes:
-  label: Additional context
-  description: Optional
-  required: false
-
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Optional – add any other context, screenshots, or examples.
+    validations:
+      required: false
