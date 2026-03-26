@@ -122,3 +122,36 @@ The library version can be checked in three ways:
 - from the JAR file name, for example `shelldialog-3.0.0.jar` or `shelldialog-3.0.0-all.jar`
 - from `META-INF/MANIFEST.MF` inside the JAR
 - from the command line with `java -jar build/libs/shelldialog-3.0.0-all.jar --version`
+
+## Contributing
+
+Contributions are welcome and appreciated.
+
+You can help improve ShellDialog by:
+
+- Reporting bugs
+- Suggesting new features or API improvements
+- Improving documentation
+- Submitting pull requests
+
+### Reporting Issues
+
+Please use the **Issues** tab and choose the appropriate template:
+
+- Bug report
+- Feature request
+
+Before opening a new issue, check existing ones to avoid duplicates.
+
+### Pull Requests
+
+If you would like to contribute code:
+
+1. Fork the repository
+2. Create a feature branch from `main`
+3. Keep changes focused and minimal
+4. Ensure the project builds successfully
+5. Add or update tests if applicable
+6. Open a Pull Request using the provided template
+
+Please see `CONTRIBUTING.md` for detailed contribution guidelines.
