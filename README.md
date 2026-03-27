@@ -10,6 +10,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `SingleChoiceDialog`: Classic single-choice menu.
     - `MultiChoiceDialog`: Select any number of options from a list.
     - `FileDialog`: Select a file or directory from the file system.
+    - `ProgressDialog`: Show a progress bar for background tasks.
     - `TextLineDialog`: Prompt for single-line text input.
     - `PasswordDialog`: Prompt for masked password input.
     - `YesNoDialog`: Confirm or decline an action.
@@ -27,6 +28,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
     - `FileDialog` supports directory navigation and filtering (by predicate or extension).
+    - `ProgressDialog` supports status messages and user cancellation via `Escape`.
 - **Modern Java:** Built with Java 21 features.
 
 ## Documentation
@@ -95,6 +97,9 @@ You can run the examples using the executable `-all.jar`. If no arguments are pr
 ```bash
 # Launch interactive menu
 java -jar build/libs/shelldialog-3.0.0-all.jar
+
+# Launch Progress Dialog example
+java -jar build/libs/shelldialog-3.0.0-all.jar progress
 
 # Launch File Selection Dialog example
 java -jar build/libs/shelldialog-3.0.0-all.jar file
