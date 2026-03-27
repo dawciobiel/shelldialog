@@ -5,16 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0-SNAPSHOT] - Unreleased
+## [3.1.0] - 2026-03-23
 
 ### Added
 - `FileDialog` for selecting files and directories from the file system.
-- `FileExample` demonstrating the usage of `FileDialog`.
-- Interactive examples menu when running the executable JAR without arguments.
+- `ProgressDialog` for displaying a progress bar during long-running background tasks.
+- `SpinnerDialog` for background tasks with indeterminate duration.
+- **Live Filtering:** Instant search support in all list-based dialogs (`SingleChoiceDialog`, `MultiChoiceDialog`, `FileDialog`).
+- **Dependency Injection:** Support for injecting `Terminal` and `InputStream`/`OutputStream` into dialogs, facilitating stable interaction testing.
+- `InteractionFlowTest` suite for simulating real keyboard interactions.
+- `FileExample`, `ProgressExample`, and `SpinnerExample` added to the examples gallery.
+- New interactive examples gallery in `Main` class.
 
 ### Changed
-- `SingleChoiceDialog` and `MultiChoiceDialog` now extend `AbstractListDialog`, sharing common list navigation and viewport logic.
-- `Main` class refactored to support interactive example selection.
+- `AbstractListDialog` now handles common list navigation, viewport logic, and filtering.
+- `AbstractDialog` refactored to support multiple input sources (Streams, Paths, or direct Terminal).
+- `MultiChoiceDialog` now uses object-based selection tracking instead of indices to maintain state during filtering.
+- `SimpleDialogOption` now correctly implements `equals()` and `hashCode()`.
+- Builder `withTheme()` methods now correctly propagate all relevant theme styles (e.g., validation message style).
+
+### Fixed
+- `NullPointerException` in `NavigationArea` when no theme or renderer was provided.
+- `NullPointerException` in `ProgressDialog` when using `Optional.of(null)`.
 
 ## [3.0.0] - 2026-03-22
 
