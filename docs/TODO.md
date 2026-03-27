@@ -5,6 +5,10 @@
 - [x] Add `ProgressDialog` for background tasks with known progress.
 - [x] Implement live filtering (search) for `SingleChoiceDialog` and `MultiChoiceDialog`.
 - [x] Add interaction-level tests that simulate full keyboard flows for dialogs.
+- [x] Implement specialized `InputValidator` and `PasswordValidator` with built-in common validation rules.
+- [x] Improve `FileDialog` with smart sorting (folders first) and navigation shortcuts (Home/End/F5).
+- [x] Modernize the codebase with Java 21 features (Sequenced Collections, Math.clamp).
+- [ ] Implement `MessageDialog` for showing simple messages with an OK button.
 - [ ] Implement `FormDialog` to allow multiple input fields on a single screen.
 - [ ] Add `WizardDialog` support for multi-step dialog sequences with navigation.
 - [ ] Decide whether dialog configuration should also be loadable from `.properties` files in addition to Java builders.

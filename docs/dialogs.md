@@ -43,53 +43,36 @@ To build `TextLineDialog`, you need:
 
 ### Optional validation
 
-`TextLineDialog.Builder` also supports:
+`TextLineDialog.Builder` supports:
 
 - `withInitialValue(String)` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
-- `withValidator(Function<String, Optional<String>>)` to validate the value on `Enter`
+- `withValidator(InputValidator)` to validate the value on `Enter`
 - `withValidationMessageStyle(TextStyle)` to style the validation message below the input
 
-If the validator returns an error message, the dialog stays open and renders that message below the input field.
+#### Built-in Validators
+
+You can use `InputValidator.BuiltIn` for common validation rules:
+
+```java
+.withValidator(InputValidator.BuiltIn.nonEmpty("Required field"))
+.withValidator(InputValidator.BuiltIn.email("Invalid email format"))
+.withValidator(InputValidator.BuiltIn.isInteger("Must be a number"))
+```
+
+Validators can be combined using `.and()`:
+
+```java
+.withValidator(InputValidator.BuiltIn.nonEmpty("Required").and(InputValidator.BuiltIn.isInteger("Number only")))
+```
 
 ### Example
 
 ```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Please enter your name:")
-        .withTheme(theme)
-        .build();
-
-ContentArea contentArea = new ContentArea.Builder()
-        .withContent("Your answer will be used in the greeting.")
-        .withTheme(theme)
-        .build();
-
-InputArea inputArea = new InputArea.Builder()
-        .withTheme(theme)
-        .build();
-
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-TextLineDialog dialog = new TextLineDialog.Builder(
-        titleArea,
-        contentArea,
-        inputArea,
-        navigationArea
-)
-        .withBorder(true)
+TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
         .withTheme(theme)
         .withInitialValue("Dawid")
+        .withValidator(InputValidator.BuiltIn.nonEmpty("Name cannot be empty"))
         .build();
 
 Optional<String> result = dialog.show();
@@ -136,56 +119,6 @@ To build `SingleChoiceDialog`, you need:
 When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
 Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be confirmed.
 
-### Example
-
-```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Select your favorite fruit:")
-        .withTheme(theme)
-        .build();
-
-ContentArea menuItemArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-ContentArea selectedMenuItemArea = new ContentArea.Builder()
-        .withForegroundColor(theme.menuItemSelectedStyle().foreground())
-        .withBackgroundColor(theme.menuItemSelectedStyle().background())
-        .build();
-
-List<DialogOption> options = List.of(
-        new SimpleDialogOption(1, "Apple"),
-        new SimpleDialogOption(2, "Banana")
-);
-
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withVerticalArrowsNavigation()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
-        titleArea,
-        menuItemArea,
-        selectedMenuItemArea,
-        options,
-        navigationArea
-)
-        .withBorder(true)
-        .withTheme(theme)
-        .withVisibleItemCount(3)
-        .build();
-
-Optional<DialogOption> result = dialog.show();
-```
-
 ## PasswordDialog
 
 `PasswordDialog` is used for masked single-line password input.
@@ -203,13 +136,10 @@ To build `PasswordDialog`, you need:
 
 `show()` returns `Optional<char[]>`.
 
-- `Optional.of(value)` when the user confirms with `Enter`
-- `Optional.empty()` when the user cancels with `Escape`
-
 ### Security note
 
 `PasswordDialog` exposes password values as `char[]` so callers can clear them after use.
-This reduces the lifetime of sensitive data compared to returning immutable `String` values, but it does not protect against memory inspection, profilers, debuggers, or other tools with sufficient access to the running JVM process.
+`InputValidator` can be used via `.asPasswordValidator()` adapter.
 
 ### Keyboard behavior
 
@@ -220,56 +150,25 @@ This reduces the lifetime of sensitive data compared to returning immutable `Str
 
 ### Optional validation
 
-`PasswordDialog.Builder` also supports:
+`PasswordDialog.Builder` supports:
 
 - `withInitialValue(char[])` to prefill the input when the dialog opens
 - `withMaxLength(int)` to cap the accepted input length
-- `withValidator(Function<char[], Optional<String>>)` to validate the value on `Enter`
-- `withValidationMessageStyle(TextStyle)` to style the validation message below the input
+- `withValidator(PasswordValidator)` to validate the value on `Enter`
 
-If the validator returns an error message, the dialog stays open and renders that message below the input field.
+#### Using Built-in Validators for Passwords
+
+```java
+.withValidator(InputValidator.BuiltIn.nonEmpty("Required").asPasswordValidator())
+```
 
 ### Example
 
 ```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Enter your password")
+PasswordDialog dialog = new PasswordDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
         .withTheme(theme)
-        .build();
-
-ContentArea contentArea = new ContentArea.Builder()
-        .withContent("The typed password is masked on screen.")
-        .withTheme(theme)
-        .build();
-
-InputArea inputArea = new InputArea.Builder()
-        .withTheme(theme)
-        .build();
-
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-PasswordDialog dialog = new PasswordDialog.Builder(
-        titleArea,
-        contentArea,
-        inputArea,
-        navigationArea
-)
-        .withTheme(theme)
-        .withInitialValue("secret".toCharArray())
         .withMaxLength(16)
-        .withValidator(value -> value.length < 6
-                ? Optional.of("Password must be at least 6 characters long.")
-                : Optional.empty())
+        .withValidator(InputValidator.BuiltIn.nonEmpty("Password required").asPasswordValidator())
         .withMaskCharacter('*')
         .build();
 
@@ -309,80 +208,6 @@ To build `MultiChoiceDialog`, you need:
 - `Enter`: confirms current selection set
 - `Escape`: clears search filter (if not empty) or cancels dialog
 
-### Live Filtering (Search)
-
-`MultiChoiceDialog` supports live filtering. As the user types, the list of options is instantly updated to show only items containing the entered text (case-insensitive). Selections are preserved even when items are hidden by the active filter.
-
-### Optional builder settings
-
-- `withInitiallySelectedOptions(List<DialogOption>)` to preselect options when the dialog opens
-- `withVisibleItemCount(int)` to limit how many menu items are shown at once and enable simple viewport scrolling for longer lists
-
-When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
-Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be toggled with `Space`.
-
-### Example
-
-```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Select your favorite fruits:")
-        .withTheme(theme)
-        .build();
-
-ContentArea menuItemArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-ContentArea focusedMenuItemArea = new ContentArea.Builder()
-        .withForegroundColor(TextColor.ANSI.BLACK)
-        .withBackgroundColor(TextColor.ANSI.YELLOW_BRIGHT)
-        .build();
-
-ContentArea selectedMenuItemArea = new ContentArea.Builder()
-        .withForegroundColor(TextColor.ANSI.BLACK)
-        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
-        .build();
-
-ContentArea selectedFocusedMenuItemArea = new ContentArea.Builder()
-        .withForegroundColor(TextColor.ANSI.BLACK)
-        .withBackgroundColor(TextColor.ANSI.WHITE)
-        .build();
-
-List<DialogOption> options = List.of(
-        new SimpleDialogOption(1, "Apple"),
-        new SimpleDialogOption(2, "Banana")
-);
-
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withVerticalArrowsNavigation()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
-        titleArea,
-        menuItemArea,
-        focusedMenuItemArea,
-        selectedMenuItemArea,
-        selectedFocusedMenuItemArea,
-        options,
-        navigationArea
-)
-        .withTheme(theme)
-        .withInitiallySelectedOptions(List.of(options.get(1)))
-        .withVisibleItemCount(3)
-        .build();
-
-Optional<List<DialogOption>> result = dialog.show();
-```
-
 ## FileDialog
 
 `FileDialog` is used for browsing files and directories.
@@ -409,8 +234,18 @@ To build `FileDialog`, you need:
 - `Backspace`: removes last character from the search filter
 - `ArrowUp`: moves selection up
 - `ArrowDown`: moves selection down
+- `F5`: refresh current directory content
+- `Home`: jump to user home directory
+- `End`: jump to initial working directory (CWD)
 - `Enter`: enters directory or selects file
 - `Escape`: clears search filter (if not empty) or cancels dialog
+
+### Sorting behavior
+
+`FileDialog` automatically sorts content:
+1. Parent directory link (`..`)
+2. Directories (alphabetical, prefixed with `/`)
+3. Files (alphabetical)
 
 ### Optional builder settings
 
@@ -423,26 +258,13 @@ To build `FileDialog`, you need:
 ### Example
 
 ```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Select a source file:")
-        .withTheme(theme)
-        .build();
-
-ContentArea menuItemArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-ContentArea selectedMenuItemArea = new ContentArea.Builder()
-        .withForegroundColor(TextColor.ANSI.BLACK)
-        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
-        .build();
-
 NavigationArea navigationArea = new NavigationArea.Builder()
         .withToolbar(
                 NavigationToolbar.builder()
                         .withVerticalArrowsNavigation()
+                        .withF5Refresh()
+                        .withHomeHomeDir()
+                        .withEndCWD()
                         .withEnterAccept()
                         .withEscapeCancel()
                         .build()
@@ -450,16 +272,10 @@ NavigationArea navigationArea = new NavigationArea.Builder()
         .withTheme(theme)
         .build();
 
-FileDialog dialog = new FileDialog.Builder(
-        titleArea,
-        menuItemArea,
-        selectedMenuItemArea,
-        navigationArea
-)
+FileDialog dialog = new FileDialog.Builder(titleArea, menuItemArea, selectedMenuItemArea, navigationArea)
         .withTheme(theme)
         .withInitialDirectory(Paths.get("."))
         .withVisibleItemCount(10)
-        .withExtensions(List.of("java", "md", "txt"))
         .build();
 
 Optional<Path> result = dialog.show();
@@ -484,54 +300,6 @@ To build `ProgressDialog`, you need:
 - `Optional.of(true)` when the task completes successfully
 - `Optional.of(false)` when the task is cancelled (via `Escape`) or fails
 
-### Interaction
-
-The dialog runs the task in a separate thread and refreshes the UI automatically.
-Users can press `Escape` to request cancellation, which the task can check via `ProgressReporter.isCancelled()`.
-
-### ProgressTask and ProgressReporter
-
-The task is a functional interface:
-
-```java
-public interface ProgressTask {
-    void run(ProgressReporter reporter) throws Exception;
-}
-```
-
-The reporter provides methods to update the UI:
-
-- `update(double progress, String message)`: progress should be between `0.0` and `1.0`.
-- `isCancelled()`: returns `true` if the user pressed `Escape`.
-
-### Example
-
-```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Downloading updates...")
-        .withTheme(theme)
-        .build();
-
-ContentArea statusArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-ProgressDialog dialog = new ProgressDialog.Builder(titleArea, statusArea)
-        .withTheme(theme)
-        .withTask(reporter -> {
-            for (int i = 0; i <= 100; i++) {
-                if (reporter.isCancelled()) break;
-                reporter.update(i / 100.0, "Downloading block " + i);
-                Thread.sleep(50);
-            }
-        })
-        .build();
-
-Optional<Boolean> result = dialog.show();
-```
-
 ## SpinnerDialog
 
 `SpinnerDialog` is used for tasks with indeterminate duration where a simple progress bar cannot be shown.
@@ -550,42 +318,6 @@ To build `SpinnerDialog`, you need:
 
 - `Optional.of(true)` when the task completes successfully
 - `Optional.of(false)` when the task is cancelled (via `Escape`) or fails
-
-### Customization
-
-You can provide custom spinner frames (list of strings) to change the animation.
-
-### Example
-
-```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Processing...")
-        .withTheme(theme)
-        .build();
-
-ContentArea statusArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-SpinnerDialog dialog = new SpinnerDialog.Builder(titleArea, statusArea)
-        .withTheme(theme)
-        .withTask(reporter -> {
-            // Task logic here
-            Thread.sleep(5000);
-        })
-        .withSpinnerFrames(List.of("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"))
-        .build();
-
-Optional<Boolean> result = dialog.show();
-```
-
-## Notes
-
-- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
-- UI areas control only their own content styles.
-- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
 
 ## YesNoDialog
 
@@ -615,56 +347,3 @@ To build `YesNoDialog`, you need:
 - `ArrowRight`: selects the negative answer
 - `Enter`: confirms the selected answer
 - `Escape`: cancels dialog
-
-### Optional builder settings
-
-- `withDefaultYesSelected(boolean)` to choose which answer is focused when the dialog opens
-
-### Example
-
-```java
-DialogTheme theme = DialogTheme.darkTheme();
-
-TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Confirm action")
-        .withTheme(theme)
-        .build();
-
-ContentArea contentArea = new ContentArea.Builder()
-        .withContent("Do you want to continue?")
-        .withTheme(theme)
-        .build();
-
-ContentArea answerArea = new ContentArea.Builder()
-        .withTheme(theme)
-        .build();
-
-ContentArea selectedAnswerArea = new ContentArea.Builder()
-        .withForegroundColor(TextColor.ANSI.BLACK)
-        .withBackgroundColor(TextColor.ANSI.GREEN_BRIGHT)
-        .build();
-
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withHorizontalArrowsNavigation()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-YesNoDialog dialog = new YesNoDialog.Builder(
-        titleArea,
-        contentArea,
-        answerArea,
-        selectedAnswerArea,
-        navigationArea
-)
-        .withTheme(theme)
-        .withDefaultYesSelected(false)
-        .build();
-
-Optional<Boolean> result = dialog.show();
-```

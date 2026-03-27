@@ -20,6 +20,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 - **Composable UI Areas:** Build dialogs from `TitleArea`, `ContentArea`, `InputArea`, and `NavigationArea`.
 - **Builder Pattern:** Fluent API for constructing dialogs and UI components.
 - **Navigation Toolbar:** Customizable bottom toolbar with shortcuts (see [documentation](docs/navigation-toolbar.md)).
+- **Input Validation:** Built-in and custom validators for `TextLineDialog` and `PasswordDialog` (including email, numbers, regex, and non-empty checks).
 - **Clean UI:**
     - Optional shared border around the whole dialog.
     - Automatic text wrapping for long titles.
@@ -29,9 +30,9 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `PasswordDialog` supports an initial value plus max length and validation on `Enter`.
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
-    - `FileDialog` supports directory navigation and filtering (by predicate or extension).
+    - `FileDialog` supports directory navigation, filtering (by predicate or extension), smart sorting (folders first), and quick navigation shortcuts (F5, Home, End).
     - `ProgressDialog` and `SpinnerDialog` support status messages and user cancellation via `Escape`.
-- **Modern Java:** Built with Java 21 features.
+- **Modern Java:** Built with Java 21 features (Sequenced Collections, Math.clamp, etc.).
 
 ## Documentation
 
