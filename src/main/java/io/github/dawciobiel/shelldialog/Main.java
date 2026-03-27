@@ -12,6 +12,7 @@ import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 import io.github.dawciobiel.shelldialog.examples.FileExample;
+import io.github.dawciobiel.shelldialog.examples.MessageExample;
 import io.github.dawciobiel.shelldialog.examples.MultiChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.PasswordExample;
 import io.github.dawciobiel.shelldialog.examples.ProgressExample;
@@ -68,6 +69,7 @@ public class Main {
                 case 6 -> FileExample.main(emptyArgs);
                 case 7 -> ProgressExample.main(emptyArgs);
                 case 8 -> SpinnerExample.main(emptyArgs);
+                case 9 -> MessageExample.main(emptyArgs);
             }
         }
     }
@@ -99,6 +101,7 @@ public class Main {
                 new SimpleDialogOption(6, "File Selection Dialog"),
                 new SimpleDialogOption(7, "Progress Dialog"),
                 new SimpleDialogOption(8, "Spinner Dialog (Indeterminate)"),
+                new SimpleDialogOption(9, "Message Dialog (Info/Alert)"),
                 new SimpleDialogOption(0, "Exit")
         );
 
@@ -154,11 +157,12 @@ public class Main {
             case "file" -> FileExample.main(args);
             case "progress" -> ProgressExample.main(args);
             case "spinner" -> SpinnerExample.main(args);
+            case "message" -> MessageExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, spinner, version");
+                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, spinner, message, version");
             }
         }
     }
