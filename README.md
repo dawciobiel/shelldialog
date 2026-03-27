@@ -4,6 +4,41 @@
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
+## Visual Preview
+
+### List Selection with Live Filtering
+```text
+  ┌──────────────────────────────────────────────────────────────┐
+  │                 Select your favorite fruit:                  │
+  ├──────────────────────────────────────────────────────────────┤
+  │                                                              │
+  │  Search: app_                                                │
+  │                                                              │
+  │  ❯ Apple                                                     │
+  │    Pineapple                                                 │
+  │    (no more results)                                         │
+  │                                                              │
+  │  1/2                                                         │
+  │                                                              │
+  ├──────────────────────────────────────────────────────────────┤
+  │  ↑↓ Navigation  |  ↵ Accept  |  Esc Cancel                   │
+  └──────────────────────────────────────────────────────────────┘
+```
+
+### Informative Message Dialog
+```text
+  ╔══════════════════════════════════════════════════════════════╗
+  ║                      System Notification                     ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║                                                              ║
+  ║  The background synchronization process has completed        ║
+  ║  successfully. All your files are up to date.                ║
+  ║                                                              ║
+  ╟──────────────────────────────────────────────────────────────╢
+  ║  ↵ OK  |  Esc Cancel                                         ║
+  ╚══════════════════════════════════════════════════════════════╝
+```
+
 ## Features
 
 - **Multiple Dialog Types:**
@@ -15,6 +50,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `TextLineDialog`: Prompt for single-line text input.
     - `PasswordDialog`: Prompt for masked password input.
     - `YesNoDialog`: Confirm or decline an action.
+    - `MessageDialog`: Show simple alerts and informative messages.
 - **Live Filtering:** Type anywhere in list-based dialogs (`SingleChoiceDialog`, `MultiChoiceDialog`, `FileDialog`) to instantly search and filter options.
 - **Theming System:** Customize colors and styles using `DialogTheme`.
 - **Composable UI Areas:** Build dialogs from `TitleArea`, `ContentArea`, `InputArea`, and `NavigationArea`.
