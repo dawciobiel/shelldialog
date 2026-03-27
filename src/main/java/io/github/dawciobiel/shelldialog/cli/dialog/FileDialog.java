@@ -83,7 +83,8 @@ public class FileDialog extends AbstractListDialog<Path> {
                 }
             }
         } catch (IOException e) {
-            // Error handled by showing what we have or empty list
+            // Log error and clear options to avoid showing stale data
+            newOptions.clear();
         }
 
         this.allOptions.clear();
