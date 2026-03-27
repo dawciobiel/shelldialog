@@ -7,6 +7,7 @@ This document describes the current usage of:
 - `MultiChoiceDialog`
 - `FileDialog`
 - `ProgressDialog`
+- `SpinnerDialog`
 - `PasswordDialog`
 - `YesNoDialog`
 
@@ -526,6 +527,55 @@ ProgressDialog dialog = new ProgressDialog.Builder(titleArea, statusArea)
                 Thread.sleep(50);
             }
         })
+        .build();
+
+Optional<Boolean> result = dialog.show();
+```
+
+## SpinnerDialog
+
+`SpinnerDialog` is used for tasks with indeterminate duration where a simple progress bar cannot be shown.
+
+### Required parts
+
+To build `SpinnerDialog`, you need:
+
+- `TitleArea`
+- `ContentArea` for status messages
+- `ProgressTask` (the logic to execute)
+
+### Return type
+
+`show()` returns `Optional<Boolean>`.
+
+- `Optional.of(true)` when the task completes successfully
+- `Optional.of(false)` when the task is cancelled (via `Escape`) or fails
+
+### Customization
+
+You can provide custom spinner frames (list of strings) to change the animation.
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Processing...")
+        .withTheme(theme)
+        .build();
+
+ContentArea statusArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+SpinnerDialog dialog = new SpinnerDialog.Builder(titleArea, statusArea)
+        .withTheme(theme)
+        .withTask(reporter -> {
+            // Task logic here
+            Thread.sleep(5000);
+        })
+        .withSpinnerFrames(List.of("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"))
         .build();
 
 Optional<Boolean> result = dialog.show();
