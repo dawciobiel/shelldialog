@@ -119,6 +119,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard enter-to-confirm item (OK).
+         *
+         * @return this builder
+         */
+        public Builder withEnterOK() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ENTER, NavigationLabels.ACTION_OK));
+            return this;
+        }
+
+        /**
          * Appends the standard escape-to-cancel item.
          *
          * @return this builder
