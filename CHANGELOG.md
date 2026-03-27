@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dependency Injection:** Support for injecting `Terminal` and `InputStream`/`OutputStream` into dialogs, facilitating stable interaction testing.
 - `InteractionFlowTest` suite for simulating real keyboard interactions.
 - `FileExample`, `ProgressExample`, and `SpinnerExample` added to the examples gallery.
-- New interactive examples gallery in `Main` class.
+- New interactive examples gallery in `Main` class with the library version displayed in the title.
 
 ### Changed
 - `AbstractListDialog` now handles common list navigation, viewport logic, and filtering.
