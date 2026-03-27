@@ -11,6 +11,8 @@ import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
+import io.github.dawciobiel.shelldialog.cli.validation.InputValidator;
+import io.github.dawciobiel.shelldialog.cli.validation.PasswordValidator;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -91,12 +93,10 @@ class DialogBuilderTest {
                 .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
                 .build();
 
-        @SuppressWarnings("unchecked")
-        java.util.function.Function<String, Optional<String>> validator =
-                (java.util.function.Function<String, Optional<String>>) readField(dialog, "validator");
+        InputValidator validator = (InputValidator) readField(dialog, "validator");
 
-        assertEquals(Optional.of("Required"), validator.apply(""));
-        assertEquals(Optional.empty(), validator.apply("value"));
+        assertEquals(Optional.of("Required"), validator.validate(""));
+        assertEquals(Optional.empty(), validator.validate("value"));
     }
 
     @Test
@@ -284,12 +284,10 @@ class DialogBuilderTest {
                 .withValidator(value -> value.length < 6 ? Optional.of("Too short") : Optional.empty())
                 .build();
 
-        @SuppressWarnings("unchecked")
-        java.util.function.Function<char[], Optional<String>> validator =
-                (java.util.function.Function<char[], Optional<String>>) readField(dialog, "validator");
+        PasswordValidator validator = (PasswordValidator) readField(dialog, "validator");
 
-        assertEquals(Optional.of("Too short"), validator.apply("123".toCharArray()));
-        assertEquals(Optional.empty(), validator.apply("123456".toCharArray()));
+        assertEquals(Optional.of("Too short"), validator.validate("123".toCharArray()));
+        assertEquals(Optional.empty(), validator.validate("123456".toCharArray()));
     }
 
     @Test
@@ -428,7 +426,7 @@ class DialogBuilderTest {
         Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
 
         assertEquals(1, selectedOptions.size());
-        assertTrue(selectedOptions.contains(availableOptions.get(0)));
+        assertTrue(selectedOptions.contains(availableOptions.getFirst()));
     }
 
     @Test

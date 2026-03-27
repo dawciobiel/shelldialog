@@ -6,10 +6,10 @@ import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
+import io.github.dawciobiel.shelldialog.cli.validation.PasswordValidator;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * A CLI dialog for masked single-line password input.
@@ -17,7 +17,7 @@ import java.util.function.Function;
  */
 public class PasswordDialog extends AbstractInputDialog<char[]> {
 
-    private final Function<char[], Optional<String>> validator;
+    private final PasswordValidator validator;
     private final char maskCharacter;
 
     private PasswordDialog(Builder builder) {
@@ -48,7 +48,7 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
 
     @Override
     protected Optional<String> validate(String rawInput) {
-        return validator.apply(rawInput.toCharArray());
+        return validator.validate(rawInput.toCharArray());
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
-        private Function<char[], Optional<String>> validator = value -> Optional.empty();
+        private PasswordValidator validator = value -> Optional.empty();
         private TextStyle validationMessageStyle = TextStyle.of(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
@@ -99,12 +99,12 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
         }
 
         /**
-         * Sets a validator function that runs when user attempts to confirm the input.
+         * Sets a validator that runs when user attempts to confirm the input.
          *
-         * @param validator function returning an error message if invalid, or empty otherwise
+         * @param validator the validator to use
          * @return this builder
          */
-        public Builder withValidator(Function<char[], Optional<String>> validator) {
+        public Builder withValidator(PasswordValidator validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
         }

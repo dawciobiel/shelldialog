@@ -55,8 +55,6 @@ public abstract class AbstractListDialog<T> extends AbstractDialog<T> {
             this.options = new ArrayList<>(allOptions);
         } else {
             String lowerFilter = filterText.toLowerCase();
-            // Note: toList() returns an unmodifiable list in JDK 16+.
-            // This is acceptable as the 'options' list is replaced rather than modified in-place.
             this.options = allOptions.stream()
                     .filter(option -> option.getLabel().toLowerCase().contains(lowerFilter))
                     .toList();
@@ -120,7 +118,7 @@ public abstract class AbstractListDialog<T> extends AbstractDialog<T> {
             return 0;
         }
         int maxStartIndex = options.size() - visibleItemCount;
-        return Math.min(Math.max(0, focusedIndex - visibleItemCount + 1), maxStartIndex);
+        return Math.clamp(focusedIndex - visibleItemCount + 1, 0, maxStartIndex);
     }
 
     /**

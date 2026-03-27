@@ -6,17 +6,17 @@ import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
+import io.github.dawciobiel.shelldialog.cli.validation.InputValidator;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * A CLI dialog for single-line text input with optional real-time validation.
  */
 public class TextLineDialog extends AbstractInputDialog<String> {
 
-    private final Function<String, Optional<String>> validator;
+    private final InputValidator validator;
 
     private TextLineDialog(Builder builder) {
         super(
@@ -45,7 +45,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
 
     @Override
     protected Optional<String> validate(String rawInput) {
-        return validator.apply(rawInput);
+        return validator.validate(rawInput);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class TextLineDialog extends AbstractInputDialog<String> {
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
-        private Function<String, Optional<String>> validator = value -> Optional.empty();
+        private InputValidator validator = value -> Optional.empty();
         private TextStyle validationMessageStyle = TextStyle.of(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
@@ -95,12 +95,12 @@ public class TextLineDialog extends AbstractInputDialog<String> {
         }
 
         /**
-         * Sets a validator function that runs when user attempts to confirm the input.
+         * Sets a validator that runs when user attempts to confirm the input.
          *
-         * @param validator function returning an error message if invalid, or empty otherwise
+         * @param validator the validator to use
          * @return this builder
          */
-        public Builder withValidator(Function<String, Optional<String>> validator) {
+        public Builder withValidator(InputValidator validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
         }
