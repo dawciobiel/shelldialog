@@ -12,7 +12,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * A dialog for masked single-line text input.
+ * A CLI dialog for masked single-line password input.
+ * Input is stored as a character array to facilitate faster clearing from memory.
  */
 public class PasswordDialog extends AbstractInputDialog<char[]> {
 
@@ -70,6 +71,14 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
         private String initialValue = "";
         private char maskCharacter = '*';
 
+        /**
+         * Creates a new builder with required UI components.
+         *
+         * @param titleArea      the title area
+         * @param contentArea    the body content area
+         * @param inputArea      the editable field area
+         * @param navigationArea bottom toolbar area
+         */
         public Builder(TitleArea titleArea, ContentArea contentArea, InputArea inputArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.contentArea = Objects.requireNonNull(contentArea);
@@ -89,16 +98,34 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
             return this;
         }
 
+        /**
+         * Sets a validator function that runs when user attempts to confirm the input.
+         *
+         * @param validator function returning an error message if invalid, or empty otherwise
+         * @return this builder
+         */
         public Builder withValidator(Function<char[], Optional<String>> validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
         }
 
+        /**
+         * Sets the style for the validation error message rendered below the input field.
+         *
+         * @param style text style for error messages
+         * @return this builder
+         */
         public Builder withValidationMessageStyle(TextStyle style) {
             this.validationMessageStyle = Objects.requireNonNull(style);
             return this;
         }
 
+        /**
+         * Sets the maximum allowed number of characters.
+         *
+         * @param maxLength positive integer limit
+         * @return this builder
+         */
         public Builder withMaxLength(int maxLength) {
             if (maxLength <= 0) {
                 throw new IllegalArgumentException("maxLength must be positive");
@@ -107,16 +134,33 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
             return this;
         }
 
+        /**
+         * Prefills the input field with an initial value.
+         *
+         * @param initialValue the characters to show initially
+         * @return this builder
+         */
         public Builder withInitialValue(char[] initialValue) {
             this.initialValue = String.valueOf(Objects.requireNonNull(initialValue));
             return this;
         }
 
+        /**
+         * Sets the character used to mask the password on screen.
+         *
+         * @param maskCharacter the masking character (default '*')
+         * @return this builder
+         */
         public Builder withMaskCharacter(char maskCharacter) {
             this.maskCharacter = maskCharacter;
             return this;
         }
 
+        /**
+         * Builds the {@link PasswordDialog} instance.
+         *
+         * @return a new dialog
+         */
         public PasswordDialog build() {
             if (initialValue.length() > maxLength) {
                 initialValue = initialValue.substring(0, maxLength);

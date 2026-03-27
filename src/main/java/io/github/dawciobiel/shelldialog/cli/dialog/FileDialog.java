@@ -6,7 +6,6 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.FileOption;
-import io.github.dawciobiel.shelldialog.cli.i18n.UIProperties;
 import io.github.dawciobiel.shelldialog.cli.style.Arrow;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
@@ -26,8 +25,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * A dialog for selecting files or directories.
- * Supports live filtering by typing.
+ * A CLI dialog for selecting files or directories from the local file system.
+ * Supports navigation through directories, parent directory link (".."), and live filtering of files in the current view.
  */
 public class FileDialog extends AbstractListDialog<Path> {
 
@@ -84,7 +83,7 @@ public class FileDialog extends AbstractListDialog<Path> {
                 }
             }
         } catch (IOException e) {
-            // Handle error
+            // Error handled by showing what we have or empty list
         }
 
         this.allOptions.clear();
@@ -92,6 +91,9 @@ public class FileDialog extends AbstractListDialog<Path> {
         updateFilter(filterText);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Optional<Path> runDialog(Screen screen) throws IOException {
         int selectedIndex = 0;
@@ -246,6 +248,9 @@ public class FileDialog extends AbstractListDialog<Path> {
         return width;
     }
 
+    /**
+     * Builder for {@link FileDialog} instances.
+     */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
         private final TitleArea titleArea;
         private final ContentArea menuItemArea;
@@ -256,6 +261,14 @@ public class FileDialog extends AbstractListDialog<Path> {
         private boolean directoriesOnly = false;
         private Predicate<Path> filter = path -> true;
 
+        /**
+         * Creates a new builder with required areas.
+         *
+         * @param titleArea            the title component
+         * @param menuItemArea         base style for list items
+         * @param selectedMenuItemArea style for the currently focused item
+         * @param navigationArea       bottom toolbar area
+         */
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea selectedMenuItemArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.menuItemArea = Objects.requireNonNull(menuItemArea);
@@ -268,6 +281,12 @@ public class FileDialog extends AbstractListDialog<Path> {
             return this;
         }
 
+        /**
+         * Limits the number of visible items in the file list.
+         *
+         * @param visibleItemCount max visible rows
+         * @return this builder
+         */
         public Builder withVisibleItemCount(int visibleItemCount) {
             if (visibleItemCount <= 0) {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
@@ -276,21 +295,45 @@ public class FileDialog extends AbstractListDialog<Path> {
             return this;
         }
 
+        /**
+         * Sets the starting directory for the file browser.
+         *
+         * @param initialDirectory starting path
+         * @return this builder
+         */
         public Builder withInitialDirectory(Path initialDirectory) {
             this.initialDirectory = initialDirectory;
             return this;
         }
 
+        /**
+         * Enables directory selection mode. If true, files will be hidden.
+         *
+         * @param directoriesOnly true to show only directories
+         * @return this builder
+         */
         public Builder directoriesOnly(boolean directoriesOnly) {
             this.directoriesOnly = directoriesOnly;
             return this;
         }
 
+        /**
+         * Sets a custom filter for files. Directories are always shown to allow navigation.
+         *
+         * @param filter path predicate
+         * @return this builder
+         */
         public Builder withFileFilter(Predicate<Path> filter) {
             this.filter = Objects.requireNonNull(filter);
             return this;
         }
 
+        /**
+         * Sets a filter based on allowed file extensions.
+         *
+         * @param extensions list of extensions (e.g. "java", ".md")
+         * @return this builder
+         */
         public Builder withExtensions(List<String> extensions) {
             Objects.requireNonNull(extensions);
             List<String> normalized = extensions.stream()
@@ -302,6 +345,11 @@ public class FileDialog extends AbstractListDialog<Path> {
             });
         }
 
+        /**
+         * Builds the {@link FileDialog} instance.
+         *
+         * @return a new dialog
+         */
         public FileDialog build() {
             return new FileDialog(this);
         }

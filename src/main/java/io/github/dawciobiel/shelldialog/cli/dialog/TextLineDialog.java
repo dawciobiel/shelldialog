@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * A dialog for single-line text input with optional validation.
+ * A CLI dialog for single-line text input with optional real-time validation.
  */
 public class TextLineDialog extends AbstractInputDialog<String> {
 
@@ -67,6 +67,14 @@ public class TextLineDialog extends AbstractInputDialog<String> {
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
 
+        /**
+         * Creates a new builder with required UI components.
+         *
+         * @param titleArea      the title area
+         * @param contentArea    the body content area
+         * @param inputArea      the editable field area
+         * @param navigationArea bottom toolbar area
+         */
         public Builder(TitleArea titleArea, ContentArea contentArea, InputArea inputArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.contentArea = Objects.requireNonNull(contentArea);
@@ -86,16 +94,34 @@ public class TextLineDialog extends AbstractInputDialog<String> {
             return this;
         }
 
+        /**
+         * Sets a validator function that runs when user attempts to confirm the input.
+         *
+         * @param validator function returning an error message if invalid, or empty otherwise
+         * @return this builder
+         */
         public Builder withValidator(Function<String, Optional<String>> validator) {
             this.validator = Objects.requireNonNull(validator);
             return this;
         }
 
+        /**
+         * Sets the style for the validation error message rendered below the input field.
+         *
+         * @param style text style for error messages
+         * @return this builder
+         */
         public Builder withValidationMessageStyle(TextStyle style) {
             this.validationMessageStyle = Objects.requireNonNull(style);
             return this;
         }
 
+        /**
+         * Sets the maximum allowed number of characters.
+         *
+         * @param maxLength positive integer limit
+         * @return this builder
+         */
         public Builder withMaxLength(int maxLength) {
             if (maxLength <= 0) {
                 throw new IllegalArgumentException("maxLength must be positive");
@@ -104,11 +130,22 @@ public class TextLineDialog extends AbstractInputDialog<String> {
             return this;
         }
 
+        /**
+         * Prefills the input field with an initial value.
+         *
+         * @param initialValue the text to show initially
+         * @return this builder
+         */
         public Builder withInitialValue(String initialValue) {
             this.initialValue = Objects.requireNonNull(initialValue);
             return this;
         }
 
+        /**
+         * Builds the {@link TextLineDialog} instance.
+         *
+         * @return a new dialog
+         */
         public TextLineDialog build() {
             if (initialValue.length() > maxLength) {
                 initialValue = initialValue.substring(0, maxLength);

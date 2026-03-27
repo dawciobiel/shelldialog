@@ -15,6 +15,7 @@ import java.util.Optional;
 
 /**
  * Base class for dialogs rendered on a Lanterna screen.
+ * Supports multiple input/output sources including direct Terminal instances for testing.
  *
  * @param <T> the type returned when the dialog is accepted
  */
@@ -27,13 +28,13 @@ public abstract class AbstractDialog<T> implements Showable<T> {
     private final Terminal terminal;
 
     /**
-     * Creates the dialog base.
+     * Creates the dialog base with all possible I/O configurations.
      *
-     * @param in the input stream (optional)
-     * @param out the output stream (optional)
-     * @param inPath the input path (default /dev/tty)
-     * @param outPath the output path (default /dev/tty)
-     * @param terminal direct terminal instance (optional, used for testing)
+     * @param in       the input stream (optional, for testing)
+     * @param out      the output stream (optional, for testing)
+     * @param inPath   the input device path (default /dev/tty)
+     * @param outPath  the output device path (default /dev/tty)
+     * @param terminal direct terminal instance (optional, for advanced testing)
      */
     protected AbstractDialog(InputStream in, OutputStream out, String inPath, String outPath, Terminal terminal) {
         this.inputStream = in;
@@ -45,8 +46,10 @@ public abstract class AbstractDialog<T> implements Showable<T> {
 
     /**
      * Displays the dialog to the user and waits for input.
+     * Selects the appropriate I/O source based on provided configuration.
      *
-     * @return An {@link Optional} containing the result or {@link Optional#empty()}
+     * @return An {@link Optional} containing the result of the interaction if successful,
+     *         or {@link Optional#empty()} if canceled or an error occurred.
      */
     @Override
     public Optional<T> show() {
@@ -83,5 +86,12 @@ public abstract class AbstractDialog<T> implements Showable<T> {
         }
     }
 
+    /**
+     * Executes the dialog-specific interaction using an already initialized screen.
+     *
+     * @param screen the active Lanterna screen
+     * @return an optional result produced by the dialog
+     * @throws IOException if screen I/O fails during the interaction
+     */
     protected abstract Optional<T> runDialog(Screen screen) throws IOException;
 }
