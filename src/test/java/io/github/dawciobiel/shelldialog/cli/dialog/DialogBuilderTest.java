@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -399,10 +400,10 @@ class DialogBuilderTest {
                 .build();
 
         @SuppressWarnings("unchecked")
-        java.util.Set<Integer> initialSelectedIndices =
-                (java.util.Set<Integer>) readField(dialog, "initialSelectedIndices");
+        Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
 
-        assertEquals(java.util.Set.of(1), initialSelectedIndices);
+        assertEquals(1, selectedOptions.size());
+        assertTrue(selectedOptions.contains(availableOptions.get(1)));
     }
 
     @Test
@@ -424,10 +425,10 @@ class DialogBuilderTest {
                 .build();
 
         @SuppressWarnings("unchecked")
-        java.util.Set<Integer> initialSelectedIndices =
-                (java.util.Set<Integer>) readField(dialog, "initialSelectedIndices");
+        Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
 
-        assertEquals(java.util.Set.of(0), initialSelectedIndices);
+        assertEquals(1, selectedOptions.size());
+        assertTrue(selectedOptions.contains(availableOptions.get(0)));
     }
 
     @Test

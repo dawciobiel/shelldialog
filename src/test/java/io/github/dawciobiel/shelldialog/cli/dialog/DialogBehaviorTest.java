@@ -71,41 +71,41 @@ class DialogBehaviorTest {
     @Test
     void multiChoiceDialogShouldToggleSelectionOnFocusedIndex() throws Exception {
         MultiChoiceDialog dialog = multiChoiceDialog();
-        Set<Integer> selectedIndices = new LinkedHashSet<>();
+        Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
 
-        invokeMethod(dialog, "toggleSelection", new Class<?>[]{Set.class, int.class}, selectedIndices, 1);
-        assertTrue(selectedIndices.contains(1));
+        invokeMethod(dialog, "toggleSelection", new Class<?>[]{int.class}, 1);
+        assertTrue(selectedOptions.contains(options().get(1)));
 
-        invokeMethod(dialog, "toggleSelection", new Class<?>[]{Set.class, int.class}, selectedIndices, 1);
-        assertFalse(selectedIndices.contains(1));
+        invokeMethod(dialog, "toggleSelection", new Class<?>[]{int.class}, 1);
+        assertFalse(selectedOptions.contains(options().get(1)));
     }
 
     @Test
     void multiChoiceDialogShouldIgnoreSelectionToggleForDisabledOption() throws Exception {
         MultiChoiceDialog dialog = multiChoiceDialog(disabledOptions(), 0);
-        Set<Integer> selectedIndices = new LinkedHashSet<>();
+        Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
 
-        invokeMethod(dialog, "toggleSelection", new Class<?>[]{Set.class, int.class}, selectedIndices, 1);
+        invokeMethod(dialog, "toggleSelection", new Class<?>[]{int.class}, 1);
 
-        assertTrue(selectedIndices.isEmpty());
+        assertTrue(selectedOptions.isEmpty());
     }
 
     @Test
     void multiChoiceDialogShouldReturnSelectedOptionsInOriginalOrder() throws Exception {
         MultiChoiceDialog dialog = multiChoiceDialog();
-        Set<Integer> selectedIndices = new LinkedHashSet<>();
-        selectedIndices.add(2);
-        selectedIndices.add(0);
+        Set<DialogOption> selectedOptions = (Set<DialogOption>) readField(dialog, "selectedOptions");
+        
+        selectedOptions.add(options().get(2)); // Three
+        selectedOptions.add(options().get(0)); // One
 
         @SuppressWarnings("unchecked")
-        List<DialogOption> selectedOptions = (List<DialogOption>) invokeMethod(
+        List<DialogOption> result = (List<DialogOption>) invokeMethod(
                 dialog,
-                "selectedOptions",
-                new Class<?>[]{Set.class},
-                selectedIndices
+                "buildResult",
+                new Class<?>[]{}
         );
 
-        assertEquals(List.of("One", "Three"), selectedOptions.stream().map(DialogOption::getLabel).toList());
+        assertEquals(List.of("One", "Three"), result.stream().map(DialogOption::getLabel).toList());
     }
 
     @Test

@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 
 /**
  * A dialog for selecting files or directories.
+ * Supports live filtering by typing.
  */
 public class FileDialog extends AbstractListDialog<Path> {
 
@@ -42,7 +43,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private Path currentDirectory;
     private final boolean directoriesOnly;
-    private final Predicate<Path> filter;
+    private final Predicate<Path> fileFilter;
 
     private FileDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath, new ArrayList<>(), builder.visibleItemCount);
@@ -53,13 +54,13 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.directoriesOnly = builder.directoriesOnly;
+        this.fileFilter = builder.filter;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : Paths.get(".").toAbsolutePath().normalize();
-        this.filter = builder.filter;
 
-        refreshOptions();
+        refreshDirectoryContent();
     }
 
-    private void refreshOptions() {
+    private void refreshDirectoryContent() {
         List<DialogOption> newOptions = new ArrayList<>();
 
         if (currentDirectory.getParent() != null) {
@@ -76,16 +77,19 @@ public class FileDialog extends AbstractListDialog<Path> {
             for (Path entry : entries) {
                 boolean isDirectory = Files.isDirectory(entry);
                 if (isDirectory) {
-                    newOptions.add(new FileOption(entry, isDirectory));
-                } else if (!directoriesOnly && filter.test(entry)) {
-                    newOptions.add(new FileOption(entry, isDirectory));
+                    newOptions.add(new FileOption(entry, true));
+                } else if (!directoriesOnly && fileFilter.test(entry)) {
+                    newOptions.add(new FileOption(entry, false));
                 }
             }
         } catch (IOException e) {
-            // Handle error, maybe show empty list or error message
+            // Handle error
         }
 
-        this.options = newOptions;
+        // We update allOptions so that AbstractListDialog can filter them
+        this.allOptions.clear();
+        this.allOptions.addAll(newOptions);
+        updateFilter(filterText);
     }
 
     @Override
@@ -100,34 +104,42 @@ public class FileDialog extends AbstractListDialog<Path> {
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
 
-            if (type == KeyType.ArrowUp) {
-                selectedIndex = previousEnabledIndex(selectedIndex);
-            } else if (type == KeyType.ArrowDown) {
-                selectedIndex = nextEnabledIndex(selectedIndex);
-            } else if (type == KeyType.Enter) {
-                if (selectedIndex >= 0 && selectedIndex < options.size()) {
-                    FileOption selectedOption = (FileOption) options.get(selectedIndex);
-                    if (selectedOption.isParentLink()) {
-                         currentDirectory = selectedOption.getPath();
-                         refreshOptions();
-                         selectedIndex = 0;
-                    } else if (selectedOption.isDirectory()) {
-                        if (directoriesOnly) {
-                             currentDirectory = selectedOption.getPath();
-                             refreshOptions();
-                             selectedIndex = 0;
-                        } else {
-                            currentDirectory = selectedOption.getPath();
-                            refreshOptions();
-                            selectedIndex = 0;
-                        }
-                    } else {
-                        // It's a file
-                        return Optional.of(selectedOption.getPath());
+            switch (type) {
+                case ArrowUp -> selectedIndex = previousEnabledIndex(selectedIndex);
+                case ArrowDown -> selectedIndex = nextEnabledIndex(selectedIndex);
+                case Character -> {
+                    updateFilter(filterText + key.getCharacter());
+                    selectedIndex = 0;
+                }
+                case Backspace -> {
+                    if (!filterText.isEmpty()) {
+                        updateFilter(filterText.substring(0, filterText.length() - 1));
+                        selectedIndex = 0;
                     }
                 }
-            } else if (type == KeyType.Escape) {
-                return Optional.empty();
+                case Enter -> {
+                    if (selectedIndex >= 0 && selectedIndex < options.size()) {
+                        FileOption selectedOption = (FileOption) options.get(selectedIndex);
+                        if (selectedOption.isParentLink() || selectedOption.isDirectory()) {
+                            currentDirectory = selectedOption.getPath();
+                            clearFilter(); // Clear search when moving between directories
+                            refreshDirectoryContent();
+                            selectedIndex = 0;
+                        } else {
+                            return Optional.of(selectedOption.getPath());
+                        }
+                    }
+                }
+                case Escape -> {
+                    if (!filterText.isEmpty()) {
+                        clearFilter();
+                        selectedIndex = 0;
+                    } else {
+                        return Optional.empty();
+                    }
+                }
+                default -> {
+                }
             }
         }
     }
@@ -142,6 +154,8 @@ public class FileDialog extends AbstractListDialog<Path> {
         boolean hasItemsBelow = lastVisibleIndex < options.size();
         boolean hasViewport = hasViewport();
         String positionIndicator = hasViewport ? positionIndicatorLabel(selectedIndex) : "";
+        String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
+        String pathString = currentDirectory.toString();
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -150,19 +164,15 @@ public class FileDialog extends AbstractListDialog<Path> {
                         .orElse(0),
                 moreIndicatorWidth(hasItemsAbove, hasItemsBelow)
         );
-        if (hasViewport) {
-            optionsWidth = Math.max(optionsWidth, positionIndicator.length());
-        }
         
-        String pathString = currentDirectory.toString();
-        int pathWidth = pathString.length();
         int contentWidth = Math.max(
-                Math.max(Math.max(titleArea.getWidth(), optionsWidth), pathWidth),
+                Math.max(Math.max(Math.max(titleArea.getWidth(), optionsWidth), pathString.length()), searchLine.length()),
                 navigationArea.getWidth()
         );
         
         int contentHeight = titleArea.getHeight()
                 + 1 // Path line
+                + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
                 + 1 // Spacer
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
@@ -179,17 +189,26 @@ public class FileDialog extends AbstractListDialog<Path> {
         titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
-        // Render current path
         menuItemArea.withContent(pathString).render(tg, column, row++);
+        
+        if (!filterText.isEmpty()) {
+            row++;
+            menuItemArea.withContent(searchLine).render(tg, column, row++);
+        }
+        
         row++; // Spacer
 
         if (hasItemsAbove) {
             menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
         }
 
-        for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-            DialogOption option = options.get(i);
-            renderMenuItem(tg, column, row++, option, i == selectedIndex);
+        if (options.isEmpty()) {
+            menuItemArea.withContent("(no results)").render(tg, column, row++);
+        } else {
+            for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+                DialogOption option = options.get(i);
+                renderMenuItem(tg, column, row++, option, i == selectedIndex);
+            }
         }
 
         if (hasItemsBelow) {
@@ -222,12 +241,8 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
         int width = 0;
-        if (hasItemsAbove) {
-            width = MORE_ABOVE_LABEL.length();
-        }
-        if (hasItemsBelow) {
-            width = Math.max(width, MORE_BELOW_LABEL.length());
-        }
+        if (hasItemsAbove) width = MORE_ABOVE_LABEL.length();
+        if (hasItemsBelow) width = Math.max(width, MORE_BELOW_LABEL.length());
         return width;
     }
 
@@ -283,25 +298,11 @@ public class FileDialog extends AbstractListDialog<Path> {
             return this;
         }
 
-        /**
-         * Sets a filter to include only specific files.
-         * Directories are always shown regardless of the filter to allow navigation.
-         *
-         * @param filter the predicate to test file paths against
-         * @return this builder
-         */
         public Builder withFileFilter(Predicate<Path> filter) {
             this.filter = Objects.requireNonNull(filter);
             return this;
         }
 
-        /**
-         * Sets a filter to include only files with specific extensions.
-         * Extensions are case-insensitive and can be provided with or without a leading dot.
-         *
-         * @param extensions the list of allowed extensions (e.g. "java", ".md")
-         * @return this builder
-         */
         public Builder withExtensions(List<String> extensions) {
             Objects.requireNonNull(extensions);
             List<String> normalized = extensions.stream()

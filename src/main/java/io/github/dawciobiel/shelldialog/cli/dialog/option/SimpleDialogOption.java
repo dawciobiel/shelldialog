@@ -1,5 +1,7 @@
 package io.github.dawciobiel.shelldialog.cli.dialog.option;
 
+import java.util.Objects;
+
 /**
  * Immutable {@link DialogOption} implementation backed by a numeric code and label.
  */
@@ -53,5 +55,17 @@ public class SimpleDialogOption implements DialogOption {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SimpleDialogOption that)) return false;
+        return code == that.code && enabled == that.enabled && Objects.equals(label, that.label);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code, label, enabled);
     }
 }

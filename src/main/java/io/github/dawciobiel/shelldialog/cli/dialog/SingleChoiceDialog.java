@@ -21,9 +21,7 @@ import java.util.Optional;
  * A CLI selection menu that allows the user to choose an option from a list.
  * It composes preconfigured UI areas inside a shared optional frame.
  * It supports keyboard navigation (up/down arrows), selection (Enter), and cancellation (Escape).
- * <p>
- * The menu is rendered using the Lanterna library.
- * </p>
+ * Supports live filtering by typing.
  */
 public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
 
@@ -48,14 +46,11 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Optional<DialogOption> runDialog(Screen screen) throws IOException {
 
         int selectedIndex = initialFocusedIndex();
-        screen.setCursorPosition(null); // Hide cursor
+        screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
         while (true) {
@@ -65,11 +60,17 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             KeyType type = key.getKeyType();
 
             switch (type) {
-                case ArrowUp -> {
-                    selectedIndex = previousEnabledIndex(selectedIndex);
+                case ArrowUp -> selectedIndex = previousEnabledIndex(selectedIndex);
+                case ArrowDown -> selectedIndex = nextEnabledIndex(selectedIndex);
+                case Character -> {
+                    updateFilter(filterText + key.getCharacter());
+                    selectedIndex = 0;
                 }
-                case ArrowDown -> {
-                    selectedIndex = nextEnabledIndex(selectedIndex);
+                case Backspace -> {
+                    if (!filterText.isEmpty()) {
+                        updateFilter(filterText.substring(0, filterText.length() - 1));
+                        selectedIndex = 0;
+                    }
                 }
                 case Enter -> {
                     if (selectedIndex >= 0 && selectedIndex < options.size() && options.get(selectedIndex).isEnabled()) {
@@ -77,7 +78,12 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
                     }
                 }
                 case Escape -> {
-                    return Optional.empty();
+                    if (!filterText.isEmpty()) {
+                        clearFilter();
+                        selectedIndex = 0;
+                    } else {
+                        return Optional.empty();
+                    }
                 }
                 default -> {
                 }
@@ -95,6 +101,7 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         boolean hasItemsBelow = lastVisibleIndex < options.size();
         boolean hasViewport = hasViewport();
         String positionIndicator = hasViewport ? positionIndicatorLabel(selectedIndex) : "";
+        String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -107,17 +114,19 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             optionsWidth = Math.max(optionsWidth, positionIndicator.length());
         }
         int contentWidth = Math.max(
-                Math.max(titleArea.getWidth(), optionsWidth),
+                Math.max(Math.max(titleArea.getWidth(), optionsWidth), searchLine.length()),
                 navigationArea.getWidth()
         );
         int contentHeight = titleArea.getHeight()
-                + 1
+                + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
+                + 1 // Blank line
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
                 + (hasItemsBelow ? 1 : 0)
                 + (hasViewport ? 1 : 0)
                 + 1
                 + navigationArea.getHeight();
+        
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
         dialogFrame.render(tg, layout);
 
@@ -126,15 +135,24 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
-        row++; // Add blank line
+        if (!filterText.isEmpty()) {
+            row++;
+            menuItemArea.withContent(searchLine).render(tg, column, row++);
+        }
+
+        row++; // Blank line
 
         if (hasItemsAbove) {
             menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
         }
 
-        for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-            DialogOption option = options.get(i);
-            renderMenuItem(tg, column, row++, option, i == selectedIndex && option.isEnabled());
+        if (options.isEmpty()) {
+            menuItemArea.withContent("(no results)").render(tg, column, row++);
+        } else {
+            for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+                DialogOption option = options.get(i);
+                renderMenuItem(tg, column, row++, option, i == selectedIndex && option.isEnabled());
+            }
         }
 
         if (hasItemsBelow) {
@@ -145,7 +163,7 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             menuItemArea.withContent(positionIndicator).render(tg, column, row++);
         }
 
-        row++; // Add blank line
+        row++; // Blank line
 
         navigationArea.render(tg, column, row);
 
@@ -181,9 +199,6 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         return width;
     }
 
-    /**
-     * Builder for creating instances of {@link SingleChoiceDialog}.
-     */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
 
         private final TitleArea titleArea;
@@ -195,15 +210,6 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
-        /**
-         * Creates a new Builder with the specified UI areas and options.
-         *
-         * @param titleArea The preconfigured {@link TitleArea} to render.
-         * @param menuItemArea The preconfigured {@link ContentArea} for unselected options.
-         * @param selectedMenuItemArea The preconfigured {@link ContentArea} for the selected option.
-         * @param options The options to display.
-         * @param navigationArea The preconfigured {@link NavigationArea} to render.
-         */
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea selectedMenuItemArea,
                        List<DialogOption> options, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
@@ -218,35 +224,16 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             return this;
         }
 
-        /**
-         * Sets the input stream path (e.g., "/dev/tty").
-         *
-         * @param path The path to the input stream.
-         * @return This Builder instance.
-         */
         public Builder inputStream(String path) {
             this.inputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 
-        /**
-         * Sets the output stream path (e.g., "/dev/tty").
-         *
-         * @param path The path to the output stream.
-         * @return This Builder instance.
-         */
         public Builder outputStream(String path) {
             this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 
-        /**
-         * Limits the number of menu items visible at once.
-         * When the selection moves outside the visible window, the dialog scrolls the list.
-         *
-         * @param visibleItemCount the maximum number of visible menu items, must be positive
-         * @return this builder
-         */
         public Builder withVisibleItemCount(int visibleItemCount) {
             if (visibleItemCount <= 0) {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
@@ -255,11 +242,6 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             return this;
         }
 
-        /**
-         * Builds the {@link SingleChoiceDialog} instance.
-         *
-         * @return A new {@link SingleChoiceDialog}.
-         */
         public SingleChoiceDialog build() {
             return new SingleChoiceDialog(this);
         }

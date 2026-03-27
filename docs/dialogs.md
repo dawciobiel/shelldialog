@@ -118,10 +118,16 @@ To build `SingleChoiceDialog`, you need:
 
 ### Keyboard behavior
 
+- `Character`: appends to the search filter
+- `Backspace`: removes last character from the search filter
 - `ArrowUp`: moves selection up
 - `ArrowDown`: moves selection down
 - `Enter`: confirms selected option
-- `Escape`: cancels dialog
+- `Escape`: clears search filter (if not empty) or cancels dialog
+
+### Live Filtering (Search)
+
+`SingleChoiceDialog` supports live filtering. As the user types, the list of options is instantly updated to show only items containing the entered text (case-insensitive). When a filter is active, a search bar is displayed above the options.
 
 ### Optional builder settings
 
@@ -129,20 +135,6 @@ To build `SingleChoiceDialog`, you need:
 
 When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
 Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be confirmed.
-
-### Adding menu items
-
-Menu items are added through `List<DialogOption>`.
-
-The simplest implementation is `SimpleDialogOption`:
-
-```java
-List<DialogOption> options = List.of(
-        new SimpleDialogOption(1, "Apple"),
-        new SimpleDialogOption(2, "Banana", false),
-        new SimpleDialogOption(3, "Cherry")
-);
-```
 
 ### Example
 
@@ -309,11 +301,17 @@ To build `MultiChoiceDialog`, you need:
 
 ### Keyboard behavior
 
+- `Character`: appends to the search filter
+- `Backspace`: removes last character from the search filter
 - `ArrowUp`: moves focus up
 - `ArrowDown`: moves focus down
 - `Space`: toggles selection of the focused option
 - `Enter`: confirms current selection set
-- `Escape`: cancels dialog
+- `Escape`: clears search filter (if not empty) or cancels dialog
+
+### Live Filtering (Search)
+
+`MultiChoiceDialog` supports live filtering. As the user types, the list of options is instantly updated to show only items containing the entered text (case-insensitive). Selections are preserved even when items are hidden by the active filter.
 
 ### Optional builder settings
 
@@ -407,10 +405,12 @@ To build `FileDialog`, you need:
 
 ### Keyboard behavior
 
+- `Character`: appends to the search filter (searches within current directory)
+- `Backspace`: removes last character from the search filter
 - `ArrowUp`: moves selection up
 - `ArrowDown`: moves selection down
 - `Enter`: enters directory or selects file
-- `Escape`: cancels dialog
+- `Escape`: clears search filter (if not empty) or cancels dialog
 
 ### Optional builder settings
 

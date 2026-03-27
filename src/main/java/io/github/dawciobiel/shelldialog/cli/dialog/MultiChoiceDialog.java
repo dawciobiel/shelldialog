@@ -17,8 +17,7 @@ import java.util.*;
 
 /**
  * A CLI dialog that allows selecting multiple options from a list.
- * It composes preconfigured UI areas inside a shared optional frame.
- * The dialog distinguishes four visual row states: regular, focused, selected, and selected+focused.
+ * Supports live filtering by typing.
  */
 public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
 
@@ -31,7 +30,7 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
     private final ContentArea focusedMenuItemArea;
     private final ContentArea selectedMenuItemArea;
     private final ContentArea selectedFocusedMenuItemArea;
-    private final Set<Integer> initialSelectedIndices;
+    private final Set<DialogOption> selectedOptions;
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
@@ -43,46 +42,60 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         this.focusedMenuItemArea = builder.focusedMenuItemArea;
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
         this.selectedFocusedMenuItemArea = builder.selectedFocusedMenuItemArea;
-        this.initialSelectedIndices = builder.initialSelectedIndices;
+        this.selectedOptions = new HashSet<>();
+        
+        // Initialize selection from builder
+        for (Integer index : builder.initialSelectedIndices) {
+            if (index >= 0 && index < allOptions.size()) {
+                selectedOptions.add(allOptions.get(index));
+            }
+        }
+        
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected Optional<List<DialogOption>> runDialog(Screen screen) throws IOException {
         int focusedIndex = initialFocusedIndex();
-        Set<Integer> selectedIndices = new LinkedHashSet<>(initialSelectedIndices);
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
         while (true) {
-            render(screen, tg, focusedIndex, selectedIndices);
+            render(screen, tg, focusedIndex);
 
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
 
             switch (type) {
-                case ArrowUp -> {
-                    focusedIndex = previousEnabledIndex(focusedIndex);
-                }
-                case ArrowDown -> {
-                    focusedIndex = nextEnabledIndex(focusedIndex);
-                }
+                case ArrowUp -> focusedIndex = previousEnabledIndex(focusedIndex);
+                case ArrowDown -> focusedIndex = nextEnabledIndex(focusedIndex);
                 case Character -> {
-                    Character character = key.getCharacter();
-                    if (character != null && character == ' ') {
-                        toggleSelection(selectedIndices, focusedIndex);
+                    Character c = key.getCharacter();
+                    if (c != null && c == ' ') {
+                        toggleSelection(focusedIndex);
+                    } else {
+                        updateFilter(filterText + c);
+                        focusedIndex = 0;
+                    }
+                }
+                case Backspace -> {
+                    if (!filterText.isEmpty()) {
+                        updateFilter(filterText.substring(0, filterText.length() - 1));
+                        focusedIndex = 0;
                     }
                 }
                 case Enter -> {
-                    return Optional.of(selectedOptions(selectedIndices));
+                    return Optional.of(buildResult());
                 }
                 case Escape -> {
-                    return Optional.empty();
+                    if (!filterText.isEmpty()) {
+                        clearFilter();
+                        focusedIndex = 0;
+                    } else {
+                        return Optional.empty();
+                    }
                 }
                 default -> {
                 }
@@ -90,7 +103,7 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         }
     }
 
-    private void render(Screen screen, TextGraphics tg, int focusedIndex, Set<Integer> selectedIndices) throws IOException {
+    private void render(Screen screen, TextGraphics tg, int focusedIndex) throws IOException {
         screen.clear();
 
         int firstVisibleIndex = firstVisibleIndex(focusedIndex);
@@ -100,6 +113,7 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         boolean hasItemsBelow = lastVisibleIndex < options.size();
         boolean hasViewport = hasViewport();
         String positionIndicator = hasViewport ? positionIndicatorLabel(focusedIndex) : "";
+        String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -112,10 +126,11 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             optionsWidth = Math.max(optionsWidth, positionIndicator.length());
         }
         int contentWidth = Math.max(
-                Math.max(titleArea.getWidth(), optionsWidth),
+                Math.max(Math.max(titleArea.getWidth(), optionsWidth), searchLine.length()),
                 navigationArea.getWidth()
         );
         int contentHeight = titleArea.getHeight()
+                + (filterText.isEmpty() ? 0 : 2)
                 + 1
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
@@ -123,6 +138,7 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
                 + (hasViewport ? 1 : 0)
                 + 1
                 + navigationArea.getHeight();
+        
         DialogFrame.FrameLayout layout = dialogFrame.layoutFor(contentWidth, contentHeight);
         dialogFrame.render(tg, layout);
 
@@ -131,16 +147,26 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
+        if (!filterText.isEmpty()) {
+            row++;
+            menuItemArea.withContent(searchLine).render(tg, column, row++);
+        }
+
         row++;
 
         if (hasItemsAbove) {
             menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
         }
 
-        for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-            DialogOption option = options.get(i);
-            boolean focused = i == focusedIndex && option.isEnabled();
-            renderMenuItem(tg, column, row++, option, focused, selectedIndices.contains(i));
+        if (options.isEmpty()) {
+            menuItemArea.withContent("(no results)").render(tg, column, row++);
+        } else {
+            for (int i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+                DialogOption option = options.get(i);
+                boolean focused = i == focusedIndex && option.isEnabled();
+                boolean selected = selectedOptions.contains(option);
+                renderMenuItem(tg, column, row++, option, focused, selected);
+            }
         }
 
         if (hasItemsBelow) {
@@ -167,15 +193,9 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
     }
 
     private ContentArea resolveArea(boolean focused, boolean selected) {
-        if (focused && selected) {
-            return selectedFocusedMenuItemArea;
-        }
-        if (focused) {
-            return focusedMenuItemArea;
-        }
-        if (selected) {
-            return selectedMenuItemArea;
-        }
+        if (focused && selected) return selectedFocusedMenuItemArea;
+        if (focused) return focusedMenuItemArea;
+        if (selected) return selectedMenuItemArea;
         return menuItemArea;
     }
 
@@ -189,40 +209,29 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
 
     private int moreIndicatorWidth(boolean hasItemsAbove, boolean hasItemsBelow) {
         int width = 0;
-        if (hasItemsAbove) {
-            width = MORE_ABOVE_LABEL.length();
-        }
-        if (hasItemsBelow) {
-            width = Math.max(width, MORE_BELOW_LABEL.length());
-        }
+        if (hasItemsAbove) width = MORE_ABOVE_LABEL.length();
+        if (hasItemsBelow) width = Math.max(width, MORE_BELOW_LABEL.length());
         return width;
     }
 
-    private void toggleSelection(Set<Integer> selectedIndices, int focusedIndex) {
+    private void toggleSelection(int focusedIndex) {
         if (focusedIndex < 0 || focusedIndex >= options.size() || !options.get(focusedIndex).isEnabled()) {
             return;
         }
-        if (!selectedIndices.add(focusedIndex)) {
-            selectedIndices.remove(focusedIndex);
+        DialogOption option = options.get(focusedIndex);
+        if (!selectedOptions.add(option)) {
+            selectedOptions.remove(option);
         }
     }
 
-    private List<DialogOption> selectedOptions(Set<Integer> selectedIndices) {
-        List<DialogOption> selected = new ArrayList<>();
-        for (int index = 0; index < options.size(); index++) {
-            if (selectedIndices.contains(index)) {
-                selected.add(options.get(index));
-            }
-        }
-        return List.copyOf(selected);
+    private List<DialogOption> buildResult() {
+        // Return options in original order
+        return allOptions.stream()
+                .filter(selectedOptions::contains)
+                .toList();
     }
 
-    /**
-     * Builder for creating instances of {@link MultiChoiceDialog}.
-     * Separate content templates are required for every visual row state.
-     */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
-
         private final TitleArea titleArea;
         private final ContentArea menuItemArea;
         private final ContentArea focusedMenuItemArea;
@@ -235,26 +244,9 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
-        /**
-         * Creates a new Builder with the specified UI areas and options.
-         *
-         * @param titleArea the preconfigured {@link TitleArea} to render
-         * @param menuItemArea the area used for regular items
-         * @param focusedMenuItemArea the area used for the focused item
-         * @param selectedMenuItemArea the area used for selected items
-         * @param selectedFocusedMenuItemArea the area used for selected and focused items
-         * @param options the selectable options
-         * @param navigationArea the preconfigured {@link NavigationArea} to render
-         */
-        public Builder(
-                TitleArea titleArea,
-                ContentArea menuItemArea,
-                ContentArea focusedMenuItemArea,
-                ContentArea selectedMenuItemArea,
-                ContentArea selectedFocusedMenuItemArea,
-                List<DialogOption> options,
-                NavigationArea navigationArea
-        ) {
+        public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea focusedMenuItemArea,
+                       ContentArea selectedMenuItemArea, ContentArea selectedFocusedMenuItemArea,
+                       List<DialogOption> options, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.menuItemArea = Objects.requireNonNull(menuItemArea);
             this.focusedMenuItemArea = Objects.requireNonNull(focusedMenuItemArea);
@@ -269,35 +261,16 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
-        /**
-         * Sets the input stream path (e.g. {@code /dev/tty}).
-         *
-         * @param path the path to the input stream
-         * @return this builder
-         */
         public Builder inputStream(String path) {
             this.inputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 
-        /**
-         * Sets the output stream path (e.g. {@code /dev/tty}).
-         *
-         * @param path the path to the output stream
-         * @return this builder
-         */
         public Builder outputStream(String path) {
             this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 
-        /**
-         * Sets the options that should be marked as selected when the dialog opens.
-         * Options are matched by their numeric codes. Unknown codes are ignored.
-         *
-         * @param selectedOptions the options that should start selected
-         * @return this builder
-         */
         public Builder withInitiallySelectedOptions(List<DialogOption> selectedOptions) {
             Objects.requireNonNull(selectedOptions);
             Set<Integer> selectedCodes = new HashSet<>();
@@ -316,13 +289,6 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
-        /**
-         * Limits the number of menu items visible at once.
-         * When the focus moves outside the visible window, the dialog scrolls the list.
-         *
-         * @param visibleItemCount the maximum number of visible menu items, must be positive
-         * @return this builder
-         */
         public Builder withVisibleItemCount(int visibleItemCount) {
             if (visibleItemCount <= 0) {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
@@ -331,11 +297,6 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
-        /**
-         * Builds the {@link MultiChoiceDialog} instance.
-         *
-         * @return a new {@link MultiChoiceDialog}
-         */
         public MultiChoiceDialog build() {
             return new MultiChoiceDialog(this);
         }
