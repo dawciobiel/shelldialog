@@ -40,7 +40,7 @@ public class ProgressDialog extends AbstractDialog<Boolean> {
     private record ProgressState(double progress, String message) {}
 
     private ProgressDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal);
         this.titleArea = builder.titleArea;
         this.statusArea = builder.statusArea;
         this.progressBarFilledStyle = builder.progressBarFilledStyle;
@@ -161,8 +161,6 @@ public class ProgressDialog extends AbstractDialog<Boolean> {
         private ProgressTask task;
         private TextStyle progressBarFilledStyle = TextStyle.of(TextColor.ANSI.GREEN, TextColor.ANSI.DEFAULT);
         private TextStyle progressBarEmptyStyle = TextStyle.of(TextColor.ANSI.BLACK_BRIGHT, TextColor.ANSI.DEFAULT);
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         public Builder(TitleArea titleArea, ContentArea statusArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
@@ -182,16 +180,6 @@ public class ProgressDialog extends AbstractDialog<Boolean> {
         public Builder withProgressBarStyles(TextStyle filled, TextStyle empty) {
             this.progressBarFilledStyle = Objects.requireNonNull(filled);
             this.progressBarEmptyStyle = Objects.requireNonNull(empty);
-            return this;
-        }
-
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 

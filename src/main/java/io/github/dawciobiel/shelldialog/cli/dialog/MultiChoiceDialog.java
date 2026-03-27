@@ -36,7 +36,8 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
     private final DialogFrame dialogFrame;
 
     private MultiChoiceDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath, builder.options, builder.visibleItemCount);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
+              builder.options, builder.visibleItemCount);
         this.titleArea = builder.titleArea;
         this.menuItemArea = builder.menuItemArea;
         this.focusedMenuItemArea = builder.focusedMenuItemArea;
@@ -241,8 +242,6 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         private final NavigationArea navigationArea;
         private Set<Integer> initialSelectedIndices = Set.of();
         private int visibleItemCount = 0;
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea focusedMenuItemArea,
                        ContentArea selectedMenuItemArea, ContentArea selectedFocusedMenuItemArea,
@@ -258,16 +257,6 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
 
         @Override
         protected Builder self() {
-            return this;
-        }
-
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 

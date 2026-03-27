@@ -19,8 +19,6 @@ import java.util.Optional;
 
 /**
  * A CLI selection menu that allows the user to choose an option from a list.
- * It composes preconfigured UI areas inside a shared optional frame.
- * It supports keyboard navigation (up/down arrows), selection (Enter), and cancellation (Escape).
  * Supports live filtering by typing.
  */
 public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
@@ -37,7 +35,8 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
     private final DialogFrame dialogFrame;
 
     private SingleChoiceDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath, builder.options, builder.visibleItemCount);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
+              builder.options, builder.visibleItemCount);
         this.titleArea = builder.titleArea;
         this.menuItemArea = builder.menuItemArea;
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
@@ -207,8 +206,6 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         private final List<DialogOption> options;
         private final NavigationArea navigationArea;
         private int visibleItemCount = 0;
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea selectedMenuItemArea,
                        List<DialogOption> options, NavigationArea navigationArea) {
@@ -221,16 +218,6 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
 
         @Override
         protected Builder self() {
-            return this;
-        }
-
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 

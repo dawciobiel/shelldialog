@@ -46,7 +46,8 @@ public class FileDialog extends AbstractListDialog<Path> {
     private final Predicate<Path> fileFilter;
 
     private FileDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath, new ArrayList<>(), builder.visibleItemCount);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
+              new ArrayList<>(), builder.visibleItemCount);
         this.titleArea = builder.titleArea;
         this.menuItemArea = builder.menuItemArea;
         this.selectedMenuItemArea = builder.selectedMenuItemArea;
@@ -86,7 +87,6 @@ public class FileDialog extends AbstractListDialog<Path> {
             // Handle error
         }
 
-        // We update allOptions so that AbstractListDialog can filter them
         this.allOptions.clear();
         this.allOptions.addAll(newOptions);
         updateFilter(filterText);
@@ -122,7 +122,7 @@ public class FileDialog extends AbstractListDialog<Path> {
                         FileOption selectedOption = (FileOption) options.get(selectedIndex);
                         if (selectedOption.isParentLink() || selectedOption.isDirectory()) {
                             currentDirectory = selectedOption.getPath();
-                            clearFilter(); // Clear search when moving between directories
+                            clearFilter();
                             refreshDirectoryContent();
                             selectedIndex = 0;
                         } else {
@@ -255,8 +255,6 @@ public class FileDialog extends AbstractListDialog<Path> {
         private Path initialDirectory;
         private boolean directoriesOnly = false;
         private Predicate<Path> filter = path -> true;
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea selectedMenuItemArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
@@ -267,16 +265,6 @@ public class FileDialog extends AbstractListDialog<Path> {
 
         @Override
         protected Builder self() {
-            return this;
-        }
-
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 

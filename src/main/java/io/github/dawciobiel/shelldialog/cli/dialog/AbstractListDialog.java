@@ -1,7 +1,10 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
+import com.googlecode.lanterna.terminal.Terminal;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +21,9 @@ public abstract class AbstractListDialog<T> extends AbstractDialog<T> {
     protected final int visibleItemCount;
     protected String filterText = "";
 
-    protected AbstractListDialog(String inputStreamPath, String outputStreamPath,
+    protected AbstractListDialog(InputStream in, OutputStream out, String inPath, String outPath, Terminal terminal,
                                  List<DialogOption> options, int visibleItemCount) {
-        super(inputStreamPath, outputStreamPath);
+        super(in, out, inPath, outPath, terminal);
         this.allOptions = new ArrayList<>(options);
         this.options = new ArrayList<>(allOptions);
         this.visibleItemCount = visibleItemCount;

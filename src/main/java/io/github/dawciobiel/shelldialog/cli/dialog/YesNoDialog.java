@@ -1,13 +1,10 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.i18n.Messages;
-import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
-import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
@@ -39,7 +36,8 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
     private final boolean defaultYesSelected;
 
     private YesNoDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal);
+        
         this.titleArea = builder.titleArea;
         this.contentArea = builder.contentArea;
         this.answerArea = builder.answerArea;
@@ -151,8 +149,6 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
         private String yesLabel = DEFAULT_YES_LABEL;
         private String noLabel = DEFAULT_NO_LABEL;
         private boolean defaultYesSelected = true;
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         /**
          * Creates a new builder with the specified UI areas.
@@ -212,28 +208,6 @@ public class YesNoDialog extends AbstractDialog<Boolean> {
          */
         public Builder withDefaultYesSelected(boolean defaultYesSelected) {
             this.defaultYesSelected = defaultYesSelected;
-            return this;
-        }
-
-        /**
-         * Sets the input stream path (e.g. {@code /dev/tty}).
-         *
-         * @param path the path to the input stream
-         * @return this builder
-         */
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        /**
-         * Sets the output stream path (e.g. {@code /dev/tty}).
-         *
-         * @param path the path to the output stream
-         * @return this builder
-         */
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 

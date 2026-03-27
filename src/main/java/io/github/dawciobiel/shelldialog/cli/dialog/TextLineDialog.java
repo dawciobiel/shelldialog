@@ -12,22 +12,19 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * A CLI dialog that prompts the user for a single line of text input.
- * It composes preconfigured UI areas inside a shared optional frame.
- * It supports typing, backspace, confirmation (Enter), and cancellation (Escape).
- * <p>
- * The dialog is rendered using the Lanterna library.
- * </p>
+ * A dialog for single-line text input with optional validation.
  */
 public class TextLineDialog extends AbstractInputDialog<String> {
 
-    private final int maxLength;
     private final Function<String, Optional<String>> validator;
 
     private TextLineDialog(Builder builder) {
         super(
+                builder.inputStream,
+                builder.outputStream,
                 builder.inputStreamPath,
                 builder.outputStreamPath,
+                builder.terminal,
                 builder.titleArea,
                 builder.contentArea,
                 builder.inputArea,
@@ -35,10 +32,9 @@ public class TextLineDialog extends AbstractInputDialog<String> {
                 builder.borderVisible,
                 builder.validationMessageStyle,
                 builder.maxLength,
-                builder.normalizedInitialValue(),
+                builder.initialValue,
                 builder.borderStyle
         );
-        this.maxLength = builder.maxLength;
         this.validator = builder.validator;
     }
 
@@ -58,30 +54,19 @@ public class TextLineDialog extends AbstractInputDialog<String> {
     }
 
     /**
-     * Builder for creating instances of {@link TextLineDialog}.
+     * Builder for {@link TextLineDialog} instances.
      */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
-
         private final TitleArea titleArea;
         private final ContentArea contentArea;
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
+        private Function<String, Optional<String>> validator = value -> Optional.empty();
+        private TextStyle validationMessageStyle = TextStyle.of(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
-        private TextStyle validationMessageStyle = TextStyle.ofAnsi(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
-        private Function<String, Optional<String>> validator = value -> Optional.empty();
-        private final String inputStreamPath = "/dev/tty";
-        private final String outputStreamPath = "/dev/tty";
 
-        /**
-         * Creates a new Builder with the specified title, content, input and navigation areas.
-         *
-         * @param titleArea The preconfigured {@link TitleArea} to render.
-         * @param contentArea The preconfigured {@link ContentArea} to render.
-         * @param inputArea The preconfigured {@link InputArea} to render.
-         * @param navigationArea The preconfigured {@link NavigationArea} to render.
-         */
         public Builder(TitleArea titleArea, ContentArea contentArea, InputArea inputArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.contentArea = Objects.requireNonNull(contentArea);
@@ -94,25 +79,23 @@ public class TextLineDialog extends AbstractInputDialog<String> {
             return this;
         }
 
-        /**
-         * Applies frame and validation message styles from the provided theme.
-         *
-         * @param theme the theme supplying dialog styles
-         * @return this builder
-         */
         @Override
         public Builder withTheme(DialogTheme theme) {
             super.withTheme(theme);
-            this.validationMessageStyle = Objects.requireNonNull(theme).validationMessageStyle();
+            this.validationMessageStyle = theme.validationMessageStyle();
             return this;
         }
 
-        /**
-         * Sets the maximum number of characters accepted by the dialog.
-         *
-         * @param maxLength the maximum allowed input length, must be positive
-         * @return this builder
-         */
+        public Builder withValidator(Function<String, Optional<String>> validator) {
+            this.validator = Objects.requireNonNull(validator);
+            return this;
+        }
+
+        public Builder withValidationMessageStyle(TextStyle style) {
+            this.validationMessageStyle = Objects.requireNonNull(style);
+            return this;
+        }
+
         public Builder withMaxLength(int maxLength) {
             if (maxLength <= 0) {
                 throw new IllegalArgumentException("maxLength must be positive");
@@ -121,53 +104,15 @@ public class TextLineDialog extends AbstractInputDialog<String> {
             return this;
         }
 
-        /**
-         * Sets the validator used when the user confirms the dialog.
-         * The returned optional should be empty for valid input or contain an error message otherwise.
-         *
-         * @param validator the validation function
-         * @return this builder
-         */
-        public Builder withValidator(Function<String, Optional<String>> validator) {
-            this.validator = Objects.requireNonNull(validator);
-            return this;
-        }
-
-        /**
-         * Sets the style used for validation messages rendered below the input field.
-         *
-         * @param validationMessageStyle the validation message style
-         * @return this builder
-         */
-        public Builder withValidationMessageStyle(TextStyle validationMessageStyle) {
-            this.validationMessageStyle = Objects.requireNonNull(validationMessageStyle);
-            return this;
-        }
-
-        /**
-         * Sets the initial value shown in the input field when the dialog opens.
-         * If the value is longer than {@code maxLength}, it is truncated during build.
-         *
-         * @param initialValue the initial text value
-         * @return this builder
-         */
         public Builder withInitialValue(String initialValue) {
             this.initialValue = Objects.requireNonNull(initialValue);
             return this;
         }
 
-        private String normalizedInitialValue() {
-            return initialValue.length() <= maxLength
-                    ? initialValue
-                    : initialValue.substring(0, maxLength);
-        }
-
-        /**
-         * Builds the {@link TextLineDialog} instance.
-         *
-         * @return A new {@link TextLineDialog}.
-         */
         public TextLineDialog build() {
+            if (initialValue.length() > maxLength) {
+                initialValue = initialValue.substring(0, maxLength);
+            }
             return new TextLineDialog(this);
         }
     }

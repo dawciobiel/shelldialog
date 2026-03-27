@@ -5,6 +5,7 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.terminal.Terminal;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
@@ -13,6 +14,8 @@ import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Optional;
 
 /**
@@ -33,8 +36,11 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
     private final String initialValue;
 
     protected AbstractInputDialog(
+            InputStream in,
+            OutputStream out,
             String inputStreamPath,
             String outputStreamPath,
+            Terminal terminal,
             TitleArea titleArea,
             ContentArea contentArea,
             InputArea inputArea,
@@ -45,7 +51,7 @@ abstract class AbstractInputDialog<T> extends AbstractDialog<T> {
             String initialValue,
             io.github.dawciobiel.shelldialog.cli.style.TextStyle borderStyle
     ) {
-        super(inputStreamPath, outputStreamPath);
+        super(in, out, inputStreamPath, outputStreamPath, terminal);
         this.titleArea = titleArea;
         this.contentArea = contentArea;
         this.inputArea = inputArea;

@@ -1,9 +1,12 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.terminal.Terminal;
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Objects;
 
 /**
@@ -11,7 +14,7 @@ import java.util.Objects;
  *
  * @param <T> the concrete builder type
  */
-abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T>> {
+public abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T>> {
 
     /**
      * Controls whether the shared frame around the dialog is rendered.
@@ -22,6 +25,12 @@ abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T
      * The visual style used when the shared dialog frame is rendered.
      */
     protected TextStyle borderStyle = TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT);
+
+    protected String inputStreamPath = "/dev/tty";
+    protected String outputStreamPath = "/dev/tty";
+    protected InputStream inputStream;
+    protected OutputStream outputStream;
+    protected Terminal terminal;
 
     /**
      * Enables or disables the shared dialog border.
@@ -64,6 +73,52 @@ abstract class AbstractFrameDialogBuilder<T extends AbstractFrameDialogBuilder<T
      */
     public T withTheme(DialogTheme theme) {
         this.borderStyle = Objects.requireNonNull(theme).borderStyle();
+        return self();
+    }
+
+    /**
+     * Sets the input stream path (e.g., "/dev/tty").
+     *
+     * @param path The path to the input stream.
+     * @return This Builder instance.
+     */
+    public T inputStream(String path) {
+        this.inputStreamPath = Objects.requireNonNull(path);
+        return self();
+    }
+
+    /**
+     * Sets the output stream path (e.g., "/dev/tty").
+     *
+     * @param path The path to the output stream.
+     * @return This Builder instance.
+     */
+    public T outputStream(String path) {
+        this.outputStreamPath = Objects.requireNonNull(path);
+        return self();
+    }
+
+    /**
+     * Sets the input and output streams directly (useful for testing).
+     *
+     * @param in  the input stream
+     * @param out the output stream
+     * @return this builder
+     */
+    public T withStreams(InputStream in, OutputStream out) {
+        this.inputStream = Objects.requireNonNull(in);
+        this.outputStream = Objects.requireNonNull(out);
+        return self();
+    }
+
+    /**
+     * Sets a custom terminal instance (useful for testing).
+     *
+     * @param terminal the terminal instance
+     * @return this builder
+     */
+    public T withTerminal(Terminal terminal) {
+        this.terminal = Objects.requireNonNull(terminal);
         return self();
     }
 

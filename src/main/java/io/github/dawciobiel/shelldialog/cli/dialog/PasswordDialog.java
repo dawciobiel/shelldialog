@@ -2,30 +2,30 @@ package io.github.dawciobiel.shelldialog.cli.dialog;
 
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
+import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
-import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * A CLI dialog that captures a password as a character array.
- * The typed value is rendered as masked content inside the shared optional frame.
+ * A dialog for masked single-line text input.
  */
 public class PasswordDialog extends AbstractInputDialog<char[]> {
 
-    private final char maskCharacter;
-    private final int maxLength;
     private final Function<char[], Optional<String>> validator;
+    private final char maskCharacter;
 
     private PasswordDialog(Builder builder) {
         super(
+                builder.inputStream,
+                builder.outputStream,
                 builder.inputStreamPath,
                 builder.outputStreamPath,
+                builder.terminal,
                 builder.titleArea,
                 builder.contentArea,
                 builder.inputArea,
@@ -33,12 +33,11 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
                 builder.borderVisible,
                 builder.validationMessageStyle,
                 builder.maxLength,
-                builder.normalizedInitialValue(),
+                builder.initialValue,
                 builder.borderStyle
         );
-        this.maskCharacter = builder.maskCharacter;
-        this.maxLength = builder.maxLength;
         this.validator = builder.validator;
+        this.maskCharacter = builder.maskCharacter;
     }
 
     @Override
@@ -57,31 +56,20 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
     }
 
     /**
-     * Builder for creating instances of {@link PasswordDialog}.
+     * Builder for {@link PasswordDialog} instances.
      */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
-
         private final TitleArea titleArea;
         private final ContentArea contentArea;
         private final InputArea inputArea;
         private final NavigationArea navigationArea;
 
-        private char maskCharacter = '*';
-        private int maxLength = Integer.MAX_VALUE;
-        private char[] initialValue = new char[0];
-        private TextStyle validationMessageStyle = TextStyle.ofAnsi(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private Function<char[], Optional<String>> validator = value -> Optional.empty();
-        private final String inputStreamPath = "/dev/tty";
-        private final String outputStreamPath = "/dev/tty";
+        private TextStyle validationMessageStyle = TextStyle.of(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
+        private int maxLength = Integer.MAX_VALUE;
+        private String initialValue = "";
+        private char maskCharacter = '*';
 
-        /**
-         * Creates a new Builder with the specified title, content, input and navigation areas.
-         *
-         * @param titleArea the preconfigured {@link TitleArea} to render
-         * @param contentArea the preconfigured {@link ContentArea} to render
-         * @param inputArea the preconfigured {@link InputArea} to render
-         * @param navigationArea the preconfigured {@link NavigationArea} to render
-         */
         public Builder(TitleArea titleArea, ContentArea contentArea, InputArea inputArea, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
             this.contentArea = Objects.requireNonNull(contentArea);
@@ -94,36 +82,23 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
             return this;
         }
 
-        /**
-         * Applies frame and validation message styles from the provided theme.
-         *
-         * @param theme the theme supplying dialog styles
-         * @return this builder
-         */
         @Override
         public Builder withTheme(DialogTheme theme) {
             super.withTheme(theme);
-            this.validationMessageStyle = Objects.requireNonNull(theme).validationMessageStyle();
+            this.validationMessageStyle = theme.validationMessageStyle();
             return this;
         }
 
-        /**
-         * Sets the character used to mask the typed password.
-         *
-         * @param maskCharacter the masking character
-         * @return this builder
-         */
-        public Builder withMaskCharacter(char maskCharacter) {
-            this.maskCharacter = maskCharacter;
+        public Builder withValidator(Function<char[], Optional<String>> validator) {
+            this.validator = Objects.requireNonNull(validator);
             return this;
         }
 
-        /**
-         * Sets the maximum number of characters accepted by the dialog.
-         *
-         * @param maxLength the maximum allowed input length, must be positive
-         * @return this builder
-         */
+        public Builder withValidationMessageStyle(TextStyle style) {
+            this.validationMessageStyle = Objects.requireNonNull(style);
+            return this;
+        }
+
         public Builder withMaxLength(int maxLength) {
             if (maxLength <= 0) {
                 throw new IllegalArgumentException("maxLength must be positive");
@@ -132,54 +107,20 @@ public class PasswordDialog extends AbstractInputDialog<char[]> {
             return this;
         }
 
-        /**
-         * Sets the validator used when the user confirms the dialog.
-         * The returned optional should be empty for valid input or contain an error message otherwise.
-         *
-         * @param validator the validation function
-         * @return this builder
-         */
-        public Builder withValidator(Function<char[], Optional<String>> validator) {
-            this.validator = Objects.requireNonNull(validator);
-            return this;
-        }
-
-        /**
-         * Sets the style used for validation messages rendered below the input field.
-         *
-         * @param validationMessageStyle the validation message style
-         * @return this builder
-         */
-        public Builder withValidationMessageStyle(TextStyle validationMessageStyle) {
-            this.validationMessageStyle = Objects.requireNonNull(validationMessageStyle);
-            return this;
-        }
-
-        /**
-         * Sets the initial password value shown in masked form when the dialog opens.
-         * If the value is longer than {@code maxLength}, it is truncated during build.
-         *
-         * @param initialValue the initial password value
-         * @return this builder
-         */
         public Builder withInitialValue(char[] initialValue) {
-            this.initialValue = Arrays.copyOf(Objects.requireNonNull(initialValue), initialValue.length);
+            this.initialValue = String.valueOf(Objects.requireNonNull(initialValue));
             return this;
         }
 
-        private String normalizedInitialValue() {
-            char[] normalized = initialValue.length <= maxLength
-                    ? initialValue
-                    : Arrays.copyOf(initialValue, maxLength);
-            return new String(normalized);
+        public Builder withMaskCharacter(char maskCharacter) {
+            this.maskCharacter = maskCharacter;
+            return this;
         }
 
-        /**
-         * Builds the {@link PasswordDialog} instance.
-         *
-         * @return a new {@link PasswordDialog}
-         */
         public PasswordDialog build() {
+            if (initialValue.length() > maxLength) {
+                initialValue = initialValue.substring(0, maxLength);
+            }
             return new PasswordDialog(this);
         }
     }

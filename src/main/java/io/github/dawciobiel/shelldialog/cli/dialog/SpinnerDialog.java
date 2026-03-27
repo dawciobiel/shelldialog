@@ -37,7 +37,7 @@ public class SpinnerDialog extends AbstractDialog<Boolean> {
     private static final List<String> DEFAULT_SPINNER = List.of("|", "/", "-", "\\");
 
     private SpinnerDialog(Builder builder) {
-        super(builder.inputStreamPath, builder.outputStreamPath);
+        super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal);
         this.titleArea = builder.titleArea;
         this.statusArea = builder.statusArea;
         this.task = builder.task;
@@ -131,8 +131,6 @@ public class SpinnerDialog extends AbstractDialog<Boolean> {
         private final ContentArea statusArea;
         private ProgressTask task;
         private List<String> spinnerFrames = DEFAULT_SPINNER;
-        private String inputStreamPath = "/dev/tty";
-        private String outputStreamPath = "/dev/tty";
 
         public Builder(TitleArea titleArea, ContentArea statusArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
@@ -154,16 +152,6 @@ public class SpinnerDialog extends AbstractDialog<Boolean> {
                 throw new IllegalArgumentException("Spinner frames cannot be empty");
             }
             this.spinnerFrames = List.copyOf(frames);
-            return this;
-        }
-
-        public Builder inputStream(String path) {
-            this.inputStreamPath = Objects.requireNonNull(path);
-            return this;
-        }
-
-        public Builder outputStream(String path) {
-            this.outputStreamPath = Objects.requireNonNull(path);
             return this;
         }
 
