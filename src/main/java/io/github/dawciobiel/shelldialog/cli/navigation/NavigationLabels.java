@@ -55,6 +55,8 @@ public final class NavigationLabels {
     public static final String ACTION_REFRESH = Messages.getString("navigationtoolbar.action_refresh");
     /** Action label for returning to current working directory. */
     public static final String ACTION_CWD = Messages.getString("navigationtoolbar.action_cwd");
+    /** Action label for confirming a message. */
+    public static final String ACTION_OK = Messages.getString("navigationtoolbar.action_ok");
 
 
     private NavigationLabels() {

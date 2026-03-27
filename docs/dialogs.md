@@ -10,6 +10,7 @@ This document describes the current usage of:
 - `SpinnerDialog`
 - `PasswordDialog`
 - `YesNoDialog`
+- `MessageDialog`
 
 All dialogs now use composition. You build the required UI areas first and then pass them into the dialog builder.
 The dialog builder also controls the shared frame shown around the whole dialog.
@@ -255,32 +256,6 @@ To build `FileDialog`, you need:
 - `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
 - `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
 
-### Example
-
-```java
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withVerticalArrowsNavigation()
-                        .withF5Refresh()
-                        .withHomeHomeDir()
-                        .withEndCWD()
-                        .withEnterAccept()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-FileDialog dialog = new FileDialog.Builder(titleArea, menuItemArea, selectedMenuItemArea, navigationArea)
-        .withTheme(theme)
-        .withInitialDirectory(Paths.get("."))
-        .withVisibleItemCount(10)
-        .build();
-
-Optional<Path> result = dialog.show();
-```
-
 ## ProgressDialog
 
 `ProgressDialog` is used for displaying a progress bar during a long-running background task.
@@ -341,9 +316,41 @@ To build `YesNoDialog`, you need:
 - `Optional.of(false)` when the user confirms the negative answer
 - `Optional.empty()` when the user cancels with `Escape`
 
-### Keyboard behavior
+## MessageDialog
 
-- `ArrowLeft`: selects the affirmative answer
-- `ArrowRight`: selects the negative answer
-- `Enter`: confirms the selected answer
-- `Escape`: cancels dialog
+`MessageDialog` is used for displaying a simple informative message with an OK button.
+
+### Required parts
+
+To build `MessageDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<Boolean>`.
+
+- `Optional.of(true)` when the user confirms with `Enter` (OK)
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Example
+
+```java
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withEnterOK()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+MessageDialog dialog = new MessageDialog.Builder(titleArea, contentArea, navigationArea)
+        .withTheme(theme)
+        .build();
+
+dialog.show();
+```
