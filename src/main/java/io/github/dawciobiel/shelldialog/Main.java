@@ -73,8 +73,11 @@ public class Main {
     }
 
     private static SingleChoiceDialog createMainMenu() {
+        String version = Version.get();
+        String title = "ShellDialog Examples Gallery" + (version.equals("unknown") ? "" : " (v" + version + ")");
+
         TitleArea titleArea = new TitleArea.Builder()
-                .withTitle("ShellDialog Examples Gallery")
+                .withTitle(title)
                 .withTitleColor(TextColor.ANSI.RED_BRIGHT)
                 .build();
 
