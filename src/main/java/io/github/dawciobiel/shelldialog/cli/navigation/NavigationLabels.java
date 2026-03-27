@@ -33,6 +33,12 @@ public final class NavigationLabels {
     public static final String KEY_ENTER = UIProperties.getString("navigationtoolbar.key_enter");
     /** Label describing the escape key. */
     public static final String KEY_ESCAPE = UIProperties.getString("navigationtoolbar.key_escape");
+    /** Label describing the F5 key. */
+    public static final String KEY_F5 = UIProperties.getString("navigationtoolbar.key_f5");
+    /** Label describing the Home key. */
+    public static final String KEY_HOME = UIProperties.getString("navigationtoolbar.key_home");
+    /** Label describing the End key. */
+    public static final String KEY_END = UIProperties.getString("navigationtoolbar.key_end");
 
     // Actions (what the key does)
     /** Action label for navigation. */
@@ -43,6 +49,12 @@ public final class NavigationLabels {
     public static final String ACTION_ACCEPT = Messages.getString("navigationtoolbar.action_accept");
     /** Action label for canceling a dialog. */
     public static final String ACTION_CANCEL = Messages.getString("navigationtoolbar.action_cancel");
+    /** Action label for returning to home directory. */
+    public static final String ACTION_HOME = Messages.getString("navigationtoolbar.action_home");
+    /** Action label for refreshing contents. */
+    public static final String ACTION_REFRESH = Messages.getString("navigationtoolbar.action_refresh");
+    /** Action label for returning to current working directory. */
+    public static final String ACTION_CWD = Messages.getString("navigationtoolbar.action_cwd");
 
 
     private NavigationLabels() {

@@ -129,6 +129,36 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard F5-to-refresh item.
+         *
+         * @return this builder
+         */
+        public Builder withF5Refresh() {
+            items.add(new NavigationItem(NavigationLabels.KEY_F5, NavigationLabels.ACTION_REFRESH));
+            return this;
+        }
+
+        /**
+         * Appends the standard Home-to-home-dir item.
+         *
+         * @return this builder
+         */
+        public Builder withHomeHomeDir() {
+            items.add(new NavigationItem(NavigationLabels.KEY_HOME, NavigationLabels.ACTION_HOME));
+            return this;
+        }
+
+        /**
+         * Appends the standard End-to-cwd item.
+         *
+         * @return this builder
+         */
+        public Builder withEndCWD() {
+            items.add(new NavigationItem(NavigationLabels.KEY_END, NavigationLabels.ACTION_CWD));
+            return this;
+        }
+
+        /**
          * Sets the separator inserted between toolbar items.
          *
          * @param sep the item separator
