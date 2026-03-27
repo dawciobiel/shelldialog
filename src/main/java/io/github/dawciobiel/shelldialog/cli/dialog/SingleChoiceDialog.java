@@ -18,8 +18,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A CLI selection menu that allows the user to choose an option from a list.
- * Supports live filtering by typing.
+ * A CLI selection menu that allows the user to choose exactly one option from a list.
+ * Supports keyboard navigation (arrows), selection (Enter), cancellation (Escape), and live filtering by typing.
  */
 public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
 
@@ -45,6 +45,9 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Optional<DialogOption> runDialog(Screen screen) throws IOException {
 
@@ -198,6 +201,9 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         return width;
     }
 
+    /**
+     * Builder for creating instances of {@link SingleChoiceDialog}.
+     */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
 
         private final TitleArea titleArea;
@@ -207,6 +213,15 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
         private final NavigationArea navigationArea;
         private int visibleItemCount = 0;
 
+        /**
+         * Creates a new builder with required UI components and options.
+         *
+         * @param titleArea            the title area
+         * @param menuItemArea         base style for list items
+         * @param selectedMenuItemArea style for the currently focused item
+         * @param options              selectable options
+         * @param navigationArea       bottom toolbar area
+         */
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea selectedMenuItemArea,
                        List<DialogOption> options, NavigationArea navigationArea) {
             this.titleArea = Objects.requireNonNull(titleArea);
@@ -221,6 +236,13 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             return this;
         }
 
+        /**
+         * Limits the number of menu items visible at once.
+         * When the selection moves outside the visible window, the dialog scrolls the list.
+         *
+         * @param visibleItemCount the maximum number of visible menu items, must be positive
+         * @return this builder
+         */
         public Builder withVisibleItemCount(int visibleItemCount) {
             if (visibleItemCount <= 0) {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
@@ -229,6 +251,11 @@ public class SingleChoiceDialog extends AbstractListDialog<DialogOption> {
             return this;
         }
 
+        /**
+         * Builds the {@link SingleChoiceDialog} instance.
+         *
+         * @return a new dialog
+         */
         public SingleChoiceDialog build() {
             return new SingleChoiceDialog(this);
         }

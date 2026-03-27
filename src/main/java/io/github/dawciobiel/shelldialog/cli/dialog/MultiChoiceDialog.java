@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * A CLI dialog that allows selecting multiple options from a list.
- * Supports live filtering by typing.
+ * Supports keyboard navigation, toggling selection (Space), confirmation (Enter), and live filtering by typing.
  */
 public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
 
@@ -57,6 +57,9 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Optional<List<DialogOption>> runDialog(Screen screen) throws IOException {
         int focusedIndex = initialFocusedIndex();
@@ -232,6 +235,9 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
                 .toList();
     }
 
+    /**
+     * Builder for creating instances of {@link MultiChoiceDialog}.
+     */
     public static class Builder extends AbstractFrameDialogBuilder<Builder> {
         private final TitleArea titleArea;
         private final ContentArea menuItemArea;
@@ -243,6 +249,17 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
         private Set<Integer> initialSelectedIndices = Set.of();
         private int visibleItemCount = 0;
 
+        /**
+         * Creates a new builder with required UI components and options.
+         *
+         * @param titleArea                   the title area
+         * @param menuItemArea                base style for regular items
+         * @param focusedMenuItemArea         style for the currently focused (but not selected) item
+         * @param selectedMenuItemArea        style for items that are selected but not focused
+         * @param selectedFocusedMenuItemArea style for the item that is both selected and focused
+         * @param options                     selectable options
+         * @param navigationArea              bottom toolbar area
+         */
         public Builder(TitleArea titleArea, ContentArea menuItemArea, ContentArea focusedMenuItemArea,
                        ContentArea selectedMenuItemArea, ContentArea selectedFocusedMenuItemArea,
                        List<DialogOption> options, NavigationArea navigationArea) {
@@ -260,6 +277,12 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
+        /**
+         * Sets the options that should be pre-selected when the dialog opens.
+         *
+         * @param selectedOptions list of options to start selected
+         * @return this builder
+         */
         public Builder withInitiallySelectedOptions(List<DialogOption> selectedOptions) {
             Objects.requireNonNull(selectedOptions);
             Set<Integer> selectedCodes = new HashSet<>();
@@ -278,6 +301,13 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
+        /**
+         * Limits the number of menu items visible at once.
+         * When the focus moves outside the visible window, the dialog scrolls the list.
+         *
+         * @param visibleItemCount the maximum number of visible menu items, must be positive
+         * @return this builder
+         */
         public Builder withVisibleItemCount(int visibleItemCount) {
             if (visibleItemCount <= 0) {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
@@ -286,6 +316,11 @@ public class MultiChoiceDialog extends AbstractListDialog<List<DialogOption>> {
             return this;
         }
 
+        /**
+         * Builds the {@link MultiChoiceDialog} instance.
+         *
+         * @return a new dialog
+         */
         public MultiChoiceDialog build() {
             return new MultiChoiceDialog(this);
         }
