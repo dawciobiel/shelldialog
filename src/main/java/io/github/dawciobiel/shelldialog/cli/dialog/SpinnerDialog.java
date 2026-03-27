@@ -32,6 +32,7 @@ public class SpinnerDialog extends AbstractDialog<Boolean> {
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final AtomicBoolean finished = new AtomicBoolean(false);
     private final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    private Thread taskThread;
 
     private static final List<String> DEFAULT_SPINNER = List.of("|", "/", "-", "\\");
 
@@ -50,7 +51,7 @@ public class SpinnerDialog extends AbstractDialog<Boolean> {
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
-        Thread taskThread = new Thread(() -> {
+        taskThread = new Thread(() -> {
             try {
                 task.run(new ProgressReporter() {
                     @Override

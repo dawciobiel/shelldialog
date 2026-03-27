@@ -35,6 +35,7 @@ public class ProgressDialog extends AbstractDialog<Boolean> {
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final AtomicBoolean finished = new AtomicBoolean(false);
     private final AtomicReference<Throwable> error = new AtomicReference<>(null);
+    private Thread taskThread;
 
     private record ProgressState(double progress, String message) {}
 
@@ -54,7 +55,7 @@ public class ProgressDialog extends AbstractDialog<Boolean> {
         screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
-        Thread taskThread = new Thread(() -> {
+        taskThread = new Thread(() -> {
             try {
                 task.run(new ProgressReporter() {
                     @Override
