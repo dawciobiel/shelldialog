@@ -6,6 +6,7 @@ This document describes the current usage of:
 - `SingleChoiceDialog`
 - `MultiChoiceDialog`
 - `FileDialog`
+- `ProgressDialog`
 - `PasswordDialog`
 - `YesNoDialog`
 
@@ -463,6 +464,79 @@ FileDialog dialog = new FileDialog.Builder(
 Optional<Path> result = dialog.show();
 ```
 
+## ProgressDialog
+
+`ProgressDialog` is used for displaying a progress bar during a long-running background task.
+
+### Required parts
+
+To build `ProgressDialog`, you need:
+
+- `TitleArea`
+- `ContentArea` for status messages
+- `ProgressTask` (the logic to execute)
+
+### Return type
+
+`show()` returns `Optional<Boolean>`.
+
+- `Optional.of(true)` when the task completes successfully
+- `Optional.of(false)` when the task is cancelled (via `Escape`) or fails
+
+### Interaction
+
+The dialog runs the task in a separate thread and refreshes the UI automatically.
+Users can press `Escape` to request cancellation, which the task can check via `ProgressReporter.isCancelled()`.
+
+### ProgressTask and ProgressReporter
+
+The task is a functional interface:
+
+```java
+public interface ProgressTask {
+    void run(ProgressReporter reporter) throws Exception;
+}
+```
+
+The reporter provides methods to update the UI:
+
+- `update(double progress, String message)`: progress should be between `0.0` and `1.0`.
+- `isCancelled()`: returns `true` if the user pressed `Escape`.
+
+### Example
+
+```java
+DialogTheme theme = DialogTheme.darkTheme();
+
+TitleArea titleArea = new TitleArea.Builder()
+        .withTitle("Downloading updates...")
+        .withTheme(theme)
+        .build();
+
+ContentArea statusArea = new ContentArea.Builder()
+        .withTheme(theme)
+        .build();
+
+ProgressDialog dialog = new ProgressDialog.Builder(titleArea, statusArea)
+        .withTheme(theme)
+        .withTask(reporter -> {
+            for (int i = 0; i <= 100; i++) {
+                if (reporter.isCancelled()) break;
+                reporter.update(i / 100.0, "Downloading block " + i);
+                Thread.sleep(50);
+            }
+        })
+        .build();
+
+Optional<Boolean> result = dialog.show();
+```
+
+## Notes
+
+- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
+- UI areas control only their own content styles.
+- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.
+
 ## YesNoDialog
 
 `YesNoDialog` is used for binary confirmation flows.
@@ -544,9 +618,3 @@ YesNoDialog dialog = new YesNoDialog.Builder(
 
 Optional<Boolean> result = dialog.show();
 ```
-
-## Notes
-
-- All dialogs read from `/dev/tty` and write to `/dev/tty` by default.
-- UI areas control only their own content styles.
-- The shared dialog frame is configured on the dialog builder through `withBorder(...)`, `withBorderColor(...)`, `withBorderStyle(...)`, or `withTheme(...)`.

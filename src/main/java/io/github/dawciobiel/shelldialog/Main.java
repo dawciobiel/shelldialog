@@ -14,6 +14,7 @@ import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 import io.github.dawciobiel.shelldialog.examples.FileExample;
 import io.github.dawciobiel.shelldialog.examples.MultiChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.PasswordExample;
+import io.github.dawciobiel.shelldialog.examples.ProgressExample;
 import io.github.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.TextLineExample;
 import io.github.dawciobiel.shelldialog.examples.YesNoExample;
@@ -64,6 +65,7 @@ public class Main {
                 case 4 -> PasswordExample.main(emptyArgs);
                 case 5 -> YesNoExample.main(emptyArgs);
                 case 6 -> FileExample.main(emptyArgs);
+                case 7 -> ProgressExample.main(emptyArgs);
             }
         }
     }
@@ -90,10 +92,9 @@ public class Main {
                 new SimpleDialogOption(4, "Password Dialog"),
                 new SimpleDialogOption(5, "Yes/No Dialog"),
                 new SimpleDialogOption(6, "File Selection Dialog"),
+                new SimpleDialogOption(7, "Progress Dialog"),
                 new SimpleDialogOption(0, "Exit")
         );
-
-//        DialogTheme theme = DialogTheme.darkTheme();
 
         DialogTheme theme = DialogTheme.builder()
                                        .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
@@ -119,6 +120,7 @@ public class Main {
                                 TextColor.ANSI.DEFAULT
                         )
                 )
+                .withTheme(theme)
                 .build();
 
         return new SingleChoiceDialog.Builder(
@@ -144,11 +146,12 @@ public class Main {
             case "textline" -> TextLineExample.main(args);
             case "yesno" -> YesNoExample.main(args);
             case "file" -> FileExample.main(args);
+            case "progress" -> ProgressExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, multichoice, textline, password, yesno, file, version");
+                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, version");
             }
         }
     }
