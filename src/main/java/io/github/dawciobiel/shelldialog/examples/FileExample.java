@@ -49,6 +49,9 @@ public class FileExample {
                 .withToolbar(
                         NavigationToolbar.builder()
                                 .withArrowsNavigation()
+                                .withF5Refresh()
+                                .withHomeHomeDir()
+                                .withEndCWD()
                                 .withEnterAccept()
                                 .withEscapeCancel()
                                 .build()

@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +31,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
+    private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
@@ -55,7 +55,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
-        this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : Paths.get(".").toAbsolutePath().normalize();
+        this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
 
         refreshDirectoryContent();
     }
@@ -72,7 +72,16 @@ public class FileDialog extends AbstractListDialog<Path> {
             for (Path entry : stream) {
                 entries.add(entry);
             }
-            entries.sort(Comparator.comparing(Path::getFileName));
+            
+            // Modern sorting: Directories first, then files, both alphabetically
+            entries.sort((p1, p2) -> {
+                boolean isDir1 = Files.isDirectory(p1);
+                boolean isDir2 = Files.isDirectory(p2);
+                if (isDir1 != isDir2) {
+                    return isDir1 ? -1 : 1;
+                }
+                return p1.getFileName().toString().compareToIgnoreCase(p2.getFileName().toString());
+            });
 
             for (Path entry : entries) {
                 boolean isDirectory = Files.isDirectory(entry);
@@ -110,6 +119,22 @@ public class FileDialog extends AbstractListDialog<Path> {
             switch (type) {
                 case ArrowUp -> selectedIndex = previousEnabledIndex(selectedIndex);
                 case ArrowDown -> selectedIndex = nextEnabledIndex(selectedIndex);
+                case F5 -> {
+                    refreshDirectoryContent();
+                    selectedIndex = 0;
+                }
+                case Home -> {
+                    currentDirectory = Paths.get(System.getProperty("user.home"));
+                    clearFilter();
+                    refreshDirectoryContent();
+                    selectedIndex = 0;
+                }
+                case End -> {
+                    currentDirectory = CWD;
+                    clearFilter();
+                    refreshDirectoryContent();
+                    selectedIndex = 0;
+                }
                 case Character -> {
                     updateFilter(filterText + key.getCharacter());
                     selectedIndex = 0;
