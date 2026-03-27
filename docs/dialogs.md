@@ -415,6 +415,8 @@ To build `FileDialog`, you need:
 - `withInitialDirectory(Path)` to set the starting directory (defaults to current working directory)
 - `directoriesOnly(boolean)` to enable directory selection mode (defaults to `false` for file selection)
 - `withVisibleItemCount(int)` to limit how many items are shown at once
+- `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
+- `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
 
 ### Example
 
@@ -422,7 +424,7 @@ To build `FileDialog`, you need:
 DialogTheme theme = DialogTheme.darkTheme();
 
 TitleArea titleArea = new TitleArea.Builder()
-        .withTitle("Select a file:")
+        .withTitle("Select a source file:")
         .withTheme(theme)
         .build();
 
@@ -455,6 +457,7 @@ FileDialog dialog = new FileDialog.Builder(
         .withTheme(theme)
         .withInitialDirectory(Paths.get("."))
         .withVisibleItemCount(10)
+        .withExtensions(List.of("java", "md", "txt"))
         .build();
 
 Optional<Path> result = dialog.show();

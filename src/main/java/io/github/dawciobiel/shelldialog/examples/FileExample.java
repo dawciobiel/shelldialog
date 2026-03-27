@@ -9,6 +9,7 @@ import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.System.out;
@@ -28,7 +29,7 @@ public class FileExample {
      */
     public static void main(String[] args) {
         TitleArea titleArea = new TitleArea.Builder()
-                .withTitle("Select a file:")
+                .withTitle("Select a source file:")
                 .withTitleColor(TextColor.ANSI.YELLOW_BRIGHT)
                 .build();
 
@@ -64,6 +65,7 @@ public class FileExample {
                 .withBorderColor(TextColor.ANSI.BLUE)
                 .withVisibleItemCount(10)
                 .withTheme(theme)
+                .withExtensions(List.of("java", "md", "txt"))
                 .build();
 
         Optional<Path> result = dialog.show();

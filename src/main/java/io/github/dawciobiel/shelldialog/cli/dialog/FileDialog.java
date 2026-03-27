@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * A dialog for selecting files or directories.
@@ -41,6 +42,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private Path currentDirectory;
     private final boolean directoriesOnly;
+    private final Predicate<Path> filter;
 
     private FileDialog(Builder builder) {
         super(builder.inputStreamPath, builder.outputStreamPath, new ArrayList<>(), builder.visibleItemCount);
@@ -52,6 +54,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.directoriesOnly = builder.directoriesOnly;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : Paths.get(".").toAbsolutePath().normalize();
+        this.filter = builder.filter;
 
         refreshOptions();
     }
@@ -72,7 +75,9 @@ public class FileDialog extends AbstractListDialog<Path> {
 
             for (Path entry : entries) {
                 boolean isDirectory = Files.isDirectory(entry);
-                if (!directoriesOnly || isDirectory) {
+                if (isDirectory) {
+                    newOptions.add(new FileOption(entry, isDirectory));
+                } else if (!directoriesOnly && filter.test(entry)) {
                     newOptions.add(new FileOption(entry, isDirectory));
                 }
             }
@@ -108,15 +113,6 @@ public class FileDialog extends AbstractListDialog<Path> {
                          selectedIndex = 0;
                     } else if (selectedOption.isDirectory()) {
                         if (directoriesOnly) {
-                             // In directory selection mode, we might want a way to "enter" vs "select"
-                             // For now, let's say Enter selects if directoriesOnly is true, unless we have a specific "Enter" key for diving in.
-                             // But typically Enter dives in. Maybe Space to select?
-                             // Let's assume Enter dives in, and we need a way to select current dir?
-                             // Or maybe Enter selects the directory if it's highlighted? But then how to browse?
-                             // Let's assume standard behavior: Enter enters directory.
-                             // We need a "Current Directory" selection mechanism or a separate key.
-                             // For simplicity: Enter enters directory. If we want to return a directory, maybe we need a "Select Current" button or similar.
-                             // But for now, let's allow diving in.
                              currentDirectory = selectedOption.getPath();
                              refreshOptions();
                              selectedIndex = 0;
@@ -135,11 +131,7 @@ public class FileDialog extends AbstractListDialog<Path> {
             }
         }
     }
-    
-    // ... render methods ...
-    // Since I cannot write partial file updates easily and the previous write was complete logic-wise but missing imports/structure fixes.
-    // I will rewrite the whole file correctly now.
-    
+
     private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
         screen.clear();
 
@@ -247,6 +239,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private int visibleItemCount = 0;
         private Path initialDirectory;
         private boolean directoriesOnly = false;
+        private Predicate<Path> filter = path -> true;
         private String inputStreamPath = "/dev/tty";
         private String outputStreamPath = "/dev/tty";
 
@@ -288,6 +281,36 @@ public class FileDialog extends AbstractListDialog<Path> {
         public Builder directoriesOnly(boolean directoriesOnly) {
             this.directoriesOnly = directoriesOnly;
             return this;
+        }
+
+        /**
+         * Sets a filter to include only specific files.
+         * Directories are always shown regardless of the filter to allow navigation.
+         *
+         * @param filter the predicate to test file paths against
+         * @return this builder
+         */
+        public Builder withFileFilter(Predicate<Path> filter) {
+            this.filter = Objects.requireNonNull(filter);
+            return this;
+        }
+
+        /**
+         * Sets a filter to include only files with specific extensions.
+         * Extensions are case-insensitive and can be provided with or without a leading dot.
+         *
+         * @param extensions the list of allowed extensions (e.g. "java", ".md")
+         * @return this builder
+         */
+        public Builder withExtensions(List<String> extensions) {
+            Objects.requireNonNull(extensions);
+            List<String> normalized = extensions.stream()
+                    .map(ext -> ext.startsWith(".") ? ext.toLowerCase() : "." + ext.toLowerCase())
+                    .toList();
+            return withFileFilter(path -> {
+                String fileName = path.getFileName().toString().toLowerCase();
+                return normalized.stream().anyMatch(fileName::endsWith);
+            });
         }
 
         public FileDialog build() {

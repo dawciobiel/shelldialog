@@ -26,7 +26,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `PasswordDialog` supports an initial value plus max length and validation on `Enter`.
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
-    - `FileDialog` supports directory navigation and filtering.
+    - `FileDialog` supports directory navigation and filtering (by predicate or extension).
 - **Modern Java:** Built with Java 21 features.
 
 ## Documentation
