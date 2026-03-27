@@ -1,6 +1,7 @@
 package io.github.dawciobiel.shelldialog.examples;
 
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.input.KeyType;
 import io.github.dawciobiel.shelldialog.cli.dialog.FileDialog;
 import io.github.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
@@ -9,7 +10,9 @@ import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.System.out;
@@ -45,10 +48,18 @@ public class FileExample {
 
         DialogTheme theme = DialogTheme.darkTheme();
 
+        String userHome = System.getProperty("user.home");
+        Map<KeyType, Path> customShortcuts = Map.of(
+                KeyType.F1, Paths.get(userHome, "Desktop"),
+                KeyType.F2, Paths.get(userHome, "Documents")
+        );
+
         NavigationArea navigationArea = new NavigationArea.Builder()
                 .withToolbar(
                         NavigationToolbar.builder()
                                 .withArrowsNavigation()
+                                .withKey(KeyType.F1, "Desktop")
+                                .withKey(KeyType.F2, "Docs")
                                 .withF5Refresh()
                                 .withHomeHomeDir()
                                 .withEndCWD()
@@ -69,6 +80,7 @@ public class FileExample {
                 .withVisibleItemCount(10)
                 .withTheme(theme)
                 .withExtensions(List.of("java", "md", "txt"))
+                .withShortcuts(customShortcuts)
                 .build();
 
         Optional<Path> result = dialog.show();

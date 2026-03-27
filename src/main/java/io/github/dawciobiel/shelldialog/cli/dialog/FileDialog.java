@@ -18,7 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -43,6 +45,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private Path currentDirectory;
     private final boolean directoriesOnly;
     private final Predicate<Path> fileFilter;
+    private final Map<KeyType, Path> shortcuts;
 
     private FileDialog(Builder builder) {
         super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
@@ -55,6 +58,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
+        this.shortcuts = Map.copyOf(builder.shortcuts);
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
 
         refreshDirectoryContent();
@@ -115,6 +119,14 @@ public class FileDialog extends AbstractListDialog<Path> {
 
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
+
+            if (shortcuts.containsKey(type)) {
+                currentDirectory = shortcuts.get(type);
+                clearFilter();
+                refreshDirectoryContent();
+                selectedIndex = 0;
+                continue;
+            }
 
             switch (type) {
                 case ArrowUp -> selectedIndex = previousEnabledIndex(selectedIndex);
@@ -286,6 +298,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private Path initialDirectory;
         private boolean directoriesOnly = false;
         private Predicate<Path> filter = path -> true;
+        private Map<KeyType, Path> shortcuts = Collections.emptyMap();
 
         /**
          * Creates a new builder with required areas.
@@ -351,6 +364,17 @@ public class FileDialog extends AbstractListDialog<Path> {
          */
         public Builder withFileFilter(Predicate<Path> filter) {
             this.filter = Objects.requireNonNull(filter);
+            return this;
+        }
+
+        /**
+         * Configures custom keyboard shortcuts to specific directories.
+         *
+         * @param shortcuts map of keys to target paths
+         * @return this builder
+         */
+        public Builder withShortcuts(Map<KeyType, Path> shortcuts) {
+            this.shortcuts = Map.copyOf(Objects.requireNonNull(shortcuts));
             return this;
         }
 
