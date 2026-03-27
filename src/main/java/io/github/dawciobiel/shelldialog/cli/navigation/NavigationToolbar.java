@@ -1,5 +1,7 @@
 package io.github.dawciobiel.shelldialog.cli.navigation;
 
+import com.googlecode.lanterna.input.KeyType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -67,6 +69,18 @@ public final class NavigationToolbar {
          * Creates an empty toolbar builder.
          */
         public Builder() {
+        }
+
+        /**
+         * Appends a custom key and action label to the toolbar.
+         *
+         * @param key   the key to display (its name will be used)
+         * @param label the action description
+         * @return this builder
+         */
+        public Builder withKey(KeyType key, String label) {
+            items.add(new NavigationItem(key.name(), label));
+            return this;
         }
 
         /**

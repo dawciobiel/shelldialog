@@ -238,6 +238,7 @@ To build `FileDialog`, you need:
 - `F5`: refresh current directory content
 - `Home`: jump to user home directory
 - `End`: jump to initial working directory (CWD)
+- `[KeyType]`: any custom shortcut key configured in builder
 - `Enter`: enters directory or selects file
 - `Escape`: clears search filter (if not empty) or cancels dialog
 
@@ -255,6 +256,39 @@ To build `FileDialog`, you need:
 - `withVisibleItemCount(int)` to limit how many items are shown at once
 - `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
 - `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
+- `withShortcuts(Map<KeyType, Path>)` to configure custom keyboard shortcuts to specific directories
+
+### Example
+
+```java
+Map<KeyType, Path> shortcuts = Map.of(
+    KeyType.F1, Paths.get(System.getProperty("user.home"), "Desktop"),
+    KeyType.F2, Paths.get(System.getProperty("user.home"), "Documents")
+);
+
+NavigationArea navigationArea = new NavigationArea.Builder()
+        .withToolbar(
+                NavigationToolbar.builder()
+                        .withVerticalArrowsNavigation()
+                        .withKey(KeyType.F1, "Desktop")
+                        .withKey(KeyType.F2, "Docs")
+                        .withF5Refresh()
+                        .withHomeHomeDir()
+                        .withEndCWD()
+                        .withEnterAccept()
+                        .withEscapeCancel()
+                        .build()
+        )
+        .withTheme(theme)
+        .build();
+
+FileDialog dialog = new FileDialog.Builder(titleArea, menuItemArea, selectedMenuItemArea, navigationArea)
+        .withTheme(theme)
+        .withShortcuts(shortcuts)
+        .build();
+
+Optional<Path> result = dialog.show();
+```
 
 ## ProgressDialog
 
@@ -334,23 +368,3 @@ To build `MessageDialog`, you need:
 
 - `Optional.of(true)` when the user confirms with `Enter` (OK)
 - `Optional.empty()` when the user cancels with `Escape`
-
-### Example
-
-```java
-NavigationArea navigationArea = new NavigationArea.Builder()
-        .withToolbar(
-                NavigationToolbar.builder()
-                        .withEnterOK()
-                        .withEscapeCancel()
-                        .build()
-        )
-        .withTheme(theme)
-        .build();
-
-MessageDialog dialog = new MessageDialog.Builder(titleArea, contentArea, navigationArea)
-        .withTheme(theme)
-        .build();
-
-dialog.show();
-```
