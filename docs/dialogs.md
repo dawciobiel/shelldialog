@@ -7,6 +7,7 @@ This document describes the current usage of:
 - `MultiChoiceDialog`
 - `FileDialog`
 - `FormDialog`
+- `WizardDialog`
 - `ProgressDialog`
 - `SpinnerDialog`
 - `PasswordDialog`
@@ -208,6 +209,78 @@ FormDialog<LoginData> dialog = new FormDialog.Builder<LoginData>(
         .build();
 
 Optional<LoginData> result = dialog.show();
+```
+
+## WizardDialog
+
+`WizardDialog` is used for multi-step flows with shared state and typed final results.
+
+### Required parts
+
+To build `WizardDialog`, you need:
+
+- a wizard title
+- `List<WizardStep>`
+- `withResultMapper(Function<WizardContext, T>)`
+
+### Return type
+
+`show()` returns `Optional<T>`.
+
+- `Optional.of(value)` when the user completes the final step
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `Character` / `Backspace`: handled by the current step when supported
+- `ArrowLeft`: moves to the previous step
+- `ArrowRight`: validates and advances to the next step
+- `Enter`: validates and advances, or finishes on the last step
+- `Escape`: cancels the wizard
+
+### Built-in step types in v1
+
+- `WizardTextStep` for single-line text input
+- `WizardSummaryStep` for read-only review screens
+
+### Shared context
+
+Each step can commit values into `WizardContext`, and the final result is produced via `withResultMapper(...)`.
+
+`WizardContext` supports:
+
+- `put(key, value)`
+- `get(key)`
+- `getString(key)`
+- `getPath(key)`
+- `asMap()`
+
+### Example
+
+```java
+WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
+        "Setup Wizard",
+        List.of(
+                WizardTextStep.builder("Account", "Enter username", "username")
+                        .withValidator(InputValidator.BuiltIn.nonEmpty("Username required"))
+                        .build(),
+                WizardTextStep.builder("Location", "Enter target directory", "targetDirectory")
+                        .withValidator(InputValidator.BuiltIn.nonEmpty("Directory required"))
+                        .build(),
+                WizardSummaryStep.of("Summary", context -> List.of(
+                        "User: " + context.getString("username"),
+                        "Target: " + context.getString("targetDirectory")
+                ))
+        )
+)
+        .withTheme(theme)
+        .withResultMapper(context -> new SetupData(
+                context.getString("username"),
+                context.getString("targetDirectory")
+        ))
+        .build();
+
+Optional<SetupData> result = dialog.show();
 ```
 
 ## PasswordDialog

@@ -421,6 +421,41 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardDialogBuilderShouldRequireResultMapper() {
+        WizardDialog.Builder<FormValues> builder = new WizardDialog.Builder<>("Wizard", wizardSteps());
+
+        assertThrows(IllegalStateException.class, builder::build);
+    }
+
+    @Test
+    void wizardDialogBuilderShouldApplyThemeStyles() throws Exception {
+        DialogTheme theme = DialogTheme.builder()
+                .borderStyle(TextStyle.of(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK))
+                .titleStyle(TextStyle.of(TextColor.ANSI.CYAN, TextColor.ANSI.DEFAULT))
+                .validationMessageStyle(TextStyle.of(TextColor.ANSI.YELLOW, TextColor.ANSI.BLUE))
+                .navigationStyle(TextStyle.of(TextColor.ANSI.MAGENTA, TextColor.ANSI.BLACK))
+                .build();
+
+        WizardDialog<FormValues> dialog = new WizardDialog.Builder<FormValues>("Wizard", wizardSteps())
+                .withTheme(theme)
+                .withResultMapper(context -> {
+                    WizardContext result = new WizardContext();
+                    context.asMap().forEach(result::put);
+                    return new FormValues(result.asMap());
+                })
+                .build();
+
+        DialogFrame frame = (DialogFrame) readField(dialog, "dialogFrame");
+        TextStyle borderStyle = (TextStyle) readField(frame, "borderStyle");
+        TextStyle validationMessageStyle = (TextStyle) readField(dialog, "validationMessageStyle");
+
+        assertEquals(TextColor.ANSI.GREEN, borderStyle.foreground());
+        assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
+        assertEquals(TextColor.ANSI.YELLOW, validationMessageStyle.foreground());
+        assertEquals(TextColor.ANSI.BLUE, validationMessageStyle.background());
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
@@ -603,6 +638,13 @@ class DialogBuilderTest {
         return List.of(
                 FormField.text("username", "Username").build(),
                 FormField.password("password", "Password").build()
+        );
+    }
+
+    private List<WizardStep> wizardSteps() {
+        return List.of(
+                WizardTextStep.builder("User", "Enter username", "username").build(),
+                WizardSummaryStep.of("Summary", context -> List.of("Done"))
         );
     }
 

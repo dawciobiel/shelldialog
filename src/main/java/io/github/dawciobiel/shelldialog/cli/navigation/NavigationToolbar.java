@@ -113,6 +113,26 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard left-arrow-to-back item.
+         *
+         * @return this builder
+         */
+        public Builder withArrowLeftBack() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ARROW_LEFT, NavigationLabels.ACTION_BACK));
+            return this;
+        }
+
+        /**
+         * Appends the standard right-arrow-to-next item.
+         *
+         * @return this builder
+         */
+        public Builder withArrowRightNext() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ARROW_RIGHT, NavigationLabels.ACTION_NEXT));
+            return this;
+        }
+
+        /**
          * Appends the standard space-to-select item.
          *
          * @return this builder
@@ -129,6 +149,26 @@ public final class NavigationToolbar {
          */
         public Builder withEnterAccept() {
             items.add(new NavigationItem(NavigationLabels.KEY_ENTER, NavigationLabels.ACTION_ACCEPT));
+            return this;
+        }
+
+        /**
+         * Appends the standard enter-to-next item.
+         *
+         * @return this builder
+         */
+        public Builder withEnterNext() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ENTER, NavigationLabels.ACTION_NEXT));
+            return this;
+        }
+
+        /**
+         * Appends the standard enter-to-finish item.
+         *
+         * @return this builder
+         */
+        public Builder withEnterFinish() {
+            items.add(new NavigationItem(NavigationLabels.KEY_ENTER, NavigationLabels.ACTION_FINISH));
             return this;
         }
 

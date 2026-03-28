@@ -268,7 +268,91 @@ class InteractionFlowTest {
         assertTrue(Files.isDirectory(emptyDir.resolve("new")));
     }
 
+    @Test
+    void wizardDialogShouldFinishAfterMultipleSteps() throws Exception {
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('u', false, false));
+        terminal.addInput(new KeyStroke('t', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardData> dialog = new WizardDialog.Builder<WizardData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardTextStep.builder("Location", "Enter directory", "directory")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of(
+                                "User: " + context.getString("username"),
+                                "Dir: " + context.getString("directory")
+                        ))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardData(
+                        context.getString("username"),
+                        context.getString("directory")
+                ))
+                .build();
+
+        Optional<WizardData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should return a result");
+        assertEquals("joe", result.get().username());
+        assertEquals("out", result.get().directory());
+    }
+
+    @Test
+    void wizardDialogShouldStayOnStepUntilValidationPasses() throws Exception {
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('u', false, false));
+        terminal.addInput(new KeyStroke('t', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardData> dialog = new WizardDialog.Builder<WizardData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardTextStep.builder("Location", "Enter directory", "directory")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardData(
+                        context.getString("username"),
+                        context.getString("directory")
+                ))
+                .build();
+
+        Optional<WizardData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish after validation succeeds");
+        assertEquals("joe", result.get().username());
+        assertEquals("out", result.get().directory());
+    }
+
     private record LoginData(String username, char[] password) {
+    }
+
+    private record WizardData(String username, String directory) {
     }
 
     private TitleArea titleArea() {
