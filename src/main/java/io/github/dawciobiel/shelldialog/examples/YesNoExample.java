@@ -28,6 +28,17 @@ public class YesNoExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        YesNoDialog dialog = buildDialog();
+        Optional<Boolean> result = dialog.show();
+
+        if (result.isPresent()) {
+            out.println(result.get() ? "Confirmed." : "Declined.");
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static YesNoDialog buildDialog() {
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                 .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
@@ -72,7 +83,7 @@ public class YesNoExample {
                 )
                 .build();
 
-        YesNoDialog dialog = new YesNoDialog.Builder(
+        return new YesNoDialog.Builder(
                 titleArea,
                 contentArea,
                 answerArea,
@@ -82,13 +93,5 @@ public class YesNoExample {
                 .withTheme(theme)
                 .withDefaultYesSelected(false)
                 .build();
-
-        Optional<Boolean> result = dialog.show();
-
-        if (result.isPresent()) {
-            out.println(result.get() ? "Confirmed." : "Declined.");
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }

@@ -37,6 +37,21 @@ public final class WizardExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        WizardDialog<SetupData> dialog = buildDialog();
+        Optional<SetupData> result = dialog.show();
+        if (result.isEmpty()) {
+            out.println("Wizard cancelled.");
+            return;
+        }
+
+        SetupData data = result.get();
+        out.println("Username: " + data.username());
+        out.println("Password length: " + data.password().length);
+        out.println("Target directory: " + data.targetDirectory());
+        out.println("Config file: " + data.configFile());
+    }
+
+    static WizardDialog<SetupData> buildDialog() {
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                 .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
@@ -74,7 +89,7 @@ public final class WizardExample {
                 WizardSummaryStep.sections("Summary", "Review all collected values before finishing the setup.", WizardExample::summarySections)
         );
 
-        WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>("Setup Wizard", steps)
+        return new WizardDialog.Builder<SetupData>("Setup Wizard", steps)
                 .withTheme(theme)
                 .withResultMapper(context -> new SetupData(
                         context.getString("username"),
@@ -83,18 +98,6 @@ public final class WizardExample {
                         context.getPath("configFile")
                 ))
                 .build();
-
-        Optional<SetupData> result = dialog.show();
-        if (result.isEmpty()) {
-            out.println("Wizard cancelled.");
-            return;
-        }
-
-        SetupData data = result.get();
-        out.println("Username: " + data.username());
-        out.println("Password length: " + data.password().length);
-        out.println("Target directory: " + data.targetDirectory());
-        out.println("Config file: " + data.configFile());
     }
 
     private static List<WizardSummaryStep.SummarySection> summarySections(WizardContext context) {

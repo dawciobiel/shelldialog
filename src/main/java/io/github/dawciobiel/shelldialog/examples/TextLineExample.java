@@ -29,6 +29,22 @@ public class TextLineExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        TextLineDialog dialog = buildDialog();
+        Optional<String> result = dialog.show();
+
+        if (result.isPresent()) {
+            String name = result.get();
+            if (name.isEmpty()) {
+                out.println("You entered an empty name.");
+            } else {
+                out.println("Hello, " + name + "!");
+            }
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static TextLineDialog buildDialog() {
         DialogTheme theme = DialogTheme.builder()
                                        .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                                        .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
@@ -69,7 +85,7 @@ public class TextLineExample {
                 .withTheme(theme)
                 .build();
 
-        TextLineDialog dialog = new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
+        return new TextLineDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
                 .withMaxLength(20)
                 .withInitialValue("abcdef")
@@ -77,18 +93,5 @@ public class TextLineExample {
                         ? Optional.of("Name is required.")
                         : Optional.empty())
                 .build();
-
-        Optional<String> result = dialog.show();
-
-        if (result.isPresent()) {
-            String name = result.get();
-            if (name.isEmpty()) {
-                out.println("You entered an empty name.");
-            } else {
-                out.println("Hello, " + name + "!");
-            }
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }

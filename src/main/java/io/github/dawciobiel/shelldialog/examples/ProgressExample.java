@@ -24,6 +24,17 @@ public class ProgressExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        ProgressDialog dialog = buildDialog();
+        Optional<Boolean> result = dialog.show();
+
+        if (result.orElse(false)) {
+            out.println("Operation completed successfully!");
+        } else {
+            out.println("Operation was cancelled or failed.");
+        }
+    }
+
+    static ProgressDialog buildDialog() {
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Performing Long Operation")
                 .withTitleColor(TextColor.ANSI.CYAN_BRIGHT)
@@ -35,7 +46,7 @@ public class ProgressExample {
 
         DialogTheme theme = DialogTheme.darkTheme();
 
-        ProgressDialog dialog = new ProgressDialog.Builder(titleArea, statusArea)
+        return new ProgressDialog.Builder(titleArea, statusArea)
                 .withTheme(theme)
                 .withTask(reporter -> {
                     int totalSteps = 100;
@@ -52,13 +63,5 @@ public class ProgressExample {
                     }
                 })
                 .build();
-
-        Optional<Boolean> result = dialog.show();
-
-        if (result.orElse(false)) {
-            out.println("Operation completed successfully!");
-        } else {
-            out.println("Operation was cancelled or failed.");
-        }
     }
 }

@@ -101,6 +101,8 @@ Detailed documentation for specific features is available in the `docs/` directo
 
 Usage examples are available in package `io.github.dawciobiel.shelldialog.examples`.
 
+The example package is covered by smoke tests to catch configuration regressions in the bundled entrypoints.
+
 ## Requirements
 
 - Java 21 or higher.

@@ -30,6 +30,19 @@ public class PasswordExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        PasswordDialog dialog = buildDialog();
+        Optional<char[]> result = dialog.show();
+
+        if (result.isPresent()) {
+            char[] password = result.get();
+            out.println("Password length: " + password.length);
+            Arrays.fill(password, '\0');
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static PasswordDialog buildDialog() {
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                 .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
@@ -68,7 +81,7 @@ public class PasswordExample {
                 )
                 .build();
 
-        PasswordDialog dialog = new PasswordDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
+        return new PasswordDialog.Builder(titleArea, contentArea, inputArea, navigationArea)
                 .withTheme(theme)
                 .withMaxLength(16)
                 .withInitialValue("secret".toCharArray())
@@ -76,15 +89,5 @@ public class PasswordExample {
                         ? Optional.of("Password must be at least 6 characters long.")
                         : Optional.empty())
                 .build();
-
-        Optional<char[]> result = dialog.show();
-
-        if (result.isPresent()) {
-            char[] password = result.get();
-            out.println("Password length: " + password.length);
-            Arrays.fill(password, '\0');
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }
