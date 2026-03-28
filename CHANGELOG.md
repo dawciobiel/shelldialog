@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FileDialog` metadata preview panel for the currently focused entry.
 - `FileDialog` named extension presets for common file groups.
 - `FileDialog` active filter indicator for extension-based filters.
+- `FileDialog` metadata preview now formats file sizes in a human-readable way.
 
 ## [3.2.0] - 2026-03-28
 
