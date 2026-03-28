@@ -71,6 +71,7 @@ public class FileExample {
                                 .withArrowsNavigation()
                                 .withKey(KeyType.F1, "Desktop")
                                 .withKey(KeyType.F3, "Docs")
+                                .withF4CycleFilter()
                                 .withF2ToggleHiddenFiles()
                                 .withF7NewFolder()
                                 .withF5Refresh()
@@ -93,7 +94,7 @@ public class FileExample {
                 .withVisibleItemCount(10)
                 .withTheme(theme)
                 .withMetadataPreview(true)
-                .withExtensionPresets(
+                .withSelectableExtensionPresets(
                         FileDialog.ExtensionPreset.SOURCE_FILES,
                         FileDialog.ExtensionPreset.DOCUMENTATION_FILES
                 )

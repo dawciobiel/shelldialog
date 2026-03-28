@@ -60,6 +60,9 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
     }
 
+    private record PresetFilter(String label, Predicate<Path> filter) {
+    }
+
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
     private static final String CURRENT_DIRECTORY_LABEL = Messages.getString("dialog.file.current_directory");
@@ -93,12 +96,14 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private Path currentDirectory;
     private final boolean directoriesOnly;
-    private final Predicate<Path> fileFilter;
-    private final String filterLabel;
+    private Predicate<Path> fileFilter;
+    private String filterLabel;
     private final Map<KeyType, Path> shortcuts;
+    private final List<PresetFilter> selectableExtensionPresets;
     private boolean showHiddenFiles;
     private String errorMessage;
     private boolean creatingDirectory;
+    private int activeSelectableExtensionPresetIndex;
     private final StringBuilder newDirectoryName = new StringBuilder();
 
     private FileDialog(Builder builder) {
@@ -116,8 +121,10 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.fileFilter = builder.filter;
         this.filterLabel = builder.filterLabel;
         this.shortcuts = Map.copyOf(builder.shortcuts);
+        this.selectableExtensionPresets = List.copyOf(builder.selectableExtensionPresets);
         this.showHiddenFiles = builder.showHiddenFiles;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
+        this.activeSelectableExtensionPresetIndex = 0;
 
         refreshDirectoryContent();
     }
@@ -229,6 +236,13 @@ public class FileDialog extends AbstractListDialog<Path> {
                 case F5 -> {
                     refreshDirectoryContent();
                     selectedIndex = 0;
+                }
+                case F4 -> {
+                    if (cycleExtensionPreset()) {
+                        clearFilter();
+                        refreshDirectoryContent();
+                        selectedIndex = 0;
+                    }
                 }
                 case F2 -> {
                     showHiddenFiles = !showHiddenFiles;
@@ -452,6 +466,24 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
     }
 
+    private boolean cycleExtensionPreset() {
+        if (selectableExtensionPresets.size() <= 1) {
+            return false;
+        }
+        activeSelectableExtensionPresetIndex = (activeSelectableExtensionPresetIndex + 1) % selectableExtensionPresets.size();
+        applySelectableExtensionPreset(activeSelectableExtensionPresetIndex);
+        return true;
+    }
+
+    private void applySelectableExtensionPreset(int presetIndex) {
+        if (selectableExtensionPresets.isEmpty()) {
+            return;
+        }
+        PresetFilter preset = selectableExtensionPresets.get(presetIndex);
+        this.fileFilter = preset.filter();
+        this.filterLabel = preset.label();
+    }
+
     private boolean createDirectory(String directoryName) {
         String normalizedName = directoryName.trim();
         if (normalizedName.isEmpty()) {
@@ -570,6 +602,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private Predicate<Path> filter = path -> true;
         private String filterLabel;
         private Map<KeyType, Path> shortcuts = Collections.emptyMap();
+        private List<PresetFilter> selectableExtensionPresets = List.of();
 
         /**
          * Creates a new builder with required areas.
@@ -676,6 +709,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         public Builder withFileFilter(Predicate<Path> filter) {
             this.filter = Objects.requireNonNull(filter);
             this.filterLabel = null;
+            this.selectableExtensionPresets = List.of();
             return this;
         }
 
@@ -707,6 +741,7 @@ public class FileDialog extends AbstractListDialog<Path> {
                     .map(String::toUpperCase)
                     .reduce((left, right) -> left + ", " + right)
                     .orElse(null);
+            this.selectableExtensionPresets = List.of();
             return this;
         }
 
@@ -744,11 +779,43 @@ public class FileDialog extends AbstractListDialog<Path> {
             return this;
         }
 
+        /**
+         * Configures multiple named extension presets that can be cycled at runtime.
+         *
+         * @param presets presets of file extensions
+         * @return this builder
+         */
+        public Builder withSelectableExtensionPresets(ExtensionPreset... presets) {
+            Objects.requireNonNull(presets);
+            if (presets.length == 0) {
+                throw new IllegalArgumentException("presets must not be empty");
+            }
+
+            List<PresetFilter> presetFilters = new ArrayList<>(presets.length);
+            for (ExtensionPreset preset : presets) {
+                ExtensionPreset normalizedPreset = Objects.requireNonNull(preset);
+                presetFilters.add(new PresetFilter(normalizedPreset.name(), extensionFilter(normalizedPreset.extensions())));
+            }
+
+            this.selectableExtensionPresets = List.copyOf(presetFilters);
+            this.filter = presetFilters.getFirst().filter();
+            this.filterLabel = presetFilters.getFirst().label();
+            return this;
+        }
+
         private static List<String> normalizeExtensions(List<String> extensions) {
             Objects.requireNonNull(extensions);
             return extensions.stream()
                     .map(ext -> ext.startsWith(".") ? ext.toLowerCase() : "." + ext.toLowerCase())
                     .toList();
+        }
+
+        private static Predicate<Path> extensionFilter(List<String> extensions) {
+            List<String> normalized = normalizeExtensions(extensions);
+            return path -> {
+                String fileName = path.getFileName().toString().toLowerCase();
+                return normalized.stream().anyMatch(fileName::endsWith);
+            };
         }
 
         /**

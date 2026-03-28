@@ -294,6 +294,36 @@ class InteractionFlowTest {
     }
 
     @Test
+    void fileDialogShouldCycleExtensionPresetsWithF4() throws Exception {
+        Path filterDir = Files.createDirectory(tempDir.resolve("filters"));
+        Files.createFile(filterDir.resolve("Main.java"));
+        Path readme = Files.createFile(filterDir.resolve("README.md"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.F4));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(filterDir)
+                .withSelectableExtensionPresets(
+                        FileDialog.ExtensionPreset.SOURCE_FILES,
+                        FileDialog.ExtensionPreset.DOCUMENTATION_FILES
+                )
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should return a file after cycling to the next filter preset");
+        assertEquals(readme, result.get());
+    }
+
+    @Test
     void wizardDialogShouldFinishAfterMultipleSteps() throws Exception {
         DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
         terminal.addInput(new KeyStroke('j', false, false));

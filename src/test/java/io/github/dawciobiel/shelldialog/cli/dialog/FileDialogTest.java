@@ -32,6 +32,7 @@ class FileDialogTest {
     void setUp() throws IOException {
         Files.createFile(tempDir.resolve("file1.txt"));
         Files.createFile(tempDir.resolve("file2.java"));
+        Files.createFile(tempDir.resolve("file3.md"));
         Files.createFile(tempDir.resolve(".hidden.txt"));
         Files.createDirectory(tempDir.resolve("dir1"));
     }
@@ -58,7 +59,7 @@ class FileDialogTest {
         List<DialogOption> options = getOptions(dialog);
 
         boolean hasParent = tempDir.getParent() != null;
-        int expectedSize = 3 + (hasParent ? 1 : 0);
+        int expectedSize = 4 + (hasParent ? 1 : 0);
 
         assertEquals(expectedSize, options.size());
         
@@ -352,6 +353,30 @@ class FileDialogTest {
         assertEquals("SOURCE_FILES", readField(dialog, "filterLabel"));
     }
 
+    @Test
+    void shouldCycleSelectableExtensionPresets() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withSelectableExtensionPresets(
+                        FileDialog.ExtensionPreset.SOURCE_FILES,
+                        FileDialog.ExtensionPreset.DOCUMENTATION_FILES
+                )
+                .build();
+
+        List<DialogOption> sourceOptions = getOptions(dialog);
+        assertTrue(sourceOptions.stream().anyMatch(o -> o.getLabel().endsWith("file2.java")));
+        assertFalse(sourceOptions.stream().anyMatch(o -> o.getLabel().endsWith("file3.md")));
+        assertEquals("SOURCE_FILES", readField(dialog, "filterLabel"));
+
+        invokeCycleExtensionPreset(dialog);
+
+        List<DialogOption> documentationOptions = getOptions(dialog);
+        assertFalse(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file2.java")));
+        assertTrue(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file1.txt")));
+        assertTrue(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file3.md")));
+        assertEquals("DOCUMENTATION_FILES", readField(dialog, "filterLabel"));
+    }
+
     private FileDialog.Builder createDialogBuilder() {
         TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
         ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
@@ -398,6 +423,16 @@ class FileDialogTest {
         Method method = FileDialog.class.getDeclaredMethod("createDirectory", String.class);
         method.setAccessible(true);
         return (boolean) method.invoke(dialog, directoryName);
+    }
+
+    private boolean invokeCycleExtensionPreset(FileDialog dialog) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("cycleExtensionPreset");
+        method.setAccessible(true);
+        boolean cycled = (boolean) method.invoke(dialog);
+        if (cycled) {
+            invokeRefresh(dialog);
+        }
+        return cycled;
     }
 
     @SuppressWarnings("unchecked")
