@@ -1,5 +1,6 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
+import com.googlecode.lanterna.input.KeyType;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.FileOption;
 import io.github.dawciobiel.shelldialog.cli.navigation.NavigationToolbar;
@@ -15,7 +16,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,15 +27,11 @@ class FileDialogTest {
     @TempDir
     Path tempDir;
 
-    private Path file1;
-    private Path file2;
-    private Path dir1;
-
     @BeforeEach
     void setUp() throws IOException {
-        file1 = Files.createFile(tempDir.resolve("file1.txt"));
-        file2 = Files.createFile(tempDir.resolve("file2.java"));
-        dir1 = Files.createDirectory(tempDir.resolve("dir1"));
+        Files.createFile(tempDir.resolve("file1.txt"));
+        Files.createFile(tempDir.resolve("file2.java"));
+        Files.createDirectory(tempDir.resolve("dir1"));
     }
 
     @Test
@@ -56,7 +55,6 @@ class FileDialogTest {
 
         List<DialogOption> options = getOptions(dialog);
 
-        // Expect: ".." (if parent exists), "/dir1", "file1.txt", "file2.java"
         boolean hasParent = tempDir.getParent() != null;
         int expectedSize = 3 + (hasParent ? 1 : 0);
 
@@ -92,20 +90,45 @@ class FileDialogTest {
 
         List<DialogOption> options = getOptions(dialog);
         
-        // Skip parent directory if present
         int startIndex = 0;
-        if (((FileOption)options.get(0)).isParentLink()) {
+        if (((FileOption)options.getFirst()).isParentLink()) {
             startIndex = 1;
         }
 
-        // First item (after ..) should be directory dir1
         FileOption firstOption = (FileOption) options.get(startIndex);
         assertTrue(firstOption.isDirectory(), "First item should be a directory");
         assertEquals("/dir1", firstOption.getLabel());
 
-        // Subsequent items should be files
         assertFalse(((FileOption)options.get(startIndex + 1)).isDirectory(), "Second item should be a file");
         assertFalse(((FileOption)options.get(startIndex + 2)).isDirectory(), "Third item should be a file");
+    }
+
+    @Test
+    void shouldSupportCustomShortcuts() throws Exception {
+        TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
+        ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
+        ContentArea selectedContentArea = new ContentArea.Builder().withContent("Selected").build();
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(NavigationToolbar.builder().build())
+                .withTheme(DialogTheme.darkTheme())
+                .build();
+
+        Path customPath = Paths.get("/tmp");
+        Map<KeyType, Path> shortcuts = Map.of(KeyType.F1, customPath);
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea,
+                contentArea,
+                selectedContentArea,
+                navigationArea
+        )
+                .withShortcuts(shortcuts)
+                .build();
+
+        @SuppressWarnings("unchecked")
+        Map<KeyType, Path> storedShortcuts = (Map<KeyType, Path>) readField(dialog, "shortcuts");
+        assertEquals(1, storedShortcuts.size());
+        assertEquals(customPath, storedShortcuts.get(KeyType.F1));
     }
 
     @Test
@@ -131,7 +154,6 @@ class FileDialogTest {
         List<DialogOption> options = getOptions(dialog);
 
         boolean hasParent = tempDir.getParent() != null;
-        // Expect: ".." and "/dir1"
         int expectedSize = 1 + (hasParent ? 1 : 0);
         
         assertEquals(expectedSize, options.size());
@@ -166,8 +188,6 @@ class FileDialogTest {
         List<DialogOption> options = getOptions(dialog);
 
         boolean hasParent = tempDir.getParent() != null;
-        // Expect: ".." (if parent), "/dir1" (dirs always shown), "file2.java"
-        // "file1.txt" should be filtered out
         int expectedSize = 2 + (hasParent ? 1 : 0);
         
         assertEquals(expectedSize, options.size());
@@ -183,9 +203,14 @@ class FileDialogTest {
 
     @SuppressWarnings("unchecked")
     private List<DialogOption> getOptions(FileDialog dialog) throws Exception {
-        // AbstractListDialog stores options in 'options' field
         Field field = AbstractListDialog.class.getDeclaredField("options");
         field.setAccessible(true);
         return (List<DialogOption>) field.get(dialog);
+    }
+
+    private Object readField(Object target, @SuppressWarnings("SameParameterValue") String fieldName) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
     }
 }
