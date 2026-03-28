@@ -470,6 +470,8 @@ When metadata preview is enabled, `FileDialog` also renders a small panel for th
 - `withMetadataPreview(boolean)` to render a metadata panel for the selected entry
 - `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
 - `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
+- `withExtensionPreset(FileDialog.ExtensionPreset)` to use a named extension preset
+- `withExtensionPresets(FileDialog.ExtensionPreset...)` to combine multiple named presets
 - `withShortcuts(Map<KeyType, Path>)` to configure custom keyboard shortcuts to specific directories
 
 ### Example
@@ -499,6 +501,10 @@ NavigationArea navigationArea = new NavigationArea.Builder()
 FileDialog dialog = new FileDialog.Builder(titleArea, menuItemArea, selectedMenuItemArea, navigationArea)
         .withTheme(theme)
         .withMetadataPreview(true)
+        .withExtensionPresets(
+                FileDialog.ExtensionPreset.SOURCE_FILES,
+                FileDialog.ExtensionPreset.DOCUMENTATION_FILES
+        )
         .withShortcuts(shortcuts)
         .build();
 
