@@ -46,6 +46,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `MultiChoiceDialog`: Select any number of options from a list.
     - `FileDialog`: Select a file or directory from the file system.
     - `FormDialog`: Collect multiple text/password values on a single screen.
+    - `WizardDialog`: Compose multiple steps with back/next/finish navigation.
     - `ProgressDialog`: Show a progress bar for background tasks.
     - `SpinnerDialog`: Show an animated spinner for indeterminate tasks.
     - `TextLineDialog`: Prompt for single-line text input.
@@ -66,6 +67,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `TextLineDialog` supports an initial value plus max length and validation on `Enter`.
     - `PasswordDialog` supports an initial value plus max length and validation on `Enter`.
     - `FormDialog` supports typed result mapping, per-field validation, and text/password fields in one dialog.
+    - `WizardDialog` supports multi-step flows with shared context, validation, and typed final result mapping.
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
     - `FileDialog` supports directory navigation, filtering (by predicate or extension), smart sorting (folders first), and quick navigation shortcuts (F5, Home, End).
@@ -169,6 +171,9 @@ java -jar build/libs/shelldialog-3.1.0-all.jar yesno
 
 # Launch Form Dialog example
 java -jar build/libs/shelldialog-3.1.0-all.jar form
+
+# Launch Wizard Dialog example
+java -jar build/libs/shelldialog-3.1.0-all.jar wizard
 ```
 
 ## Version information

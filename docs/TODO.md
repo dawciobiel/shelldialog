@@ -9,6 +9,6 @@
 - [x] Improve `FileDialog` with smart sorting (folders first) and navigation shortcuts (Home/End/F5).
 - [x] Modernize the codebase with Java 21 features (Sequenced Collections, Math.clamp).
 - [x] Implement `MessageDialog` for showing simple messages with an OK button.
-- [ ] Implement `FormDialog` to allow multiple input fields on a single screen.
-- [ ] Add `WizardDialog` support for multi-step dialog sequences with navigation.
+- [x] Implement `FormDialog` to allow multiple input fields on a single screen.
+- [x] Add `WizardDialog` support for multi-step dialog sequences with navigation.
 - [ ] Decide whether dialog configuration should also be loadable from `.properties` files in addition to Java builders.

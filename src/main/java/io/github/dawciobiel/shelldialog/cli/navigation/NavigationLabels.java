@@ -27,6 +27,10 @@ public final class NavigationLabels {
     public static final String KEY_ARROWS_VERTICAL = UIProperties.getString("navigationtoolbar.key_arrows_vertical");
     /** Label describing horizontal arrow keys. */
     public static final String KEY_ARROWS_HORIZONTAL = UIProperties.getString("navigationtoolbar.key_arrows_horizontal");
+    /** Label describing the left arrow key. */
+    public static final String KEY_ARROW_LEFT = UIProperties.getString("navigationtoolbar.key_arrow_left");
+    /** Label describing the right arrow key. */
+    public static final String KEY_ARROW_RIGHT = UIProperties.getString("navigationtoolbar.key_arrow_right");
     /** Label describing the space key. */
     public static final String KEY_SPACE = UIProperties.getString("navigationtoolbar.key_space");
     /** Label describing the enter key. */
@@ -69,6 +73,12 @@ public final class NavigationLabels {
     public static final String ACTION_HIDDEN_FILES = Messages.getString("navigationtoolbar.action_hidden_files");
     /** Action label for creating a new folder. */
     public static final String ACTION_NEW_FOLDER = Messages.getString("navigationtoolbar.action_new_folder");
+    /** Action label for moving to the previous wizard step. */
+    public static final String ACTION_BACK = Messages.getString("navigationtoolbar.action_back");
+    /** Action label for moving to the next wizard step. */
+    public static final String ACTION_NEXT = Messages.getString("navigationtoolbar.action_next");
+    /** Action label for finishing a wizard. */
+    public static final String ACTION_FINISH = Messages.getString("navigationtoolbar.action_finish");
 
 
     private NavigationLabels() {

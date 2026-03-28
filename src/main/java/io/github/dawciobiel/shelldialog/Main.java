@@ -20,6 +20,7 @@ import io.github.dawciobiel.shelldialog.examples.ProgressExample;
 import io.github.dawciobiel.shelldialog.examples.SingleChoiceExample;
 import io.github.dawciobiel.shelldialog.examples.SpinnerExample;
 import io.github.dawciobiel.shelldialog.examples.TextLineExample;
+import io.github.dawciobiel.shelldialog.examples.WizardExample;
 import io.github.dawciobiel.shelldialog.examples.YesNoExample;
 
 import java.util.List;
@@ -72,6 +73,7 @@ public class Main {
                 case 8 -> SpinnerExample.main(emptyArgs);
                 case 9 -> MessageExample.main(emptyArgs);
                 case 10 -> FormExample.main(emptyArgs);
+                case 11 -> WizardExample.main(emptyArgs);
             }
         }
     }
@@ -105,6 +107,7 @@ public class Main {
                 new SimpleDialogOption(8, "Spinner Dialog (Indeterminate)"),
                 new SimpleDialogOption(9, "Message Dialog (Info/Alert)"),
                 new SimpleDialogOption(10, "Form Dialog"),
+                new SimpleDialogOption(11, "Wizard Dialog"),
                 new SimpleDialogOption(0, "Exit")
         );
 
@@ -162,11 +165,12 @@ public class Main {
             case "spinner" -> SpinnerExample.main(args);
             case "message" -> MessageExample.main(args);
             case "form" -> FormExample.main(args);
+            case "wizard" -> WizardExample.main(args);
 
             default -> {
                 System.out.println("Unknown dialog example: [" + arg + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, spinner, message, form, version");
+                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, spinner, message, form, wizard, version");
             }
         }
     }
