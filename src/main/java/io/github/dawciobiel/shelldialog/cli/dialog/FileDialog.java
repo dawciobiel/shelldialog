@@ -72,6 +72,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String PREVIEW_PATH_LABEL = Messages.getString("dialog.file.preview_path");
     private static final String PREVIEW_SIZE_LABEL = Messages.getString("dialog.file.preview_size");
     private static final String PREVIEW_MODIFIED_LABEL = Messages.getString("dialog.file.preview_modified");
+    private static final String PREVIEW_PERMISSIONS_LABEL = Messages.getString("dialog.file.preview_permissions");
     private static final String PREVIEW_FILE_LABEL = Messages.getString("dialog.file.preview_file");
     private static final String PREVIEW_DIRECTORY_LABEL = Messages.getString("dialog.file.preview_directory");
     private static final String PREVIEW_PARENT_LABEL = Messages.getString("dialog.file.preview_parent");
@@ -480,13 +481,15 @@ public class FileDialog extends AbstractListDialog<Path> {
         String typeLabel = previewType(selectedOption);
         String sizeLabel = previewSize(selectedOption);
         String modifiedLabel = previewModified(selectedOption);
+        String permissionsLabel = previewPermissions(selectedOption);
 
         return List.of(
                 PREVIEW_SELECTED_LABEL + ": " + selectedOption.getLabel(),
                 PREVIEW_TYPE_LABEL + ": " + typeLabel,
                 PREVIEW_PATH_LABEL + ": " + selectedPath,
                 PREVIEW_SIZE_LABEL + ": " + sizeLabel,
-                PREVIEW_MODIFIED_LABEL + ": " + modifiedLabel
+                PREVIEW_MODIFIED_LABEL + ": " + modifiedLabel,
+                PREVIEW_PERMISSIONS_LABEL + ": " + permissionsLabel
         );
     }
 
@@ -539,6 +542,15 @@ public class FileDialog extends AbstractListDialog<Path> {
         } catch (IOException e) {
             return PREVIEW_UNKNOWN_LABEL;
         }
+    }
+
+    private String previewPermissions(FileOption option) {
+        Path path = option.getPath();
+        StringBuilder permissions = new StringBuilder(3);
+        permissions.append(Files.isReadable(path) ? 'r' : '-');
+        permissions.append(Files.isWritable(path) ? 'w' : '-');
+        permissions.append(Files.isExecutable(path) ? 'x' : '-');
+        return permissions.toString();
     }
 
     /**

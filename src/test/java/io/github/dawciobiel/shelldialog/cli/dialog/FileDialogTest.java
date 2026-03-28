@@ -179,12 +179,13 @@ class FileDialogTest {
 
         List<String> previewLines = invokePreviewLines(dialog, 2);
 
-        assertEquals(5, previewLines.size());
+        assertEquals(6, previewLines.size());
         assertTrue(previewLines.get(0).startsWith("Selected: "));
         assertTrue(previewLines.get(1).contains("Type: File"));
         assertTrue(previewLines.get(2).contains("Path: "));
         assertTrue(previewLines.get(3).contains("Size: "));
         assertTrue(previewLines.get(4).contains("Modified: "));
+        assertTrue(previewLines.get(5).contains("Permissions: "));
     }
 
     @Test
