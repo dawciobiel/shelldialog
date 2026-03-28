@@ -452,7 +452,7 @@ If the current directory cannot be read, `FileDialog` displays an inline error m
 
 When `F7` is pressed, `FileDialog` opens an inline prompt for a new directory name. Confirm with `Enter` to create the folder in the currently opened path, or cancel with `Escape`.
 
-When metadata preview is enabled, `FileDialog` also renders a small panel for the currently focused entry, including its label, type, path, and human-readable file size when available.
+When metadata preview is enabled, `FileDialog` also renders a small panel for the currently focused entry, including its label, type, path, human-readable file size, and last modified timestamp when available.
 
 When extension-based filtering is configured, `FileDialog` also shows the active filter label below the current path.
 
