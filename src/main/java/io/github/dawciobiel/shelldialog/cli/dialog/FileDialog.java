@@ -7,7 +7,9 @@ import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.FileOption;
 import io.github.dawciobiel.shelldialog.cli.i18n.Messages;
+import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.Arrow;
+import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
@@ -35,6 +37,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
     private static final String CURRENT_DIRECTORY_LABEL = Messages.getString("dialog.file.current_directory");
+    private static final String READ_ERROR_LABEL = Messages.getString("dialog.file.read_error");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
@@ -43,12 +46,14 @@ public class FileDialog extends AbstractListDialog<Path> {
     private final NavigationArea navigationArea;
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
+    private final TextStyle errorMessageStyle;
 
     private Path currentDirectory;
     private final boolean directoriesOnly;
     private final Predicate<Path> fileFilter;
     private final Map<KeyType, Path> shortcuts;
     private boolean showHiddenFiles;
+    private String errorMessage;
 
     private FileDialog(Builder builder) {
         super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
@@ -59,6 +64,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.navigationArea = builder.navigationArea;
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
+        this.errorMessageStyle = builder.errorMessageStyle;
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
         this.shortcuts = Map.copyOf(builder.shortcuts);
@@ -107,9 +113,10 @@ public class FileDialog extends AbstractListDialog<Path> {
                     newOptions.add(new FileOption(entry, false));
                 }
             }
+            errorMessage = null;
         } catch (IOException e) {
-            // Log error and clear options to avoid showing stale data
             newOptions.clear();
+            errorMessage = READ_ERROR_LABEL + ": " + currentDirectory;
         }
 
         this.allOptions.clear();
@@ -216,6 +223,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         String positionIndicator = hasViewport ? positionIndicatorLabel(selectedIndex) : "";
         String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
         String pathString = currentDirectory.toString();
+        boolean hasError = errorMessage != null;
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -229,11 +237,15 @@ public class FileDialog extends AbstractListDialog<Path> {
                 Math.max(Math.max(Math.max(titleArea.getWidth(), optionsWidth), pathString.length()), searchLine.length()),
                 navigationArea.getWidth()
         );
+        if (hasError) {
+            contentWidth = Math.max(contentWidth, errorMessage.length());
+        }
         
         int contentHeight = titleArea.getHeight()
                 + 1 // Path line
                 + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
                 + 1 // Spacer
+                + (hasError ? 1 : 0)
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
                 + (hasItemsBelow ? 1 : 0)
@@ -257,6 +269,15 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
         
         row++; // Spacer
+
+        if (hasError) {
+            new ContentArea.Builder()
+                    .withContent(errorMessage)
+                    .withForegroundColor(errorMessageStyle.foreground())
+                    .withBackgroundColor(errorMessageStyle.background())
+                    .build()
+                    .render(tg, column, row++);
+        }
 
         if (hasItemsAbove) {
             menuItemArea.withContent(MORE_ABOVE_LABEL).render(tg, column, row++);
@@ -323,6 +344,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private final ContentArea selectedMenuItemArea;
         private final NavigationArea navigationArea;
         private int visibleItemCount = 0;
+        private TextStyle errorMessageStyle = TextStyle.of(com.googlecode.lanterna.TextColor.ANSI.RED_BRIGHT, com.googlecode.lanterna.TextColor.ANSI.DEFAULT);
         private Path initialDirectory;
         private boolean directoriesOnly = false;
         private boolean showHiddenFiles = false;
@@ -349,6 +371,13 @@ public class FileDialog extends AbstractListDialog<Path> {
             return this;
         }
 
+        @Override
+        public Builder withTheme(DialogTheme theme) {
+            super.withTheme(theme);
+            this.errorMessageStyle = theme.validationMessageStyle();
+            return this;
+        }
+
         /**
          * Limits the number of visible items in the file list.
          *
@@ -360,6 +389,17 @@ public class FileDialog extends AbstractListDialog<Path> {
                 throw new IllegalArgumentException("visibleItemCount must be positive");
             }
             this.visibleItemCount = visibleItemCount;
+            return this;
+        }
+
+        /**
+         * Sets the style used to render directory read error messages.
+         *
+         * @param style text style for error messages
+         * @return this builder
+         */
+        public Builder withErrorMessageStyle(TextStyle style) {
+            this.errorMessageStyle = Objects.requireNonNull(style);
             return this;
         }
 

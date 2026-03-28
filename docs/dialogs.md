@@ -334,6 +334,8 @@ To build `FileDialog`, you need:
 - In `directoriesOnly(true)` mode, the dialog also shows a `./ (current directory)` option that returns the currently opened directory.
 - `Escape`: clears search filter (if not empty) or cancels dialog
 
+If the current directory cannot be read, `FileDialog` displays an inline error message and keeps the dialog open so the user can retry (`F5`) or switch to another directory via navigation or shortcuts.
+
 ### Sorting behavior
 
 `FileDialog` automatically sorts content:
