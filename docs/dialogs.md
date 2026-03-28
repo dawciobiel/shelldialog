@@ -260,6 +260,12 @@ Recommended next extensions:
 
 - optional step adapters built on top of existing dialog primitives
 
+Architecture note:
+
+- `WizardDialog` should remain a lightweight standalone step system
+- future adapters, if added, should stay thin and explicitly scoped
+- see `docs/wizard-dialog-adapters.md` for the decision note
+
 ### Shared context
 
 Each step can commit values into `WizardContext`, and the final result is produced via `withResultMapper(...)`.
