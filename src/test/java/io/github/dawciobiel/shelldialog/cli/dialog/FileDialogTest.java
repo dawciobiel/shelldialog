@@ -187,6 +187,18 @@ class FileDialogTest {
     }
 
     @Test
+    void shouldFormatPreviewSizeAsHumanReadableValue() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .build();
+
+        assertEquals("999 B", invokeHumanReadableSize(dialog, 999));
+        assertEquals("1.0 KB", invokeHumanReadableSize(dialog, 1024));
+        assertEquals("1.5 KB", invokeHumanReadableSize(dialog, 1536));
+        assertEquals("1.0 MB", invokeHumanReadableSize(dialog, 1024 * 1024));
+    }
+
+    @Test
     void shouldStoreErrorMessageWhenDirectoryCannotBeRead() throws Exception {
         Path missingDirectory = tempDir.resolve("missing");
 
@@ -391,5 +403,11 @@ class FileDialogTest {
         Method method = FileDialog.class.getDeclaredMethod("previewLines", int.class);
         method.setAccessible(true);
         return (List<String>) method.invoke(dialog, selectedIndex);
+    }
+
+    private String invokeHumanReadableSize(FileDialog dialog, long sizeInBytes) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("humanReadableSize", long.class);
+        method.setAccessible(true);
+        return (String) method.invoke(dialog, sizeInBytes);
     }
 }

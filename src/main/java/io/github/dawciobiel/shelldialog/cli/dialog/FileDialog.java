@@ -501,10 +501,25 @@ public class FileDialog extends AbstractListDialog<Path> {
             return PREVIEW_UNKNOWN_LABEL;
         }
         try {
-            return Files.size(option.getPath()) + " B";
+            return humanReadableSize(Files.size(option.getPath()));
         } catch (IOException e) {
             return PREVIEW_UNKNOWN_LABEL;
         }
+    }
+
+    private String humanReadableSize(long sizeInBytes) {
+        if (sizeInBytes < 1024) {
+            return sizeInBytes + " B";
+        }
+
+        String[] units = {"KB", "MB", "GB", "TB"};
+        double size = sizeInBytes;
+        int unitIndex = -1;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+        return "%.1f %s".formatted(size, units[unitIndex]);
     }
 
     /**
