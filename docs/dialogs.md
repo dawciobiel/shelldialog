@@ -251,6 +251,8 @@ Built-in steps can also expose an optional single-line description rendered belo
 
 `WizardDialog` also renders an automatic progress bar below the header so the user can track the current step at a glance.
 
+`WizardSummaryStep` can be built either from raw `List<String>` lines or from typed `SummaryItem` entries for aligned `label: value` review rows.
+
 ### v1 scope notes
 
 `WizardDialog` in v1 is intentionally a lightweight step orchestrator, not a full workflow engine.
@@ -307,10 +309,10 @@ WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
                         .withDescription("Choose the output file used to persist the wizard result.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.of("Summary", "Review all values before finishing.", context -> List.of(
-                        "User: " + context.getString("username"),
-                        "Target: " + context.getPath("targetDirectory"),
-                        "Config: " + context.getPath("configFile")
+                WizardSummaryStep.keyValues("Summary", "Review all values before finishing.", context -> List.of(
+                        WizardSummaryStep.SummaryItem.of("User", context.getString("username")),
+                        WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
+                        WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
                 ))
         )
 )
