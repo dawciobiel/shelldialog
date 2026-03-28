@@ -35,6 +35,8 @@ public final class NavigationLabels {
     public static final String KEY_ESCAPE = UIProperties.getString("navigationtoolbar.key_escape");
     /** Label describing the tab key. */
     public static final String KEY_TAB = UIProperties.getString("navigationtoolbar.key_tab");
+    /** Label describing the F2 key. */
+    public static final String KEY_F2 = UIProperties.getString("navigationtoolbar.key_f2");
     /** Label describing the F5 key. */
     public static final String KEY_F5 = UIProperties.getString("navigationtoolbar.key_f5");
     /** Label describing the Home key. */
@@ -61,6 +63,8 @@ public final class NavigationLabels {
     public static final String ACTION_OK = Messages.getString("navigationtoolbar.action_ok");
     /** Action label for moving to the next form field. */
     public static final String ACTION_NEXT_FIELD = Messages.getString("navigationtoolbar.action_next_field");
+    /** Action label for toggling hidden files visibility. */
+    public static final String ACTION_HIDDEN_FILES = Messages.getString("navigationtoolbar.action_hidden_files");
 
 
     private NavigationLabels() {

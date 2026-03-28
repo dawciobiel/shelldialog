@@ -46,6 +46,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private final boolean directoriesOnly;
     private final Predicate<Path> fileFilter;
     private final Map<KeyType, Path> shortcuts;
+    private boolean showHiddenFiles;
 
     private FileDialog(Builder builder) {
         super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
@@ -59,6 +60,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
         this.shortcuts = Map.copyOf(builder.shortcuts);
+        this.showHiddenFiles = builder.showHiddenFiles;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
 
         refreshDirectoryContent();
@@ -89,6 +91,11 @@ public class FileDialog extends AbstractListDialog<Path> {
 
             for (Path entry : entries) {
                 boolean isDirectory = Files.isDirectory(entry);
+                boolean hidden = isHiddenEntry(entry);
+                if (hidden && !showHiddenFiles) {
+                    continue;
+                }
+
                 if (isDirectory) {
                     newOptions.add(new FileOption(entry, true));
                 } else if (!directoriesOnly && fileFilter.test(entry)) {
@@ -132,6 +139,12 @@ public class FileDialog extends AbstractListDialog<Path> {
                 case ArrowUp -> selectedIndex = previousEnabledIndex(selectedIndex);
                 case ArrowDown -> selectedIndex = nextEnabledIndex(selectedIndex);
                 case F5 -> {
+                    refreshDirectoryContent();
+                    selectedIndex = 0;
+                }
+                case F2 -> {
+                    showHiddenFiles = !showHiddenFiles;
+                    clearFilter();
                     refreshDirectoryContent();
                     selectedIndex = 0;
                 }
@@ -286,6 +299,14 @@ public class FileDialog extends AbstractListDialog<Path> {
         return width;
     }
 
+    private boolean isHiddenEntry(Path entry) {
+        try {
+            return Files.isHidden(entry) || entry.getFileName().toString().startsWith(".");
+        } catch (IOException e) {
+            return entry.getFileName().toString().startsWith(".");
+        }
+    }
+
     /**
      * Builder for {@link FileDialog} instances.
      */
@@ -297,6 +318,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private int visibleItemCount = 0;
         private Path initialDirectory;
         private boolean directoriesOnly = false;
+        private boolean showHiddenFiles = false;
         private Predicate<Path> filter = path -> true;
         private Map<KeyType, Path> shortcuts = Collections.emptyMap();
 
@@ -353,6 +375,17 @@ public class FileDialog extends AbstractListDialog<Path> {
          */
         public Builder directoriesOnly(boolean directoriesOnly) {
             this.directoriesOnly = directoriesOnly;
+            return this;
+        }
+
+        /**
+         * Controls whether hidden files and directories are visible.
+         *
+         * @param showHiddenFiles true to include hidden entries
+         * @return this builder
+         */
+        public Builder withShowHiddenFiles(boolean showHiddenFiles) {
+            this.showHiddenFiles = showHiddenFiles;
             return this;
         }
 
