@@ -18,6 +18,7 @@ import java.util.Optional;
 public final class WizardTextStep implements WizardStep {
 
     private final String title;
+    private final String description;
     private final String prompt;
     private final String contextKey;
     private final InputValidator validator;
@@ -26,6 +27,7 @@ public final class WizardTextStep implements WizardStep {
 
     private WizardTextStep(Builder builder) {
         this.title = builder.title;
+        this.description = builder.description;
         this.prompt = builder.prompt;
         this.contextKey = builder.contextKey;
         this.validator = builder.validator;
@@ -48,6 +50,11 @@ public final class WizardTextStep implements WizardStep {
     @Override
     public String title() {
         return title;
+    }
+
+    @Override
+    public Optional<String> description() {
+        return Optional.ofNullable(description);
     }
 
     @Override
@@ -107,6 +114,7 @@ public final class WizardTextStep implements WizardStep {
         private final String title;
         private final String prompt;
         private final String contextKey;
+        private String description;
         private InputValidator validator = value -> Optional.empty();
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
@@ -125,6 +133,18 @@ public final class WizardTextStep implements WizardStep {
          */
         public Builder withValidator(InputValidator validator) {
             this.validator = Objects.requireNonNull(validator);
+            return this;
+        }
+
+        /**
+         * Sets an optional single-line help text shown below the wizard header.
+         *
+         * @param description help text
+         * @return this builder
+         */
+        public Builder withDescription(String description) {
+            String normalized = Objects.requireNonNull(description).trim();
+            this.description = normalized.isEmpty() ? null : normalized;
             return this;
         }
 

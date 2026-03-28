@@ -69,6 +69,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `FormDialog` supports typed result mapping, per-field validation, and text/password fields in one dialog.
     - `WizardDialog` supports multi-step flows with shared context, validation, and typed final result mapping.
     - `WizardDialog` ships with built-in text, password, directory, file, and summary steps in `v1`.
+    - `WizardDialog` steps can expose optional per-step help text below the header.
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
     - `FileDialog` supports directory navigation, filtering (by predicate or extension), smart sorting (folders first), and quick navigation shortcuts (F5, Home, End).

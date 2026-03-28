@@ -246,6 +246,8 @@ To build `WizardDialog`, you need:
 - `WizardFileStep` for file path input with optional existence checks
 - `WizardSummaryStep` for read-only review screens
 
+Built-in steps can also expose an optional single-line description rendered below the wizard header.
+
 ### v1 scope notes
 
 `WizardDialog` in v1 is intentionally a lightweight step orchestrator, not a full workflow engine.
@@ -286,15 +288,18 @@ WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
         "Setup Wizard",
         List.of(
                 WizardTextStep.builder("Account", "Enter username", "username")
+                        .withDescription("This user name will appear in the generated configuration.")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username required"))
                         .build(),
                 WizardDirectoryStep.builder("Location", "Enter target directory", "targetDirectory")
+                        .withDescription("Choose where generated files should be written.")
                         .withInitialValue(Path.of("./output"))
                         .build(),
                 WizardFileStep.builder("Config", "Enter config file", "configFile")
+                        .withDescription("Choose the output file used to persist the wizard result.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.of("Summary", context -> List.of(
+                WizardSummaryStep.of("Summary", "Review all values before finishing.", context -> List.of(
                         "User: " + context.getString("username"),
                         "Target: " + context.getPath("targetDirectory"),
                         "Config: " + context.getPath("configFile")

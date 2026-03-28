@@ -22,6 +22,15 @@ public interface WizardStep {
     String title();
 
     /**
+     * Returns an optional single-line description rendered below the wizard header.
+     *
+     * @return optional step description
+     */
+    default Optional<String> description() {
+        return Optional.empty();
+    }
+
+    /**
      * Returns the width required to render this step.
      *
      * @param context current wizard context

@@ -24,6 +24,7 @@ public final class WizardDirectoryStep implements WizardStep {
     private static final String NOT_DIRECTORY_LABEL = Messages.getString("dialog.wizard.directory_not_directory");
 
     private final String title;
+    private final String description;
     private final String prompt;
     private final String contextKey;
     private final Function<Path, Optional<String>> validator;
@@ -33,6 +34,7 @@ public final class WizardDirectoryStep implements WizardStep {
 
     private WizardDirectoryStep(Builder builder) {
         this.title = builder.title;
+        this.description = builder.description;
         this.prompt = builder.prompt;
         this.contextKey = builder.contextKey;
         this.validator = builder.validator;
@@ -56,6 +58,11 @@ public final class WizardDirectoryStep implements WizardStep {
     @Override
     public String title() {
         return title;
+    }
+
+    @Override
+    public Optional<String> description() {
+        return Optional.ofNullable(description);
     }
 
     @Override
@@ -125,6 +132,7 @@ public final class WizardDirectoryStep implements WizardStep {
         private final String title;
         private final String prompt;
         private final String contextKey;
+        private String description;
         private Function<Path, Optional<String>> validator = value -> Optional.empty();
         private boolean mustExist;
         private int maxLength = Integer.MAX_VALUE;
@@ -144,6 +152,18 @@ public final class WizardDirectoryStep implements WizardStep {
          */
         public Builder mustExist(boolean mustExist) {
             this.mustExist = mustExist;
+            return this;
+        }
+
+        /**
+         * Sets an optional single-line help text shown below the wizard header.
+         *
+         * @param description help text
+         * @return this builder
+         */
+        public Builder withDescription(String description) {
+            String normalized = Objects.requireNonNull(description).trim();
+            this.description = normalized.isEmpty() ? null : normalized;
             return this;
         }
 
