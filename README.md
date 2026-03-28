@@ -1,6 +1,6 @@
 # ShellDialog
 
-**Current version: 3.1.0**
+**Current version: 3.2.0**
 
 ShellDialog is a simple Java library for creating interactive command-line menus and dialogs. It provides a clean and easy-to-use API for displaying menus, handling user input, and creating visually appealing text-based user interfaces using the Lanterna library.
 
@@ -117,12 +117,12 @@ To build the executable fat JAR used for running examples locally:
 
 The library is available from Maven Central under:
 
-- `io.github.dawciobiel:shelldialog:3.1.0`
+- `io.github.dawciobiel:shelldialog:3.2.0`
 
 Gradle:
 
 ```gradle
-implementation("io.github.dawciobiel:shelldialog:3.1.0")
+implementation("io.github.dawciobiel:shelldialog:3.2.0")
 ```
 
 Maven:
@@ -131,14 +131,14 @@ Maven:
 <dependency>
     <groupId>io.github.dawciobiel</groupId>
     <artifactId>shelldialog</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 
 Artifact pages:
 
 - `https://central.sonatype.com/artifact/io.github.dawciobiel/shelldialog`
-- `https://repo1.maven.org/maven2/io/github/dawciobiel/shelldialog/3.1.0/`
+- `https://repo1.maven.org/maven2/io/github/dawciobiel/shelldialog/3.2.0/`
 
 ## Launching
 
@@ -146,46 +146,46 @@ You can run the examples using the executable `-all.jar`. If no arguments are pr
 
 ```bash
 # Launch interactive menu
-java -jar build/libs/shelldialog-3.1.0-all.jar
+java -jar build/libs/shelldialog-3.2.0-all.jar
 
 # Launch Spinner Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar spinner
+java -jar build/libs/shelldialog-3.2.0-all.jar spinner
 
 # Launch Progress Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar progress
+java -jar build/libs/shelldialog-3.2.0-all.jar progress
 
 # Launch File Selection Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar file
+java -jar build/libs/shelldialog-3.2.0-all.jar file
 
 # Launch Selection Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar singlechoice
+java -jar build/libs/shelldialog-3.2.0-all.jar singlechoice
 
 # Launch Multi Choice Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar multichoice
+java -jar build/libs/shelldialog-3.2.0-all.jar multichoice
 
 # Launch Text Line Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar textline
+java -jar build/libs/shelldialog-3.2.0-all.jar textline
 
 # Launch Password Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar password
+java -jar build/libs/shelldialog-3.2.0-all.jar password
 
 # Launch Yes/No Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar yesno
+java -jar build/libs/shelldialog-3.2.0-all.jar yesno
 
 # Launch Form Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar form
+java -jar build/libs/shelldialog-3.2.0-all.jar form
 
 # Launch Wizard Dialog example
-java -jar build/libs/shelldialog-3.1.0-all.jar wizard
+java -jar build/libs/shelldialog-3.2.0-all.jar wizard
 ```
 
 ## Version information
 
 The library version can be checked in three ways:
 
-- from the JAR file name, for example `shelldialog-3.1.0.jar` or `shelldialog-3.1.0-all.jar`
+- from the JAR file name, for example `shelldialog-3.2.0.jar` or `shelldialog-3.2.0-all.jar`
 - from `META-INF/MANIFEST.MF` inside the JAR
-- from the command line with `java -jar build/libs/shelldialog-3.1.0-all.jar --version`
+- from the command line with `java -jar build/libs/shelldialog-3.2.0-all.jar --version`
 
 ## Contributing
 
