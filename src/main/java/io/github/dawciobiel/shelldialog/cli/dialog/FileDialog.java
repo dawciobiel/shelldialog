@@ -21,6 +21,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -68,6 +71,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String PREVIEW_TYPE_LABEL = Messages.getString("dialog.file.preview_type");
     private static final String PREVIEW_PATH_LABEL = Messages.getString("dialog.file.preview_path");
     private static final String PREVIEW_SIZE_LABEL = Messages.getString("dialog.file.preview_size");
+    private static final String PREVIEW_MODIFIED_LABEL = Messages.getString("dialog.file.preview_modified");
     private static final String PREVIEW_FILE_LABEL = Messages.getString("dialog.file.preview_file");
     private static final String PREVIEW_DIRECTORY_LABEL = Messages.getString("dialog.file.preview_directory");
     private static final String PREVIEW_PARENT_LABEL = Messages.getString("dialog.file.preview_parent");
@@ -75,6 +79,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String PREVIEW_UNKNOWN_LABEL = Messages.getString("dialog.file.preview_unknown");
     private static final String FILTER_LABEL = Messages.getString("dialog.file.filter");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
+    private static final DateTimeFormatter PREVIEW_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final TitleArea titleArea;
     private final ContentArea menuItemArea;
@@ -474,12 +479,14 @@ public class FileDialog extends AbstractListDialog<Path> {
         Path selectedPath = selectedOption.getPath();
         String typeLabel = previewType(selectedOption);
         String sizeLabel = previewSize(selectedOption);
+        String modifiedLabel = previewModified(selectedOption);
 
         return List.of(
                 PREVIEW_SELECTED_LABEL + ": " + selectedOption.getLabel(),
                 PREVIEW_TYPE_LABEL + ": " + typeLabel,
                 PREVIEW_PATH_LABEL + ": " + selectedPath,
-                PREVIEW_SIZE_LABEL + ": " + sizeLabel
+                PREVIEW_SIZE_LABEL + ": " + sizeLabel,
+                PREVIEW_MODIFIED_LABEL + ": " + modifiedLabel
         );
     }
 
@@ -520,6 +527,18 @@ public class FileDialog extends AbstractListDialog<Path> {
             unitIndex++;
         }
         return "%.1f %s".formatted(size, units[unitIndex]);
+    }
+
+    private String previewModified(FileOption option) {
+        if (option.isParentLink() || option.isCurrentDirectoryLink()) {
+            return PREVIEW_UNKNOWN_LABEL;
+        }
+        try {
+            FileTime lastModifiedTime = Files.getLastModifiedTime(option.getPath());
+            return PREVIEW_TIME_FORMAT.format(lastModifiedTime.toInstant().atZone(ZoneId.systemDefault()));
+        } catch (IOException e) {
+            return PREVIEW_UNKNOWN_LABEL;
+        }
     }
 
     /**
