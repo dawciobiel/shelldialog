@@ -31,6 +31,9 @@ import java.util.Optional;
  */
 public class Main {
 
+    private static final String SUPPORTED_ARGUMENTS =
+            "singlechoice, multichoice, textline, password, yesno, file, progress, spinner, message, form, wizard, version";
+
     private Main() {
     }
 
@@ -151,9 +154,9 @@ public class Main {
     }
 
     private static void runFromArgs(String[] args) {
-        String arg = args[0];
+        String arg = normalizedArgument(args[0]);
 
-        switch (arg.toLowerCase()) {
+        switch (arg) {
             case "--version", "-v", "version" -> System.out.println(Version.get());
             case "multichoice" -> MultiChoiceExample.main(args);
             case "password" -> PasswordExample.main(args);
@@ -168,10 +171,23 @@ public class Main {
             case "wizard" -> WizardExample.main(args);
 
             default -> {
-                System.out.println("Unknown dialog example: [" + arg + "]");
+                System.out.println("Unknown dialog example: [" + args[0] + "]");
                 System.out.println("Possible dialog examples:");
-                System.out.println("singlechoice, multichoice, textline, password, yesno, file, progress, spinner, message, form, wizard, version");
+                System.out.println(SUPPORTED_ARGUMENTS);
             }
         }
+    }
+
+    static boolean isSupportedArgument(String arg) {
+        return switch (normalizedArgument(arg)) {
+            case "--version", "-v", "version",
+                    "multichoice", "password", "singlechoice", "textline", "yesno",
+                    "file", "progress", "spinner", "message", "form", "wizard" -> true;
+            default -> false;
+        };
+    }
+
+    private static String normalizedArgument(String arg) {
+        return arg.toLowerCase();
     }
 }
