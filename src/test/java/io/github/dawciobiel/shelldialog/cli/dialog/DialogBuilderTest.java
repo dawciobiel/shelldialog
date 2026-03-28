@@ -456,6 +456,17 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardPasswordStepBuilderShouldApplyMaskCharacter() throws Exception {
+        WizardPasswordStep step = WizardPasswordStep.builder("Security", "Enter password", "password")
+                .withMaskCharacter('#')
+                .withInitialValue("secret".toCharArray())
+                .build();
+
+        assertEquals('#', readField(step, "maskCharacter"));
+        assertEquals("secret", readField(step, "buffer").toString());
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

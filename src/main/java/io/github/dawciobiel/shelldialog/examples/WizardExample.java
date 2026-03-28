@@ -3,6 +3,7 @@ package io.github.dawciobiel.shelldialog.examples;
 import com.googlecode.lanterna.TextColor;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardContext;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDialog;
+import io.github.dawciobiel.shelldialog.cli.dialog.WizardPasswordStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardSummaryStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardTextStep;
@@ -23,7 +24,7 @@ public final class WizardExample {
     private WizardExample() {
     }
 
-    private record SetupData(String username, String targetDirectory) {
+    private record SetupData(String username, char[] password, String targetDirectory) {
     }
 
     /**
@@ -45,6 +46,9 @@ public final class WizardExample {
                 WizardTextStep.builder("Account", "Enter a username", "username")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username is required."))
                         .build(),
+                WizardPasswordStep.builder("Security", "Enter a password", "password")
+                        .withValidator(InputValidator.BuiltIn.nonEmpty("Password is required.").asPasswordValidator())
+                        .build(),
                 WizardTextStep.builder("Location", "Enter a target directory", "targetDirectory")
                         .withInitialValue("./output")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Target directory is required."))
@@ -56,6 +60,7 @@ public final class WizardExample {
                 .withTheme(theme)
                 .withResultMapper(context -> new SetupData(
                         context.getString("username"),
+                        context.getPassword("password"),
                         context.getString("targetDirectory")
                 ))
                 .build();
@@ -68,6 +73,7 @@ public final class WizardExample {
 
         SetupData data = result.get();
         out.println("Username: " + data.username());
+        out.println("Password length: " + data.password().length);
         out.println("Target directory: " + data.targetDirectory());
     }
 
@@ -75,6 +81,7 @@ public final class WizardExample {
         return List.of(
                 "Review your setup:",
                 "User: " + context.getString("username"),
+                "Password length: " + context.getPassword("password").length,
                 "Target: " + context.getString("targetDirectory")
         );
     }

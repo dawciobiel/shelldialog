@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `MessageDialog` for simple informative alerts and notifications.
 - `FormDialog<T>` for collecting multiple text/password inputs on a single screen with typed result mapping via `withResultMapper(...)`.
-- `WizardDialog<T>` for multi-step flows with shared context, built-in text/summary steps, and typed final result mapping.
+- `WizardDialog<T>` for multi-step flows with shared context, built-in text/password/summary steps, and typed final result mapping.
 - **Input Validation System:** New `InputValidator` and `PasswordValidator` interfaces with built-in rules (`nonEmpty`, `email`, `isInteger`, `regex`, `maxLength`).
 - `FileDialog` enhancements:
     - **Smart Sorting:** Directories are now listed first, followed by files.
