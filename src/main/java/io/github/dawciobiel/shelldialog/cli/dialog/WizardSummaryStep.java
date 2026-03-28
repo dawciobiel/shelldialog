@@ -141,7 +141,23 @@ public final class WizardSummaryStep implements WizardStep {
      * @return a new summary step
      */
     public static WizardSummaryStep sections(String title, Function<WizardContext, List<SummarySection>> sectionsSupplier) {
-        return sections(title, null, sectionsSupplier);
+        return sections(title, (String) null, sectionsSupplier);
+    }
+
+    /**
+     * Creates a summary step backed by grouped summary sections with an optional intro line above them.
+     *
+     * @param title step title
+     * @param introSupplier function producing the intro line from the current context
+     * @param sectionsSupplier function producing summary sections from the current context
+     * @return a new summary step
+     */
+    public static WizardSummaryStep sections(
+            String title,
+            Function<WizardContext, String> introSupplier,
+            Function<WizardContext, List<SummarySection>> sectionsSupplier
+    ) {
+        return sections(title, null, introSupplier, sectionsSupplier);
     }
 
     /**
@@ -157,7 +173,32 @@ public final class WizardSummaryStep implements WizardStep {
             String description,
             Function<WizardContext, List<SummarySection>> sectionsSupplier
     ) {
-        return of(title, description, context -> formatSummarySections(Objects.requireNonNull(sectionsSupplier).apply(context)));
+        return sections(title, description, context -> null, sectionsSupplier);
+    }
+
+    /**
+     * Creates a summary step with description, intro line, and grouped summary sections.
+     *
+     * @param title step title
+     * @param description optional help text shown below the header
+     * @param introSupplier function producing the intro line from the current context
+     * @param sectionsSupplier function producing summary sections from the current context
+     * @return a new summary step
+     */
+    public static WizardSummaryStep sections(
+            String title,
+            String description,
+            Function<WizardContext, String> introSupplier,
+            Function<WizardContext, List<SummarySection>> sectionsSupplier
+    ) {
+        return of(
+                title,
+                description,
+                context -> formatSummarySections(
+                        Objects.requireNonNull(introSupplier).apply(context),
+                        Objects.requireNonNull(sectionsSupplier).apply(context)
+                )
+        );
     }
 
     @Override
@@ -229,19 +270,38 @@ public final class WizardSummaryStep implements WizardStep {
     }
 
     static List<String> formatSummarySections(List<SummarySection> sections) {
+        return formatSummarySections(null, sections);
+    }
+
+    static List<String> formatSummarySections(String introLine, List<SummarySection> sections) {
         if (sections.isEmpty()) {
             return List.of();
         }
 
         List<String> lines = new ArrayList<>();
+        String normalizedIntro = normalizeOptionalLine(introLine);
+        if (normalizedIntro != null) {
+            lines.add(normalizedIntro);
+            lines.add("");
+        }
+        boolean renderedSection = false;
         for (SummarySection section : sections) {
-            if (!lines.isEmpty()) {
+            if (renderedSection) {
                 lines.add("");
             }
             lines.add(section.title());
             lines.addAll(formatSummaryItems(section.items()));
+            renderedSection = true;
         }
         return lines;
+    }
+
+    private static String normalizeOptionalLine(String line) {
+        if (line == null) {
+            return null;
+        }
+        String normalized = line.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 
     private static String normalizedValue(String value) {

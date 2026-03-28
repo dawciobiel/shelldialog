@@ -86,7 +86,12 @@ public final class WizardExample {
                         .withDescription("Set the path to the configuration file written at the end of the wizard.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.sections("Summary", "Review all collected values before finishing the setup.", WizardExample::summarySections)
+                WizardSummaryStep.sections(
+                        "Summary",
+                        "Review all collected values before finishing the setup.",
+                        WizardExample::summaryIntro,
+                        WizardExample::summarySections
+                )
         );
 
         return new WizardDialog.Builder<SetupData>("Setup Wizard", steps)
@@ -98,6 +103,10 @@ public final class WizardExample {
                         context.getPath("configFile")
                 ))
                 .build();
+    }
+
+    private static String summaryIntro(WizardContext context) {
+        return "Please review the collected setup values before finishing.";
     }
 
     private static List<WizardSummaryStep.SummarySection> summarySections(WizardContext context) {

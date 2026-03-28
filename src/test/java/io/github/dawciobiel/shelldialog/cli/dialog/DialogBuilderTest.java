@@ -552,6 +552,31 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardSummaryStepShouldFormatIntroLineAboveSections() {
+        List<String> lines = WizardSummaryStep.formatSummarySections(
+                "Review the collected values below.",
+                List.of(
+                        WizardSummaryStep.SummarySection.of("Account", List.of(
+                                WizardSummaryStep.SummaryItem.of("User", "joe")
+                        )),
+                        WizardSummaryStep.SummarySection.of("Output", List.of(
+                                WizardSummaryStep.SummaryItem.of("Target", "/tmp/out")
+                        ))
+                )
+        );
+
+        assertEquals(List.of(
+                "Review the collected values below.",
+                "",
+                "Account",
+                "User: joe",
+                "",
+                "Output",
+                "Target: /tmp/out"
+        ), lines);
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
