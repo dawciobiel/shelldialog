@@ -62,7 +62,7 @@ public final class WizardExample {
                 .build();
 
         List<WizardStep> steps = List.of(
-                WizardInfoStep.of(
+                WizardInfoStep.bullets(
                         "Welcome",
                         "Read this short note before you start entering values.",
                         List.of(
