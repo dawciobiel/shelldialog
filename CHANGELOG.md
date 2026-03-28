@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `MessageDialog` for simple informative alerts and notifications.
+- `FormDialog<T>` for collecting multiple text/password inputs on a single screen with typed result mapping via `withResultMapper(...)`.
 - **Input Validation System:** New `InputValidator` and `PasswordValidator` interfaces with built-in rules (`nonEmpty`, `email`, `isInteger`, `regex`, `maxLength`).
 - `FileDialog` enhancements:
     - **Smart Sorting:** Directories are now listed first, followed by files.
@@ -21,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Modern Java:** Codebase updated to leverage Java 21 features (`SequencedCollection`, `Math.clamp`).
 - `FileExample` now demonstrates custom shortcuts and new navigation features.
-- `Main` interactive gallery now includes `MessageDialog`.
+- `Main` interactive gallery now includes `MessageDialog` and `FormDialog`.
 
 ## [3.1.0] - 2026-03-23
 
