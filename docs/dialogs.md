@@ -331,6 +331,7 @@ To build `FileDialog`, you need:
 - `End`: jump to initial working directory (CWD)
 - `[KeyType]`: any custom shortcut key configured in builder
 - `Enter`: enters directory or selects file
+- In `directoriesOnly(true)` mode, the dialog also shows a `./ (current directory)` option that returns the currently opened directory.
 - `Escape`: clears search filter (if not empty) or cancels dialog
 
 ### Sorting behavior

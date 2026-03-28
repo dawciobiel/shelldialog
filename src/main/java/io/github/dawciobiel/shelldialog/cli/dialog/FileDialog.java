@@ -6,6 +6,7 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.FileOption;
+import io.github.dawciobiel.shelldialog.cli.i18n.Messages;
 import io.github.dawciobiel.shelldialog.cli.style.Arrow;
 import io.github.dawciobiel.shelldialog.cli.ui.ContentArea;
 import io.github.dawciobiel.shelldialog.cli.ui.DialogFrame;
@@ -33,6 +34,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
+    private static final String CURRENT_DIRECTORY_LABEL = Messages.getString("dialog.file.current_directory");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
@@ -71,6 +73,9 @@ public class FileDialog extends AbstractListDialog<Path> {
 
         if (currentDirectory.getParent() != null) {
             newOptions.add(new FileOption(currentDirectory.getParent(), "..", true, true));
+        }
+        if (directoriesOnly) {
+            newOptions.add(new FileOption(currentDirectory, CURRENT_DIRECTORY_LABEL, true, false, true));
         }
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(currentDirectory)) {
@@ -173,7 +178,9 @@ public class FileDialog extends AbstractListDialog<Path> {
                 case Enter -> {
                     if (selectedIndex >= 0 && selectedIndex < options.size()) {
                         FileOption selectedOption = (FileOption) options.get(selectedIndex);
-                        if (selectedOption.isParentLink() || selectedOption.isDirectory()) {
+                        if (selectedOption.isCurrentDirectoryLink()) {
+                            return Optional.of(currentDirectory);
+                        } else if (selectedOption.isParentLink() || selectedOption.isDirectory()) {
                             currentDirectory = selectedOption.getPath();
                             clearFilter();
                             refreshDirectoryContent();
