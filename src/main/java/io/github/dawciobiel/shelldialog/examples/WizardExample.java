@@ -4,6 +4,7 @@ import com.googlecode.lanterna.TextColor;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardContext;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDirectoryStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDialog;
+import io.github.dawciobiel.shelldialog.cli.dialog.WizardFileStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardPasswordStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardSummaryStep;
@@ -26,7 +27,7 @@ public final class WizardExample {
     private WizardExample() {
     }
 
-    private record SetupData(String username, char[] password, Path targetDirectory) {
+    private record SetupData(String username, char[] password, Path targetDirectory, Path configFile) {
     }
 
     /**
@@ -54,6 +55,9 @@ public final class WizardExample {
                 WizardDirectoryStep.builder("Location", "Enter a target directory", "targetDirectory")
                         .withInitialValue(Path.of("./output"))
                         .build(),
+                WizardFileStep.builder("Config", "Enter a config file path", "configFile")
+                        .withInitialValue(Path.of("./output/config.properties"))
+                        .build(),
                 WizardSummaryStep.of("Summary", WizardExample::summaryLines)
         );
 
@@ -62,7 +66,8 @@ public final class WizardExample {
                 .withResultMapper(context -> new SetupData(
                         context.getString("username"),
                         context.getPassword("password"),
-                        context.getPath("targetDirectory")
+                        context.getPath("targetDirectory"),
+                        context.getPath("configFile")
                 ))
                 .build();
 
@@ -76,6 +81,7 @@ public final class WizardExample {
         out.println("Username: " + data.username());
         out.println("Password length: " + data.password().length);
         out.println("Target directory: " + data.targetDirectory());
+        out.println("Config file: " + data.configFile());
     }
 
     private static List<String> summaryLines(WizardContext context) {
@@ -83,7 +89,8 @@ public final class WizardExample {
                 "Review your setup:",
                 "User: " + context.getString("username"),
                 "Password length: " + context.getPassword("password").length,
-                "Target: " + context.getPath("targetDirectory")
+                "Target: " + context.getPath("targetDirectory"),
+                "Config: " + context.getPath("configFile")
         );
     }
 }

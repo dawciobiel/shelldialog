@@ -243,6 +243,7 @@ To build `WizardDialog`, you need:
 - `WizardTextStep` for single-line text input
 - `WizardPasswordStep` for masked single-line password input
 - `WizardDirectoryStep` for directory path input with optional existence checks
+- `WizardFileStep` for file path input with optional existence checks
 - `WizardSummaryStep` for read-only review screens
 
 ### v1 scope notes
@@ -251,13 +252,12 @@ To build `WizardDialog`, you need:
 
 Current limitations:
 
-- built-in steps are limited to text input, password input, directory input, and summary screens
+- built-in steps are limited to text input, password input, directory input, file input, and summary screens
 - there is no branching/conditional navigation between steps
 - there are no built-in adapters yet for `PasswordDialog`, `FormDialog`, or `FileDialog`
 
 Recommended next extensions:
 
-- file-selection oriented wizard step
 - optional step adapters built on top of existing dialog primitives
 
 ### Shared context
@@ -285,16 +285,21 @@ WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
                 WizardDirectoryStep.builder("Location", "Enter target directory", "targetDirectory")
                         .withInitialValue(Path.of("./output"))
                         .build(),
+                WizardFileStep.builder("Config", "Enter config file", "configFile")
+                        .withInitialValue(Path.of("./output/config.properties"))
+                        .build(),
                 WizardSummaryStep.of("Summary", context -> List.of(
                         "User: " + context.getString("username"),
-                        "Target: " + context.getPath("targetDirectory")
+                        "Target: " + context.getPath("targetDirectory"),
+                        "Config: " + context.getPath("configFile")
                 ))
         )
 )
         .withTheme(theme)
         .withResultMapper(context -> new SetupData(
                 context.getString("username"),
-                context.getPath("targetDirectory")
+                context.getPath("targetDirectory"),
+                context.getPath("configFile")
         ))
         .build();
 
