@@ -213,6 +213,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard F4-to-cycle-filter item.
+         *
+         * @return this builder
+         */
+        public Builder withF4CycleFilter() {
+            items.add(new NavigationItem(NavigationLabels.KEY_F4, NavigationLabels.ACTION_CYCLE_FILTER));
+            return this;
+        }
+
+        /**
          * Appends the standard F7-to-create-folder item.
          *
          * @return this builder
