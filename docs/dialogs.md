@@ -454,6 +454,8 @@ When `F7` is pressed, `FileDialog` opens an inline prompt for a new directory na
 
 When metadata preview is enabled, `FileDialog` also renders a small panel for the currently focused entry, including its label, type, path, and file size when available.
 
+When extension-based filtering is configured, `FileDialog` also shows the active filter label below the current path.
+
 ### Sorting behavior
 
 `FileDialog` automatically sorts content:
