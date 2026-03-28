@@ -326,6 +326,7 @@ To build `FileDialog`, you need:
 - `ArrowUp`: moves selection up
 - `ArrowDown`: moves selection down
 - `F5`: refresh current directory content
+- `F2`: toggle hidden files visibility
 - `Home`: jump to user home directory
 - `End`: jump to initial working directory (CWD)
 - `[KeyType]`: any custom shortcut key configured in builder
@@ -344,6 +345,7 @@ To build `FileDialog`, you need:
 - `withInitialDirectory(Path)` to set the starting directory (defaults to current working directory)
 - `directoriesOnly(boolean)` to enable directory selection mode (defaults to `false` for file selection)
 - `withVisibleItemCount(int)` to limit how many items are shown at once
+- `withShowHiddenFiles(boolean)` to control whether hidden files/directories are visible
 - `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
 - `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
 - `withShortcuts(Map<KeyType, Path>)` to configure custom keyboard shortcuts to specific directories

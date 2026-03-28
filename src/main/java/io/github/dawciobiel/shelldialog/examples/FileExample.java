@@ -51,7 +51,7 @@ public class FileExample {
         String userHome = System.getProperty("user.home");
         Map<KeyType, Path> customShortcuts = Map.of(
                 KeyType.F1, Paths.get(userHome, "Desktop"),
-                KeyType.F2, Paths.get(userHome, "Documents")
+                KeyType.F3, Paths.get(userHome, "Documents")
         );
 
         NavigationArea navigationArea = new NavigationArea.Builder()
@@ -59,7 +59,8 @@ public class FileExample {
                         NavigationToolbar.builder()
                                 .withArrowsNavigation()
                                 .withKey(KeyType.F1, "Desktop")
-                                .withKey(KeyType.F2, "Docs")
+                                .withKey(KeyType.F3, "Docs")
+                                .withF2ToggleHiddenFiles()
                                 .withF5Refresh()
                                 .withHomeHomeDir()
                                 .withEndCWD()

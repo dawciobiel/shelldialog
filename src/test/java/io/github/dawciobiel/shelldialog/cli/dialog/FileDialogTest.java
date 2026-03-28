@@ -31,6 +31,7 @@ class FileDialogTest {
     void setUp() throws IOException {
         Files.createFile(tempDir.resolve("file1.txt"));
         Files.createFile(tempDir.resolve("file2.java"));
+        Files.createFile(tempDir.resolve(".hidden.txt"));
         Files.createDirectory(tempDir.resolve("dir1"));
     }
 
@@ -132,6 +133,33 @@ class FileDialogTest {
     }
 
     @Test
+    void shouldHideHiddenFilesByDefault() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .build();
+
+        List<DialogOption> options = getOptions(dialog);
+
+        boolean foundHidden = options.stream().anyMatch(o -> o.getLabel().endsWith(".hidden.txt"));
+        assertFalse(foundHidden, "Hidden files should not be listed by default");
+        assertFalse((boolean) readField(dialog, "showHiddenFiles"));
+    }
+
+    @Test
+    void shouldShowHiddenFilesWhenConfigured() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withShowHiddenFiles(true)
+                .build();
+
+        List<DialogOption> options = getOptions(dialog);
+
+        boolean foundHidden = options.stream().anyMatch(o -> o.getLabel().endsWith(".hidden.txt"));
+        assertTrue(foundHidden, "Hidden files should be listed when enabled");
+        assertTrue((boolean) readField(dialog, "showHiddenFiles"));
+    }
+
+    @Test
     void shouldListOnlyDirectoriesWhenConfigured() throws Exception {
         TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
         ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
@@ -167,20 +195,7 @@ class FileDialogTest {
 
     @Test
     void shouldFilterFiles() throws Exception {
-        TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
-        ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
-        ContentArea selectedContentArea = new ContentArea.Builder().withContent("Selected").build();
-        NavigationArea navigationArea = new NavigationArea.Builder()
-                .withToolbar(NavigationToolbar.builder().build())
-                .withTheme(DialogTheme.darkTheme())
-                .build();
-
-        FileDialog dialog = new FileDialog.Builder(
-                titleArea,
-                contentArea,
-                selectedContentArea,
-                navigationArea
-        )
+        FileDialog dialog = createDialogBuilder()
                 .withInitialDirectory(tempDir)
                 .withFileFilter(p -> p.toString().endsWith(".java"))
                 .build();
@@ -199,6 +214,23 @@ class FileDialogTest {
         assertFalse(foundTxt, "TXT file should be filtered out");
         assertTrue(foundJava, "Java file should be listed");
         assertTrue(foundDir, "Directory should be listed");
+    }
+
+    private FileDialog.Builder createDialogBuilder() {
+        TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
+        ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
+        ContentArea selectedContentArea = new ContentArea.Builder().withContent("Selected").build();
+        NavigationArea navigationArea = new NavigationArea.Builder()
+                .withToolbar(NavigationToolbar.builder().build())
+                .withTheme(DialogTheme.darkTheme())
+                .build();
+
+        return new FileDialog.Builder(
+                titleArea,
+                contentArea,
+                selectedContentArea,
+                navigationArea
+        );
     }
 
     @SuppressWarnings("unchecked")

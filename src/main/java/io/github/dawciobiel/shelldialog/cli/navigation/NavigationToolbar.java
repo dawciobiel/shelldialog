@@ -163,6 +163,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard F2-to-toggle-hidden-files item.
+         *
+         * @return this builder
+         */
+        public Builder withF2ToggleHiddenFiles() {
+            items.add(new NavigationItem(NavigationLabels.KEY_F2, NavigationLabels.ACTION_HIDDEN_FILES));
+            return this;
+        }
+
+        /**
          * Appends the standard F5-to-refresh item.
          *
          * @return this builder

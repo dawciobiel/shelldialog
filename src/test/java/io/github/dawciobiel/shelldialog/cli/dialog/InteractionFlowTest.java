@@ -11,7 +11,10 @@ import io.github.dawciobiel.shelldialog.cli.ui.InputArea;
 import io.github.dawciobiel.shelldialog.cli.ui.NavigationArea;
 import io.github.dawciobiel.shelldialog.cli.ui.TitleArea;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InteractionFlowTest {
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void yesNoDialogShouldReturnTrueOnEnterByDefault() throws Exception {
@@ -150,6 +156,31 @@ class InteractionFlowTest {
         assertTrue(result.isPresent(), "Dialog should return form values after correction");
         assertEquals("joe", result.get().username());
         assertArrayEquals("secret".toCharArray(), result.get().password());
+    }
+
+    @Test
+    void fileDialogShouldToggleHiddenFilesWithF2() throws Exception {
+        Path hiddenOnlyDir = Files.createDirectory(tempDir.resolve("hidden-only"));
+        Path hiddenFile = Files.createFile(hiddenOnlyDir.resolve(".secret.txt"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.F2));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(hiddenOnlyDir)
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should return a file after toggling hidden files");
+        assertEquals(hiddenFile, result.get());
     }
 
     private record LoginData(String username, char[] password) {

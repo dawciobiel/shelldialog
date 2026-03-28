@@ -14,19 +14,21 @@ class NavigationToolbarTest {
         NavigationToolbar toolbar = NavigationToolbar.builder()
                 .withEnterOK()
                 .withTabNextField()
+                .withF2ToggleHiddenFiles()
                 .withF5Refresh()
                 .withHomeHomeDir()
                 .withEndCWD()
                 .build();
 
         List<NavigationItem> items = toolbar.getItems();
-        assertEquals(5, items.size());
+        assertEquals(6, items.size());
 
         assertEquals(NavigationLabels.ACTION_OK, items.getFirst().label());
         assertEquals(NavigationLabels.ACTION_NEXT_FIELD, items.get(1).label());
-        assertEquals(NavigationLabels.ACTION_REFRESH, items.get(2).label());
-        assertEquals(NavigationLabels.ACTION_HOME, items.get(3).label());
-        assertEquals(NavigationLabels.ACTION_CWD, items.get(4).label());
+        assertEquals(NavigationLabels.ACTION_HIDDEN_FILES, items.get(2).label());
+        assertEquals(NavigationLabels.ACTION_REFRESH, items.get(3).label());
+        assertEquals(NavigationLabels.ACTION_HOME, items.get(4).label());
+        assertEquals(NavigationLabels.ACTION_CWD, items.get(5).label());
     }
 
     @Test
