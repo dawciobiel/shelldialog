@@ -84,6 +84,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 Detailed documentation for specific features is available in the `docs/` directory:
 
 - [Dialogs Overview](docs/dialogs.md) - usage guide for all dialog types.
+- [WizardDialog Adapter Decision](docs/wizard-dialog-adapters.md) - architectural guidance for future wizard integrations.
 - [Navigation Toolbar](docs/navigation-toolbar.md) - customization of the bottom toolbar.
 - [Dialog Theme](docs/dialog-theme.md) - theming system details.
 - [Dialog Options](docs/dialog-options.md) - working with `DialogOption`.

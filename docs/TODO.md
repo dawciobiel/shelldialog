@@ -12,5 +12,5 @@
 - [x] Implement `FormDialog` to allow multiple input fields on a single screen.
 - [x] Add `WizardDialog` support for multi-step dialog sequences with navigation.
 - [x] Extend `WizardDialog` with additional built-in step types (e.g. file selection).
-- [ ] Decide whether `WizardDialog` should gain dedicated adapters for existing dialogs or remain a lightweight standalone step system.
+- [x] Decide whether `WizardDialog` should gain dedicated adapters for existing dialogs or remain a lightweight standalone step system.
 - [ ] Decide whether dialog configuration should also be loadable from `.properties` files in addition to Java builders.
