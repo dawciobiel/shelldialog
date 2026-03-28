@@ -6,6 +6,7 @@ This document describes the current usage of:
 - `SingleChoiceDialog`
 - `MultiChoiceDialog`
 - `FileDialog`
+- `FormDialog`
 - `ProgressDialog`
 - `SpinnerDialog`
 - `PasswordDialog`
@@ -119,6 +120,95 @@ To build `SingleChoiceDialog`, you need:
 
 When the list is clipped by the viewport, the dialog renders `↑ more` and `↓ more` indicators above or below the visible window, plus a simple `x/y` position counter below the list.
 Disabled options are rendered with a ` (disabled)` suffix, skipped by arrow navigation, and cannot be confirmed.
+
+## FormDialog
+
+`FormDialog` is used for collecting multiple values on a single screen.
+
+### Required parts
+
+To build `FormDialog`, you need:
+
+- `TitleArea`
+- `ContentArea`
+- `ContentArea` for field labels
+- `InputArea` for regular fields
+- `InputArea` for the focused field
+- `List<FormField>`
+- `NavigationArea`
+
+### Return type
+
+`show()` returns `Optional<T>`, where `T` is defined by `withResultMapper(...)`.
+
+- `Optional.of(value)` when the user confirms with `Enter`
+- `Optional.empty()` when the user cancels with `Escape`
+
+### Keyboard behavior
+
+- `Character`: appends typed character to the focused field
+- `Backspace`: removes the last character from the focused field
+- `ArrowUp` / `ReverseTab`: moves focus to the previous field
+- `ArrowDown` / `Tab`: moves focus to the next field
+- `Enter`: validates all fields and confirms the form
+- `Escape`: cancels the dialog
+
+### Supported field types
+
+`FormField` currently supports:
+
+- `FormField.text(name, label)`
+- `FormField.password(name, label)`
+
+Each field supports:
+
+- `withInitialValue(...)`
+- `withMaxLength(int)`
+- `withValidator(...)`
+
+Password fields also support:
+
+- `withMaskCharacter(char)`
+
+### Result mapping
+
+`FormDialog.Builder<T>` requires `withResultMapper(Function<FormValues, T>)`.
+`FormValues` provides typed accessors such as:
+
+- `getString(name)`
+- `getPassword(name)`
+- `asMap()`
+
+### Example
+
+```java
+record LoginData(String username, char[] password) {}
+
+FormDialog<LoginData> dialog = new FormDialog.Builder<LoginData>(
+        titleArea,
+        contentArea,
+        labelArea,
+        inputArea,
+        focusedInputArea,
+        List.of(
+                FormField.text("username", "Username")
+                        .withValidator(InputValidator.BuiltIn.nonEmpty("Username required"))
+                        .build(),
+                FormField.password("password", "Password")
+                        .withValidator(InputValidator.BuiltIn.nonEmpty("Password required").asPasswordValidator())
+                        .build()
+        ),
+        navigationArea
+)
+        .withTheme(theme)
+        .withResultMapper(values -> new LoginData(
+                values.getString("username"),
+                values.getPassword("password")
+        ))
+        .build();
+
+Optional<LoginData> result = dialog.show();
+```
 
 ## PasswordDialog
 

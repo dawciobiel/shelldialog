@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -337,6 +338,89 @@ class DialogBuilderTest {
     }
 
     @Test
+    void formDialogBuilderShouldAllowDisablingBorder() throws Exception {
+        FormDialog<FormValues> dialog = new FormDialog.Builder<FormValues>(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                inputArea(),
+                focusedInputArea(),
+                formFields(),
+                navigationArea()
+        )
+                .withBorder(false)
+                .withResultMapper(values -> values)
+                .build();
+
+        assertFalse(readBooleanField(dialog, "borderVisible"));
+        assertNotNull(readField(dialog, "dialogFrame"));
+    }
+
+    @Test
+    void formDialogBuilderShouldApplyValidationMessageStyleFromTheme() throws Exception {
+        DialogTheme theme = DialogTheme.builder()
+                .borderStyle(TextStyle.of(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK))
+                .validationMessageStyle(TextStyle.of(TextColor.ANSI.YELLOW, TextColor.ANSI.BLUE))
+                .build();
+
+        FormDialog<FormValues> dialog = new FormDialog.Builder<FormValues>(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                inputArea(),
+                focusedInputArea(),
+                formFields(),
+                navigationArea()
+        )
+                .withTheme(theme)
+                .withResultMapper(values -> values)
+                .build();
+
+        DialogFrame frame = (DialogFrame) readField(dialog, "dialogFrame");
+        TextStyle borderStyle = (TextStyle) readField(frame, "borderStyle");
+        TextStyle validationMessageStyle = (TextStyle) readField(dialog, "validationMessageStyle");
+
+        assertEquals(TextColor.ANSI.GREEN, borderStyle.foreground());
+        assertEquals(TextColor.ANSI.BLACK, borderStyle.background());
+        assertEquals(TextColor.ANSI.YELLOW, validationMessageStyle.foreground());
+        assertEquals(TextColor.ANSI.BLUE, validationMessageStyle.background());
+    }
+
+    @Test
+    void formDialogBuilderShouldRequireResultMapper() {
+        FormDialog.Builder<FormValues> builder = new FormDialog.Builder<FormValues>(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                inputArea(),
+                focusedInputArea(),
+                formFields(),
+                navigationArea()
+        );
+
+        assertThrows(IllegalStateException.class, builder::build);
+    }
+
+    @Test
+    void formDialogBuilderShouldRejectDuplicateFieldNames() {
+        FormDialog.Builder<FormValues> builder = new FormDialog.Builder<FormValues>(
+                titleArea(),
+                contentArea(),
+                contentArea(),
+                inputArea(),
+                focusedInputArea(),
+                List.of(
+                        FormField.text("username", "Username").build(),
+                        FormField.password("username", "Password").build()
+                ),
+                navigationArea()
+        )
+                .withResultMapper((FormValues values) -> values);
+
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
@@ -480,6 +564,14 @@ class DialogBuilderTest {
                 .build();
     }
 
+    private InputArea focusedInputArea() {
+        return new InputArea.Builder()
+                .withContent("FocusedInput")
+                .withForegroundColor(TextColor.ANSI.BLACK)
+                .withBackgroundColor(TextColor.ANSI.CYAN)
+                .build();
+    }
+
     private ContentArea selectedFocusedContentArea() {
         return new ContentArea.Builder()
                 .withContent("SelectedFocused")
@@ -504,6 +596,13 @@ class DialogBuilderTest {
         return List.of(
                 new SimpleDialogOption(1, "One"),
                 new SimpleDialogOption(2, "Two")
+        );
+    }
+
+    private List<FormField> formFields() {
+        return List.of(
+                FormField.text("username", "Username").build(),
+                FormField.password("password", "Password").build()
         );
     }
 
