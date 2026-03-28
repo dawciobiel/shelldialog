@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachanglog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `MessageDialog` for simple informative alerts and notifications.
+- **Input Validation System:** New `InputValidator` and `PasswordValidator` interfaces with built-in rules (`nonEmpty`, `email`, `isInteger`, `regex`, `maxLength`).
+- `FileDialog` enhancements:
+    - **Smart Sorting:** Directories are now listed first, followed by files.
+    - **Navigation Shortcuts:** Added `F5` (Refresh), `Home` (User Home), and `End` (CWD).
+    - **Custom Shortcuts:** Support for user-defined keyboard shortcuts to specific directories via `.withShortcuts()`.
+- **Navigation Toolbar:** Added support for custom keys (`withKey`) and specialized actions (`withEnterOK`, `withF5Refresh`, etc.).
+- **Visual Preview:** ASCII Art previews in README for better documentation.
+- New unit test suites for `InputValidator`, `MessageDialog`, and `NavigationToolbar`.
+
+### Changed
+- **Modern Java:** Codebase updated to leverage Java 21 features (`SequencedCollection`, `Math.clamp`).
+- `FileExample` now demonstrates custom shortcuts and new navigation features.
+- `Main` interactive gallery now includes `MessageDialog`.
+
 ## [3.1.0] - 2026-03-23
 
 ### Added
