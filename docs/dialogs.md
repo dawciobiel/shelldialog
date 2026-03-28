@@ -249,6 +249,8 @@ To build `WizardDialog`, you need:
 
 Built-in steps can also expose an optional single-line description rendered below the wizard header.
 
+`WizardDialog` also renders an automatic progress bar below the header so the user can track the current step at a glance.
+
 ### v1 scope notes
 
 `WizardDialog` in v1 is intentionally a lightweight step orchestrator, not a full workflow engine.

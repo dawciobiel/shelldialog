@@ -123,10 +123,11 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
 
         WizardStep currentStep = steps.get(currentStepIndex);
         TitleArea titleArea = titleArea(currentStepIndex, currentStep);
+        String progressBar = progressBar(currentStepIndex, steps.size());
         NavigationToolbar navigationToolbar = navigationToolbar(currentStepIndex);
         Optional<String> description = currentStep.description();
         int contentWidth = Math.max(
-                Math.max(titleArea.getWidth(), currentStep.width(context)),
+                Math.max(Math.max(titleArea.getWidth(), progressBar.length()), currentStep.width(context)),
                 navigationRenderer.measureWidth(navigationToolbar)
         );
         if (description.isPresent()) {
@@ -138,6 +139,8 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         }
 
         int contentHeight = titleArea.getHeight()
+                + 1
+                + 1
                 + 1
                 + currentStep.height(context);
         if (description.isPresent()) {
@@ -156,6 +159,9 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         titleArea.render(tg, column, row);
         row += titleArea.getHeight();
 
+        row++;
+        contentArea.withContent(progressBar).render(tg, column, row);
+        row++;
         row++;
         if (description.isPresent()) {
             contentArea.withContent(description.get()).render(tg, column, row);
@@ -180,7 +186,7 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         row++;
         navigationRenderer.render(tg, navigationToolbar, column, row);
 
-        int contentRow = layout.contentRow() + titleArea.getHeight() + 1;
+        int contentRow = layout.contentRow() + titleArea.getHeight() + 3;
         if (description.isPresent()) {
             contentRow += 2;
         }
@@ -194,6 +200,16 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
                 .withTitle(title + " - " + currentStep.title() + " (" + (currentStepIndex + 1) + "/" + steps.size() + ")")
                 .withTitleColor(titleColor)
                 .build();
+    }
+
+    static String progressBar(int currentStepIndex, int stepCount) {
+        StringBuilder builder = new StringBuilder(stepCount + 2);
+        builder.append('[');
+        for (int stepIndex = 0; stepIndex < stepCount; stepIndex++) {
+            builder.append(stepIndex <= currentStepIndex ? '#' : '-');
+        }
+        builder.append(']');
+        return builder.toString();
     }
 
     private NavigationToolbar navigationToolbar(int currentStepIndex) {
