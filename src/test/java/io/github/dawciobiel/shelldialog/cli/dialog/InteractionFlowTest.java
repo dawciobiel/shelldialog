@@ -439,6 +439,46 @@ class InteractionFlowTest {
         assertEquals(existingDir, result.get().directory());
     }
 
+    @Test
+    void wizardDialogShouldSupportFileStep() throws Exception {
+        Path existingFile = Files.createFile(tempDir.resolve("config.properties"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        for (char character : existingFile.toString().toCharArray()) {
+            terminal.addInput(new KeyStroke(character, false, false));
+        }
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardFileData> dialog = new WizardDialog.Builder<WizardFileData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardFileStep.builder("Config", "Enter file", "file")
+                                .mustExist(true)
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardFileData(
+                        context.getString("username"),
+                        context.getPath("file")
+                ))
+                .build();
+
+        Optional<WizardFileData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish with file step");
+        assertEquals("joe", result.get().username());
+        assertEquals(existingFile, result.get().file());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 
@@ -449,6 +489,9 @@ class InteractionFlowTest {
     }
 
     private record WizardDirectoryData(String username, Path directory) {
+    }
+
+    private record WizardFileData(String username, Path file) {
     }
 
     private TitleArea titleArea() {

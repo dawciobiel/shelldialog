@@ -477,6 +477,15 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardFileStepBuilderShouldApplyInitialValue() throws Exception {
+        WizardFileStep step = WizardFileStep.builder("Config", "Enter file", "file")
+                .withInitialValue(Path.of("./config.properties"))
+                .build();
+
+        assertEquals("./config.properties", readField(step, "buffer").toString());
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
