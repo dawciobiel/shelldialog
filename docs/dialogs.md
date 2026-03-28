@@ -251,7 +251,7 @@ Built-in steps can also expose an optional single-line description rendered belo
 
 `WizardDialog` also renders an automatic progress bar below the header so the user can track the current step at a glance.
 
-`WizardSummaryStep` can be built either from raw `List<String>` lines or from typed `SummaryItem` entries for aligned `label: value` review rows.
+`WizardSummaryStep` can be built from raw `List<String>` lines, typed `SummaryItem` entries for aligned `label: value` review rows, or grouped `SummarySection` blocks for larger review screens.
 
 ### v1 scope notes
 
@@ -309,10 +309,14 @@ WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
                         .withDescription("Choose the output file used to persist the wizard result.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.keyValues("Summary", "Review all values before finishing.", context -> List.of(
-                        WizardSummaryStep.SummaryItem.of("User", context.getString("username")),
-                        WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
-                        WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
+                WizardSummaryStep.sections("Summary", "Review all values before finishing.", context -> List.of(
+                        WizardSummaryStep.SummarySection.of("Account", List.of(
+                                WizardSummaryStep.SummaryItem.of("User", context.getString("username"))
+                        )),
+                        WizardSummaryStep.SummarySection.of("Output", List.of(
+                                WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
+                                WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
+                        ))
                 ))
         )
 )

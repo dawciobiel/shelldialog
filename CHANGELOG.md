@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.2.1] - 2026-03-28
 
 ### Added
+- `WizardSummaryStep` now supports grouped `SummarySection` blocks for larger review screens.
 - `WizardSummaryStep` now supports typed `SummaryItem` entries for aligned `label: value` review rows with placeholder handling for missing values.
 - `WizardDialog` now renders an automatic progress bar below the step header.
 - `WizardDialog` steps can now expose optional single-line descriptions rendered below the step header.
