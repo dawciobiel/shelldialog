@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-03-28
+
 ### Added
 - `MessageDialog` for simple informative alerts and notifications.
 - `FormDialog<T>` for collecting multiple text/password inputs on a single screen with typed result mapping via `withResultMapper(...)`.
@@ -27,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Modern Java:** Codebase updated to leverage Java 21 features (`SequencedCollection`, `Math.clamp`).
 - `FileExample` now demonstrates custom shortcuts and new navigation features.
-- `Main` interactive gallery now includes `MessageDialog` and `FormDialog`.
+- `Main` interactive gallery now includes `MessageDialog`, `FormDialog`, and `WizardDialog`.
 
 ## [3.1.0] - 2026-03-23
 
