@@ -8,6 +8,7 @@ import com.googlecode.lanterna.screen.Screen;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.DialogOption;
 import io.github.dawciobiel.shelldialog.cli.dialog.option.FileOption;
 import io.github.dawciobiel.shelldialog.cli.i18n.Messages;
+import io.github.dawciobiel.shelldialog.cli.navigation.NavigationLabels;
 import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.Arrow;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
@@ -321,7 +322,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         String positionIndicator = hasViewport ? positionIndicatorLabel(selectedIndex) : "";
         String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
         String pathString = currentDirectory.toString();
-        String filterLine = filterLabel == null ? "" : FILTER_LABEL + ": " + filterLabel;
+        String filterLine = filterLine();
         boolean hasError = errorMessage != null;
         String newDirectoryLine = creatingDirectory ? NEW_DIRECTORY_LABEL + ": " + newDirectoryName + "_" : "";
         List<String> previewLines = metadataPreviewVisible ? previewLines(selectedIndex) : List.of();
@@ -510,6 +511,16 @@ public class FileDialog extends AbstractListDialog<Path> {
             errorMessage = CREATE_ERROR_LABEL + ": " + normalizedName;
             return false;
         }
+    }
+
+    private String filterLine() {
+        if (filterLabel == null) {
+            return "";
+        }
+        if (selectableExtensionPresets.size() > 1) {
+            return FILTER_LABEL + ": " + filterLabel + " [" + NavigationLabels.KEY_F4 + "]";
+        }
+        return FILTER_LABEL + ": " + filterLabel;
     }
 
     private List<String> previewLines(int selectedIndex) {

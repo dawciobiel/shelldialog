@@ -377,6 +377,19 @@ class FileDialogTest {
         assertEquals("DOCUMENTATION_FILES (2/2)", readField(dialog, "filterLabel"));
     }
 
+    @Test
+    void shouldRenderFilterLineWithHotkeyHintForSelectablePresets() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withSelectableExtensionPresets(
+                        FileDialog.ExtensionPreset.SOURCE_FILES,
+                        FileDialog.ExtensionPreset.DOCUMENTATION_FILES
+                )
+                .build();
+
+        assertEquals("Filter: SOURCE_FILES (1/2) [F4]", invokeFilterLine(dialog));
+    }
+
     private FileDialog.Builder createDialogBuilder() {
         TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
         ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
@@ -433,6 +446,12 @@ class FileDialogTest {
             invokeRefresh(dialog);
         }
         return cycled;
+    }
+
+    private String invokeFilterLine(FileDialog dialog) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("filterLine");
+        method.setAccessible(true);
+        return (String) method.invoke(dialog);
     }
 
     @SuppressWarnings("unchecked")

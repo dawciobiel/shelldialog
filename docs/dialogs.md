@@ -257,6 +257,7 @@ Built-in steps can also expose an optional single-line description rendered belo
 
 `FileDialog` can keep a static filter, use a single preset, or expose multiple selectable presets that the user can cycle at runtime.
 When selectable presets are enabled, the active filter label also shows the current preset position.
+The filter line also shows the runtime cycle hotkey when selectable presets are active.
 
 ### v1 scope notes
 
