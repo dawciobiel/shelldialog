@@ -256,6 +256,7 @@ Built-in steps can also expose an optional single-line description rendered belo
 `WizardSummaryStep` can be built from raw `List<String>` lines, typed `SummaryItem` entries for aligned `label: value` review rows, or grouped `SummarySection` blocks for larger review screens.
 
 `FileDialog` can keep a static filter, use a single preset, or expose multiple selectable presets that the user can cycle at runtime.
+When selectable presets are enabled, the active filter label also shows the current preset position.
 
 ### v1 scope notes
 

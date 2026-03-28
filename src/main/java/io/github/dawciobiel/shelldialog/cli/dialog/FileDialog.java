@@ -125,6 +125,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.showHiddenFiles = builder.showHiddenFiles;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
         this.activeSelectableExtensionPresetIndex = 0;
+        applySelectablePresetLabel();
 
         refreshDirectoryContent();
     }
@@ -471,17 +472,25 @@ public class FileDialog extends AbstractListDialog<Path> {
             return false;
         }
         activeSelectableExtensionPresetIndex = (activeSelectableExtensionPresetIndex + 1) % selectableExtensionPresets.size();
-        applySelectableExtensionPreset(activeSelectableExtensionPresetIndex);
+        applySelectableExtensionPreset();
         return true;
     }
 
-    private void applySelectableExtensionPreset(int presetIndex) {
+    private void applySelectableExtensionPreset() {
         if (selectableExtensionPresets.isEmpty()) {
             return;
         }
-        PresetFilter preset = selectableExtensionPresets.get(presetIndex);
+        PresetFilter preset = selectableExtensionPresets.get(activeSelectableExtensionPresetIndex);
         this.fileFilter = preset.filter();
-        this.filterLabel = preset.label();
+        applySelectablePresetLabel();
+    }
+
+    private void applySelectablePresetLabel() {
+        if (selectableExtensionPresets.isEmpty()) {
+            return;
+        }
+        PresetFilter preset = selectableExtensionPresets.get(activeSelectableExtensionPresetIndex);
+        this.filterLabel = preset.label() + " (" + (activeSelectableExtensionPresetIndex + 1) + "/" + selectableExtensionPresets.size() + ")";
     }
 
     private boolean createDirectory(String directoryName) {
@@ -799,7 +808,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
             this.selectableExtensionPresets = List.copyOf(presetFilters);
             this.filter = presetFilters.getFirst().filter();
-            this.filterLabel = presetFilters.getFirst().label();
+            this.filterLabel = presetFilters.getFirst().label() + " (1/" + presetFilters.size() + ")";
             return this;
         }
 

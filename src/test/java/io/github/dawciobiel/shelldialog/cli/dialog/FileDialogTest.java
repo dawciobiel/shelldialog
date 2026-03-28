@@ -366,7 +366,7 @@ class FileDialogTest {
         List<DialogOption> sourceOptions = getOptions(dialog);
         assertTrue(sourceOptions.stream().anyMatch(o -> o.getLabel().endsWith("file2.java")));
         assertFalse(sourceOptions.stream().anyMatch(o -> o.getLabel().endsWith("file3.md")));
-        assertEquals("SOURCE_FILES", readField(dialog, "filterLabel"));
+        assertEquals("SOURCE_FILES (1/2)", readField(dialog, "filterLabel"));
 
         invokeCycleExtensionPreset(dialog);
 
@@ -374,7 +374,7 @@ class FileDialogTest {
         assertFalse(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file2.java")));
         assertTrue(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file1.txt")));
         assertTrue(documentationOptions.stream().anyMatch(o -> o.getLabel().endsWith("file3.md")));
-        assertEquals("DOCUMENTATION_FILES", readField(dialog, "filterLabel"));
+        assertEquals("DOCUMENTATION_FILES (2/2)", readField(dialog, "filterLabel"));
     }
 
     private FileDialog.Builder createDialogBuilder() {
