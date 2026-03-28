@@ -65,6 +65,13 @@ The menu-specific styles are intended for choice dialogs:
 
 `DialogTheme` is applied when the UI area is built.
 
+## Configuration Scope
+
+`DialogTheme` and the existing builder API remain the primary way to configure dialog appearance.
+
+ShellDialog does not currently aim to support full dialog definitions from `.properties` files.
+If `.properties` helpers are ever added, they should stay limited to shallow presentation concerns rather than replacing builder-based configuration.
+
 That means this:
 
 ```java
