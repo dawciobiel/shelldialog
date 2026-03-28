@@ -75,6 +75,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `FileDialog` supports directory navigation, filtering (by predicate or extension), smart sorting (folders first), and quick navigation shortcuts (F5, Home, End).
     - `FileDialog` can optionally show hidden files and toggle them at runtime with `F2`.
     - `FileDialog` can optionally show a metadata preview panel for the currently focused entry.
+    - `FileDialog` supports named extension presets for common source, text, config, and documentation file sets.
     - `FileDialog` in `directoriesOnly` mode can select the currently opened directory directly.
     - `FileDialog` shows an inline error message when a directory cannot be read and can recover via refresh or directory change.
     - `FileDialog` can create a new directory inline with `F7`.

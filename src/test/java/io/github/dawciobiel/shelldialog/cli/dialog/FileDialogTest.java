@@ -319,6 +319,24 @@ class FileDialogTest {
         assertTrue(foundDir, "Directory should be listed");
     }
 
+    @Test
+    void shouldFilterFilesByExtensionPreset() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withExtensionPreset(FileDialog.ExtensionPreset.SOURCE_FILES)
+                .build();
+
+        List<DialogOption> options = getOptions(dialog);
+
+        boolean foundTxt = options.stream().anyMatch(o -> o.getLabel().endsWith("file1.txt"));
+        boolean foundJava = options.stream().anyMatch(o -> o.getLabel().endsWith("file2.java"));
+        boolean foundDir = options.stream().anyMatch(o -> o.getLabel().endsWith("dir1"));
+
+        assertFalse(foundTxt, "TXT file should be filtered out by source-files preset");
+        assertTrue(foundJava, "Java file should be listed by source-files preset");
+        assertTrue(foundDir, "Directory should still be listed");
+    }
+
     private FileDialog.Builder createDialogBuilder() {
         TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
         ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();

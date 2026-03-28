@@ -23,10 +23,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -34,6 +36,26 @@ import java.util.function.Predicate;
  * Supports navigation through directories, parent directory link (".."), and live filtering of files in the current view.
  */
 public class FileDialog extends AbstractListDialog<Path> {
+
+    /**
+     * Named file-extension presets for common browsing scenarios.
+     */
+    public enum ExtensionPreset {
+        SOURCE_FILES(List.of("java", "kt", "groovy", "scala", "c", "cpp", "h", "hpp", "js", "ts", "py", "go", "rs")),
+        TEXT_FILES(List.of("txt", "md", "adoc", "rst")),
+        CONFIG_FILES(List.of("properties", "yml", "yaml", "json", "toml", "xml", "ini", "conf")),
+        DOCUMENTATION_FILES(List.of("md", "adoc", "rst", "txt"));
+
+        private final List<String> extensions;
+
+        ExtensionPreset(List<String> extensions) {
+            this.extensions = List.copyOf(extensions);
+        }
+
+        List<String> extensions() {
+            return extensions;
+        }
+    }
 
     private static final String MORE_ABOVE_LABEL = "\u2191 more";
     private static final String MORE_BELOW_LABEL = "\u2193 more";
@@ -619,14 +641,47 @@ public class FileDialog extends AbstractListDialog<Path> {
          * @return this builder
          */
         public Builder withExtensions(List<String> extensions) {
-            Objects.requireNonNull(extensions);
-            List<String> normalized = extensions.stream()
-                    .map(ext -> ext.startsWith(".") ? ext.toLowerCase() : "." + ext.toLowerCase())
-                    .toList();
+            List<String> normalized = normalizeExtensions(extensions);
             return withFileFilter(path -> {
                 String fileName = path.getFileName().toString().toLowerCase();
                 return normalized.stream().anyMatch(fileName::endsWith);
             });
+        }
+
+        /**
+         * Sets a filter using one named extension preset.
+         *
+         * @param preset preset of file extensions
+         * @return this builder
+         */
+        public Builder withExtensionPreset(ExtensionPreset preset) {
+            return withExtensionPresets(Objects.requireNonNull(preset));
+        }
+
+        /**
+         * Sets a filter using one or more named extension presets.
+         *
+         * @param presets presets of file extensions
+         * @return this builder
+         */
+        public Builder withExtensionPresets(ExtensionPreset... presets) {
+            Objects.requireNonNull(presets);
+            if (presets.length == 0) {
+                throw new IllegalArgumentException("presets must not be empty");
+            }
+
+            Set<String> extensions = new LinkedHashSet<>();
+            for (ExtensionPreset preset : presets) {
+                extensions.addAll(Objects.requireNonNull(preset).extensions());
+            }
+            return withExtensions(List.copyOf(extensions));
+        }
+
+        private static List<String> normalizeExtensions(List<String> extensions) {
+            Objects.requireNonNull(extensions);
+            return extensions.stream()
+                    .map(ext -> ext.startsWith(".") ? ext.toLowerCase() : "." + ext.toLowerCase())
+                    .toList();
         }
 
         /**

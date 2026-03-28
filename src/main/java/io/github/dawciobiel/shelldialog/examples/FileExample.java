@@ -82,7 +82,10 @@ public class FileExample {
                 .withVisibleItemCount(10)
                 .withTheme(theme)
                 .withMetadataPreview(true)
-                .withExtensions(List.of("java", "md", "txt"))
+                .withExtensionPresets(
+                        FileDialog.ExtensionPreset.SOURCE_FILES,
+                        FileDialog.ExtensionPreset.DOCUMENTATION_FILES
+                )
                 .withShortcuts(customShortcuts)
                 .build();
 
