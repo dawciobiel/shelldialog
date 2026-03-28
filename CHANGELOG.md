@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.2.1] - 2026-03-28
 
 ### Added
+- Version-neutral terminal-stream guidance in localized error messages, plus tests covering the resource text.
 - Consistency tests for release version metadata across `build.gradle.kts`, `pom.xml`, `README.md`, and `CHANGELOG.md`.
 - Smoke tests for `Main` argument dispatch, including version and unknown-argument handling.
 - Smoke tests for the bundled example entrypoints to catch example-configuration regressions earlier.
