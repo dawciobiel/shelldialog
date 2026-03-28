@@ -14,6 +14,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -160,6 +161,33 @@ class FileDialogTest {
     }
 
     @Test
+    void shouldStoreErrorMessageWhenDirectoryCannotBeRead() throws Exception {
+        Path missingDirectory = tempDir.resolve("missing");
+
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(missingDirectory)
+                .build();
+
+        assertEquals("Unable to read directory: " + missingDirectory, readField(dialog, "errorMessage"));
+        assertTrue(getOptions(dialog).isEmpty(), "Options should be empty when directory cannot be read");
+    }
+
+    @Test
+    void shouldClearErrorMessageAfterSuccessfulRefresh() throws Exception {
+        Path missingDirectory = tempDir.resolve("missing");
+
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(missingDirectory)
+                .build();
+
+        writeField(dialog, "currentDirectory", tempDir);
+        invokeRefresh(dialog);
+
+        assertNull(readField(dialog, "errorMessage"));
+        assertFalse(getOptions(dialog).isEmpty(), "Options should be restored after successful refresh");
+    }
+
+    @Test
     void shouldListOnlyDirectoriesWhenConfigured() throws Exception {
         FileDialog dialog = createDialogBuilder()
                 .withInitialDirectory(tempDir)
@@ -252,5 +280,17 @@ class FileDialogTest {
         Field field = target.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
         return field.get(target);
+    }
+
+    private void writeField(Object target, String fieldName, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
+    }
+
+    private void invokeRefresh(FileDialog dialog) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("refreshDirectoryContent");
+        method.setAccessible(true);
+        method.invoke(dialog);
     }
 }

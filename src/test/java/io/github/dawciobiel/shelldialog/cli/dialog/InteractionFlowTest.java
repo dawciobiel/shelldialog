@@ -16,6 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -205,6 +206,33 @@ class InteractionFlowTest {
         Optional<Path> result = dialog.show();
         assertTrue(result.isPresent(), "Dialog should return current directory in directories-only mode");
         assertEquals(nestedDir, result.get());
+    }
+
+    @Test
+    void fileDialogShouldRecoverFromReadErrorAfterShortcutNavigation() throws Exception {
+        Path validDir = Files.createDirectory(tempDir.resolve("valid"));
+        Path expectedFile = Files.createFile(validDir.resolve("file.txt"));
+        Path missingDir = tempDir.resolve("missing");
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.F1));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(missingDir)
+                .withShortcuts(Map.of(KeyType.F1, validDir))
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should recover after switching to a readable directory");
+        assertEquals(expectedFile, result.get());
     }
 
     private record LoginData(String username, char[] password) {
