@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **Hidden Files Toggle:** Added `withShowHiddenFiles(boolean)` plus runtime toggle with `F2`.
     - **Current Directory Selection:** `directoriesOnly(true)` mode now exposes a selectable current-directory entry.
     - **Read Error Feedback:** unreadable directories now show an inline error message and recover on successful refresh/navigation.
+    - **Inline Folder Creation:** Added `F7` new-folder flow directly inside `FileDialog`.
     - **Navigation Shortcuts:** Added `F5` (Refresh), `Home` (User Home), and `End` (CWD).
     - **Custom Shortcuts:** Support for user-defined keyboard shortcuts to specific directories via `.withShortcuts()`.
 - **Navigation Toolbar:** Added support for custom keys (`withKey`) and specialized actions (`withEnterOK`, `withF5Refresh`, etc.).

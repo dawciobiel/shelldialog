@@ -61,6 +61,7 @@ public class FileExample {
                                 .withKey(KeyType.F1, "Desktop")
                                 .withKey(KeyType.F3, "Docs")
                                 .withF2ToggleHiddenFiles()
+                                .withF7NewFolder()
                                 .withF5Refresh()
                                 .withHomeHomeDir()
                                 .withEndCWD()

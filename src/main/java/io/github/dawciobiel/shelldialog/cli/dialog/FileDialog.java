@@ -1,5 +1,6 @@
 package io.github.dawciobiel.shelldialog.cli.dialog;
 
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -38,6 +39,9 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String MORE_BELOW_LABEL = "\u2193 more";
     private static final String CURRENT_DIRECTORY_LABEL = Messages.getString("dialog.file.current_directory");
     private static final String READ_ERROR_LABEL = Messages.getString("dialog.file.read_error");
+    private static final String NEW_DIRECTORY_LABEL = Messages.getString("dialog.file.new_directory");
+    private static final String CREATE_ERROR_LABEL = Messages.getString("dialog.file.create_error");
+    private static final String CREATE_ERROR_BLANK_LABEL = Messages.getString("dialog.file.create_error_blank");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
@@ -54,6 +58,8 @@ public class FileDialog extends AbstractListDialog<Path> {
     private final Map<KeyType, Path> shortcuts;
     private boolean showHiddenFiles;
     private String errorMessage;
+    private boolean creatingDirectory;
+    private final StringBuilder newDirectoryName = new StringBuilder();
 
     private FileDialog(Builder builder) {
         super(builder.inputStream, builder.outputStream, builder.inputStreamPath, builder.outputStreamPath, builder.terminal,
@@ -130,7 +136,6 @@ public class FileDialog extends AbstractListDialog<Path> {
     @Override
     protected Optional<Path> runDialog(Screen screen) throws IOException {
         int selectedIndex = 0;
-        screen.setCursorPosition(null);
         TextGraphics tg = screen.newTextGraphics();
 
         while (true) {
@@ -138,6 +143,35 @@ public class FileDialog extends AbstractListDialog<Path> {
 
             KeyStroke key = screen.readInput();
             KeyType type = key.getKeyType();
+
+            if (creatingDirectory) {
+                switch (type) {
+                    case Enter -> {
+                        if (createDirectory(newDirectoryName.toString())) {
+                            creatingDirectory = false;
+                            newDirectoryName.setLength(0);
+                            selectedIndex = 0;
+                        }
+                    }
+                    case Escape -> {
+                        creatingDirectory = false;
+                        newDirectoryName.setLength(0);
+                    }
+                    case Backspace -> {
+                        if (!newDirectoryName.isEmpty()) {
+                            newDirectoryName.setLength(newDirectoryName.length() - 1);
+                            errorMessage = null;
+                        }
+                    }
+                    case Character -> {
+                        newDirectoryName.append(key.getCharacter());
+                        errorMessage = null;
+                    }
+                    default -> {
+                    }
+                }
+                continue;
+            }
 
             if (shortcuts.containsKey(type)) {
                 currentDirectory = shortcuts.get(type);
@@ -159,6 +193,12 @@ public class FileDialog extends AbstractListDialog<Path> {
                     clearFilter();
                     refreshDirectoryContent();
                     selectedIndex = 0;
+                }
+                case F7 -> {
+                    if (errorMessage == null) {
+                        creatingDirectory = true;
+                        newDirectoryName.setLength(0);
+                    }
                 }
                 case Home -> {
                     currentDirectory = Paths.get(System.getProperty("user.home"));
@@ -213,6 +253,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
     private void render(Screen screen, TextGraphics tg, int selectedIndex) throws IOException {
         screen.clear();
+        screen.setCursorPosition(null);
 
         int firstVisibleIndex = firstVisibleIndex(selectedIndex);
         int lastVisibleIndex = lastVisibleIndex(firstVisibleIndex);
@@ -224,6 +265,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
         String pathString = currentDirectory.toString();
         boolean hasError = errorMessage != null;
+        String newDirectoryLine = creatingDirectory ? NEW_DIRECTORY_LABEL + ": " + newDirectoryName + "_" : "";
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -240,11 +282,15 @@ public class FileDialog extends AbstractListDialog<Path> {
         if (hasError) {
             contentWidth = Math.max(contentWidth, errorMessage.length());
         }
+        if (creatingDirectory) {
+            contentWidth = Math.max(contentWidth, newDirectoryLine.length());
+        }
         
         int contentHeight = titleArea.getHeight()
                 + 1 // Path line
                 + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
                 + 1 // Spacer
+                + (creatingDirectory ? 1 : 0)
                 + (hasError ? 1 : 0)
                 + (hasItemsAbove ? 1 : 0)
                 + visibleOptions.size()
@@ -269,6 +315,11 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
         
         row++; // Spacer
+
+        int createDirectoryRow = row;
+        if (creatingDirectory) {
+            menuItemArea.withContent(newDirectoryLine).render(tg, column, row++);
+        }
 
         if (hasError) {
             new ContentArea.Builder()
@@ -304,6 +355,10 @@ public class FileDialog extends AbstractListDialog<Path> {
 
         navigationArea.render(tg, column, row);
 
+        if (creatingDirectory) {
+            screen.setCursorPosition(new TerminalPosition(column + NEW_DIRECTORY_LABEL.length() + 2 + newDirectoryName.length(), createDirectoryRow));
+        }
+
         screen.refresh();
     }
 
@@ -332,6 +387,25 @@ public class FileDialog extends AbstractListDialog<Path> {
             return Files.isHidden(entry) || entry.getFileName().toString().startsWith(".");
         } catch (IOException e) {
             return entry.getFileName().toString().startsWith(".");
+        }
+    }
+
+    private boolean createDirectory(String directoryName) {
+        String normalizedName = directoryName.trim();
+        if (normalizedName.isEmpty()) {
+            errorMessage = CREATE_ERROR_BLANK_LABEL;
+            return false;
+        }
+
+        try {
+            Files.createDirectory(currentDirectory.resolve(normalizedName));
+            errorMessage = null;
+            clearFilter();
+            refreshDirectoryContent();
+            return true;
+        } catch (IOException e) {
+            errorMessage = CREATE_ERROR_LABEL + ": " + normalizedName;
+            return false;
         }
     }
 

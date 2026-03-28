@@ -173,6 +173,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard F7-to-create-folder item.
+         *
+         * @return this builder
+         */
+        public Builder withF7NewFolder() {
+            items.add(new NavigationItem(NavigationLabels.KEY_F7, NavigationLabels.ACTION_NEW_FOLDER));
+            return this;
+        }
+
+        /**
          * Appends the standard F5-to-refresh item.
          *
          * @return this builder

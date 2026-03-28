@@ -235,6 +235,39 @@ class InteractionFlowTest {
         assertEquals(expectedFile, result.get());
     }
 
+    @Test
+    void fileDialogShouldCreateDirectoryWithF7() throws Exception {
+        Path emptyDir = Files.createDirectory(tempDir.resolve("empty"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.F7));
+        terminal.addInput(new KeyStroke('n', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke('w', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(emptyDir)
+                .directoriesOnly(true)
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should return the newly created directory");
+        assertEquals(emptyDir.resolve("new"), result.get());
+        assertTrue(Files.isDirectory(emptyDir.resolve("new")));
+    }
+
     private record LoginData(String username, char[] password) {
     }
 

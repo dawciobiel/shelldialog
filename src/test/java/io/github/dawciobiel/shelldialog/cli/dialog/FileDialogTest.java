@@ -188,6 +188,47 @@ class FileDialogTest {
     }
 
     @Test
+    void shouldCreateDirectoryAndRefreshOptions() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .directoriesOnly(true)
+                .build();
+
+        boolean created = invokeCreateDirectory(dialog, "created-dir");
+
+        assertTrue(created);
+        assertTrue(Files.isDirectory(tempDir.resolve("created-dir")));
+        assertNull(readField(dialog, "errorMessage"));
+        assertTrue(getOptions(dialog).stream().anyMatch(option -> option.getLabel().endsWith("created-dir")));
+    }
+
+    @Test
+    void shouldRejectBlankDirectoryName() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .build();
+
+        boolean created = invokeCreateDirectory(dialog, "   ");
+
+        assertFalse(created);
+        assertEquals("Folder name cannot be empty", readField(dialog, "errorMessage"));
+    }
+
+    @Test
+    void shouldStoreErrorWhenDirectoryCreationFails() throws Exception {
+        Files.createDirectory(tempDir.resolve("existing"));
+
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .build();
+
+        boolean created = invokeCreateDirectory(dialog, "existing");
+
+        assertFalse(created);
+        assertEquals("Unable to create directory: existing", readField(dialog, "errorMessage"));
+    }
+
+    @Test
     void shouldListOnlyDirectoriesWhenConfigured() throws Exception {
         FileDialog dialog = createDialogBuilder()
                 .withInitialDirectory(tempDir)
@@ -292,5 +333,11 @@ class FileDialogTest {
         Method method = FileDialog.class.getDeclaredMethod("refreshDirectoryContent");
         method.setAccessible(true);
         method.invoke(dialog);
+    }
+
+    private boolean invokeCreateDirectory(FileDialog dialog, String directoryName) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("createDirectory", String.class);
+        method.setAccessible(true);
+        return (boolean) method.invoke(dialog, directoryName);
     }
 }
