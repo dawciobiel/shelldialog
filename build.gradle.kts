@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.dawciobiel"
-version = "3.2.1"
+version = "3.2.2"
 
 description =
     "A Java library for building interactive console dialogs, menus, and wizards."

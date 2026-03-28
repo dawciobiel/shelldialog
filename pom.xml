@@ -9,7 +9,7 @@
     <!-- Project Identity -->
     <groupId>io.github.dawciobiel</groupId>
     <artifactId>shelldialog</artifactId>
-    <version>3.2.1</version>
+    <version>3.2.2</version>
     <packaging>jar</packaging>
 
     <name>shelldialog</name>
