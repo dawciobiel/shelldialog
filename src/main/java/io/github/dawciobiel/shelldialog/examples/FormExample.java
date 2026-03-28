@@ -1,7 +1,6 @@
 package io.github.dawciobiel.shelldialog.examples;
 
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.input.KeyType;
 import io.github.dawciobiel.shelldialog.cli.dialog.FormDialog;
 import io.github.dawciobiel.shelldialog.cli.dialog.FormField;
 import io.github.dawciobiel.shelldialog.cli.dialog.FormValues;
@@ -72,7 +71,7 @@ public class FormExample {
                 .withToolbar(
                         NavigationToolbar.builder()
                                 .withArrowsNavigation()
-                                .withKey(KeyType.Tab, "Next Field")
+                                .withTabNextField()
                                 .withEnterAccept()
                                 .withEscapeCancel()
                                 .build()

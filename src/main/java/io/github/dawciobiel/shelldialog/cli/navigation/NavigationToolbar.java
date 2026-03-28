@@ -153,6 +153,16 @@ public final class NavigationToolbar {
         }
 
         /**
+         * Appends the standard tab-to-next-field item.
+         *
+         * @return this builder
+         */
+        public Builder withTabNextField() {
+            items.add(new NavigationItem(NavigationLabels.KEY_TAB, NavigationLabels.ACTION_NEXT_FIELD));
+            return this;
+        }
+
+        /**
          * Appends the standard F5-to-refresh item.
          *
          * @return this builder
