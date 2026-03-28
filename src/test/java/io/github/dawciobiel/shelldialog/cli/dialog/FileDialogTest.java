@@ -335,6 +335,7 @@ class FileDialogTest {
         assertFalse(foundTxt, "TXT file should be filtered out by source-files preset");
         assertTrue(foundJava, "Java file should be listed by source-files preset");
         assertTrue(foundDir, "Directory should still be listed");
+        assertEquals("SOURCE_FILES", readField(dialog, "filterLabel"));
     }
 
     private FileDialog.Builder createDialogBuilder() {

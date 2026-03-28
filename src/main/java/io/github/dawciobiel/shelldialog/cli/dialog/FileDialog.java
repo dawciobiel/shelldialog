@@ -73,6 +73,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String PREVIEW_PARENT_LABEL = Messages.getString("dialog.file.preview_parent");
     private static final String PREVIEW_CURRENT_LABEL = Messages.getString("dialog.file.preview_current");
     private static final String PREVIEW_UNKNOWN_LABEL = Messages.getString("dialog.file.preview_unknown");
+    private static final String FILTER_LABEL = Messages.getString("dialog.file.filter");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
@@ -87,6 +88,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private Path currentDirectory;
     private final boolean directoriesOnly;
     private final Predicate<Path> fileFilter;
+    private final String filterLabel;
     private final Map<KeyType, Path> shortcuts;
     private boolean showHiddenFiles;
     private String errorMessage;
@@ -106,6 +108,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.metadataPreviewVisible = builder.metadataPreviewVisible;
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
+        this.filterLabel = builder.filterLabel;
         this.shortcuts = Map.copyOf(builder.shortcuts);
         this.showHiddenFiles = builder.showHiddenFiles;
         this.currentDirectory = builder.initialDirectory != null ? builder.initialDirectory : CWD;
@@ -297,6 +300,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         String positionIndicator = hasViewport ? positionIndicatorLabel(selectedIndex) : "";
         String searchLine = filterText.isEmpty() ? "" : "Search: " + filterText + "_";
         String pathString = currentDirectory.toString();
+        String filterLine = filterLabel == null ? "" : FILTER_LABEL + ": " + filterLabel;
         boolean hasError = errorMessage != null;
         String newDirectoryLine = creatingDirectory ? NEW_DIRECTORY_LABEL + ": " + newDirectoryName + "_" : "";
         List<String> previewLines = metadataPreviewVisible ? previewLines(selectedIndex) : List.of();
@@ -310,7 +314,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         );
         
         int contentWidth = Math.max(
-                Math.max(Math.max(Math.max(titleArea.getWidth(), optionsWidth), pathString.length()), searchLine.length()),
+                Math.max(Math.max(Math.max(Math.max(titleArea.getWidth(), optionsWidth), pathString.length()), searchLine.length()), filterLine.length()),
                 navigationArea.getWidth()
         );
         if (hasError) {
@@ -328,6 +332,7 @@ public class FileDialog extends AbstractListDialog<Path> {
 
         int contentHeight = titleArea.getHeight()
                 + 1 // Path line
+                + (filterLabel == null ? 0 : 1) // Filter line
                 + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
                 + 1 // Spacer
                 + (previewLines.isEmpty() ? 0 : previewLines.size() + 1)
@@ -349,6 +354,9 @@ public class FileDialog extends AbstractListDialog<Path> {
         row += titleArea.getHeight();
 
         menuItemArea.withContent(pathString).render(tg, column, row++);
+        if (filterLabel != null) {
+            menuItemArea.withContent(filterLine).render(tg, column, row++);
+        }
         
         if (!filterText.isEmpty()) {
             row++;
@@ -514,6 +522,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private boolean showHiddenFiles = false;
         private boolean metadataPreviewVisible = false;
         private Predicate<Path> filter = path -> true;
+        private String filterLabel;
         private Map<KeyType, Path> shortcuts = Collections.emptyMap();
 
         /**
@@ -620,6 +629,7 @@ public class FileDialog extends AbstractListDialog<Path> {
          */
         public Builder withFileFilter(Predicate<Path> filter) {
             this.filter = Objects.requireNonNull(filter);
+            this.filterLabel = null;
             return this;
         }
 
@@ -642,10 +652,16 @@ public class FileDialog extends AbstractListDialog<Path> {
          */
         public Builder withExtensions(List<String> extensions) {
             List<String> normalized = normalizeExtensions(extensions);
-            return withFileFilter(path -> {
+            this.filter = path -> {
                 String fileName = path.getFileName().toString().toLowerCase();
                 return normalized.stream().anyMatch(fileName::endsWith);
-            });
+            };
+            this.filterLabel = normalized.stream()
+                    .map(ext -> ext.startsWith(".") ? ext.substring(1) : ext)
+                    .map(String::toUpperCase)
+                    .reduce((left, right) -> left + ", " + right)
+                    .orElse(null);
+            return this;
         }
 
         /**
@@ -671,10 +687,15 @@ public class FileDialog extends AbstractListDialog<Path> {
             }
 
             Set<String> extensions = new LinkedHashSet<>();
+            List<String> labels = new ArrayList<>();
             for (ExtensionPreset preset : presets) {
-                extensions.addAll(Objects.requireNonNull(preset).extensions());
+                ExtensionPreset normalizedPreset = Objects.requireNonNull(preset);
+                extensions.addAll(normalizedPreset.extensions());
+                labels.add(normalizedPreset.name());
             }
-            return withExtensions(List.copyOf(extensions));
+            withExtensions(List.copyOf(extensions));
+            this.filterLabel = String.join(", ", labels);
+            return this;
         }
 
         private static List<String> normalizeExtensions(List<String> extensions) {
