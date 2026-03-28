@@ -452,6 +452,8 @@ If the current directory cannot be read, `FileDialog` displays an inline error m
 
 When `F7` is pressed, `FileDialog` opens an inline prompt for a new directory name. Confirm with `Enter` to create the folder in the currently opened path, or cancel with `Escape`.
 
+When metadata preview is enabled, `FileDialog` also renders a small panel for the currently focused entry, including its label, type, path, and file size when available.
+
 ### Sorting behavior
 
 `FileDialog` automatically sorts content:
@@ -465,6 +467,7 @@ When `F7` is pressed, `FileDialog` opens an inline prompt for a new directory na
 - `directoriesOnly(boolean)` to enable directory selection mode (defaults to `false` for file selection)
 - `withVisibleItemCount(int)` to limit how many items are shown at once
 - `withShowHiddenFiles(boolean)` to control whether hidden files/directories are visible
+- `withMetadataPreview(boolean)` to render a metadata panel for the selected entry
 - `withFileFilter(Predicate<Path>)` to provide a custom filter for files (directories are always shown)
 - `withExtensions(List<String>)` to show only files with specific extensions (e.g., `java`, `md`)
 - `withShortcuts(Map<KeyType, Path>)` to configure custom keyboard shortcuts to specific directories
@@ -495,6 +498,7 @@ NavigationArea navigationArea = new NavigationArea.Builder()
 
 FileDialog dialog = new FileDialog.Builder(titleArea, menuItemArea, selectedMenuItemArea, navigationArea)
         .withTheme(theme)
+        .withMetadataPreview(true)
         .withShortcuts(shortcuts)
         .build();
 

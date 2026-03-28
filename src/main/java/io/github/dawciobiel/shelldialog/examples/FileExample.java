@@ -81,6 +81,7 @@ public class FileExample {
                 .withBorderColor(TextColor.ANSI.BLUE)
                 .withVisibleItemCount(10)
                 .withTheme(theme)
+                .withMetadataPreview(true)
                 .withExtensions(List.of("java", "md", "txt"))
                 .withShortcuts(customShortcuts)
                 .build();
