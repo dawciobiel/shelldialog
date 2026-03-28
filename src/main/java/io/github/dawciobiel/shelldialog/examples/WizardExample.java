@@ -71,7 +71,7 @@ public final class WizardExample {
                         .withDescription("Set the path to the configuration file written at the end of the wizard.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.keyValues("Summary", "Review all collected values before finishing the setup.", WizardExample::summaryItems)
+                WizardSummaryStep.sections("Summary", "Review all collected values before finishing the setup.", WizardExample::summarySections)
         );
 
         WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>("Setup Wizard", steps)
@@ -97,12 +97,16 @@ public final class WizardExample {
         out.println("Config file: " + data.configFile());
     }
 
-    private static List<WizardSummaryStep.SummaryItem> summaryItems(WizardContext context) {
+    private static List<WizardSummaryStep.SummarySection> summarySections(WizardContext context) {
         return List.of(
-                WizardSummaryStep.SummaryItem.of("User", context.getString("username")),
-                WizardSummaryStep.SummaryItem.of("Password length", String.valueOf(context.getPassword("password").length)),
-                WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
-                WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
+                WizardSummaryStep.SummarySection.of("Account", List.of(
+                        WizardSummaryStep.SummaryItem.of("User", context.getString("username")),
+                        WizardSummaryStep.SummaryItem.of("Password length", String.valueOf(context.getPassword("password").length))
+                )),
+                WizardSummaryStep.SummarySection.of("Output", List.of(
+                        WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
+                        WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
+                ))
         );
     }
 }

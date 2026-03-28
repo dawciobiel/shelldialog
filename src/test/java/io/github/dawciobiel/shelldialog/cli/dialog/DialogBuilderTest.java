@@ -521,6 +521,28 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardSummaryStepShouldFormatSectionsWithSpacing() {
+        List<String> lines = WizardSummaryStep.formatSummarySections(List.of(
+                WizardSummaryStep.SummarySection.of("Account", List.of(
+                        WizardSummaryStep.SummaryItem.of("User", "joe")
+                )),
+                WizardSummaryStep.SummarySection.of("Output", List.of(
+                        WizardSummaryStep.SummaryItem.of("Target", "/tmp/out"),
+                        WizardSummaryStep.SummaryItem.of("Config", "/tmp/out/config.properties")
+                ))
+        ));
+
+        assertEquals(List.of(
+                "Account",
+                "User: joe",
+                "",
+                "Output",
+                "Target: /tmp/out",
+                "Config: /tmp/out/config.properties"
+        ), lines);
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),
