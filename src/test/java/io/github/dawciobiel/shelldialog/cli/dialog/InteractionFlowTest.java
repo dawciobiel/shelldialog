@@ -269,6 +269,31 @@ class InteractionFlowTest {
     }
 
     @Test
+    void fileDialogShouldAllowSelectingFileWhenMetadataPreviewIsEnabled() throws Exception {
+        Path previewDir = Files.createDirectory(tempDir.resolve("preview"));
+        Path targetFile = Files.createFile(previewDir.resolve("file.txt"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(previewDir)
+                .withMetadataPreview(true)
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should still return a file when metadata preview is enabled");
+        assertEquals(targetFile, result.get());
+    }
+
+    @Test
     void wizardDialogShouldFinishAfterMultipleSteps() throws Exception {
         DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
         terminal.addInput(new KeyStroke('j', false, false));

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `WizardDialog` steps can now expose optional single-line descriptions rendered below the step header.
 - `WizardInfoStep` for read-only informational screens in multi-step wizard flows.
+- `FileDialog` metadata preview panel for the currently focused entry.
 
 ## [3.2.0] - 2026-03-28
 

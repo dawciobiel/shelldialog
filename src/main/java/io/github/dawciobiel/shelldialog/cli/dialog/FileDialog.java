@@ -42,6 +42,15 @@ public class FileDialog extends AbstractListDialog<Path> {
     private static final String NEW_DIRECTORY_LABEL = Messages.getString("dialog.file.new_directory");
     private static final String CREATE_ERROR_LABEL = Messages.getString("dialog.file.create_error");
     private static final String CREATE_ERROR_BLANK_LABEL = Messages.getString("dialog.file.create_error_blank");
+    private static final String PREVIEW_SELECTED_LABEL = Messages.getString("dialog.file.preview_selected");
+    private static final String PREVIEW_TYPE_LABEL = Messages.getString("dialog.file.preview_type");
+    private static final String PREVIEW_PATH_LABEL = Messages.getString("dialog.file.preview_path");
+    private static final String PREVIEW_SIZE_LABEL = Messages.getString("dialog.file.preview_size");
+    private static final String PREVIEW_FILE_LABEL = Messages.getString("dialog.file.preview_file");
+    private static final String PREVIEW_DIRECTORY_LABEL = Messages.getString("dialog.file.preview_directory");
+    private static final String PREVIEW_PARENT_LABEL = Messages.getString("dialog.file.preview_parent");
+    private static final String PREVIEW_CURRENT_LABEL = Messages.getString("dialog.file.preview_current");
+    private static final String PREVIEW_UNKNOWN_LABEL = Messages.getString("dialog.file.preview_unknown");
     private static final Path CWD = Paths.get(".").toAbsolutePath().normalize();
 
     private final TitleArea titleArea;
@@ -51,6 +60,7 @@ public class FileDialog extends AbstractListDialog<Path> {
     private final boolean borderVisible;
     private final DialogFrame dialogFrame;
     private final TextStyle errorMessageStyle;
+    private final boolean metadataPreviewVisible;
 
     private Path currentDirectory;
     private final boolean directoriesOnly;
@@ -71,6 +81,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         this.borderVisible = builder.borderVisible;
         this.dialogFrame = new DialogFrame(borderVisible, builder.borderStyle);
         this.errorMessageStyle = builder.errorMessageStyle;
+        this.metadataPreviewVisible = builder.metadataPreviewVisible;
         this.directoriesOnly = builder.directoriesOnly;
         this.fileFilter = builder.filter;
         this.shortcuts = Map.copyOf(builder.shortcuts);
@@ -266,6 +277,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         String pathString = currentDirectory.toString();
         boolean hasError = errorMessage != null;
         String newDirectoryLine = creatingDirectory ? NEW_DIRECTORY_LABEL + ": " + newDirectoryName + "_" : "";
+        List<String> previewLines = metadataPreviewVisible ? previewLines(selectedIndex) : List.of();
 
         int optionsWidth = Math.max(
                 visibleOptions.stream()
@@ -285,11 +297,18 @@ public class FileDialog extends AbstractListDialog<Path> {
         if (creatingDirectory) {
             contentWidth = Math.max(contentWidth, newDirectoryLine.length());
         }
-        
+        if (!previewLines.isEmpty()) {
+            contentWidth = Math.max(
+                    contentWidth,
+                    previewLines.stream().mapToInt(String::length).max().orElse(0)
+            );
+        }
+
         int contentHeight = titleArea.getHeight()
                 + 1 // Path line
                 + (filterText.isEmpty() ? 0 : 2) // Search line + spacer
                 + 1 // Spacer
+                + (previewLines.isEmpty() ? 0 : previewLines.size() + 1)
                 + (creatingDirectory ? 1 : 0)
                 + (hasError ? 1 : 0)
                 + (hasItemsAbove ? 1 : 0)
@@ -315,6 +334,13 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
         
         row++; // Spacer
+
+        if (!previewLines.isEmpty()) {
+            for (String previewLine : previewLines) {
+                menuItemArea.withContent(previewLine).render(tg, column, row++);
+            }
+            row++;
+        }
 
         int createDirectoryRow = row;
         if (creatingDirectory) {
@@ -409,6 +435,48 @@ public class FileDialog extends AbstractListDialog<Path> {
         }
     }
 
+    private List<String> previewLines(int selectedIndex) {
+        if (options.isEmpty() || selectedIndex < 0 || selectedIndex >= options.size()) {
+            return List.of();
+        }
+
+        FileOption selectedOption = (FileOption) options.get(selectedIndex);
+        Path selectedPath = selectedOption.getPath();
+        String typeLabel = previewType(selectedOption);
+        String sizeLabel = previewSize(selectedOption);
+
+        return List.of(
+                PREVIEW_SELECTED_LABEL + ": " + selectedOption.getLabel(),
+                PREVIEW_TYPE_LABEL + ": " + typeLabel,
+                PREVIEW_PATH_LABEL + ": " + selectedPath,
+                PREVIEW_SIZE_LABEL + ": " + sizeLabel
+        );
+    }
+
+    private String previewType(FileOption option) {
+        if (option.isCurrentDirectoryLink()) {
+            return PREVIEW_CURRENT_LABEL;
+        }
+        if (option.isParentLink()) {
+            return PREVIEW_PARENT_LABEL;
+        }
+        if (option.isDirectory()) {
+            return PREVIEW_DIRECTORY_LABEL;
+        }
+        return PREVIEW_FILE_LABEL;
+    }
+
+    private String previewSize(FileOption option) {
+        if (option.isParentLink() || option.isCurrentDirectoryLink() || option.isDirectory()) {
+            return PREVIEW_UNKNOWN_LABEL;
+        }
+        try {
+            return Files.size(option.getPath()) + " B";
+        } catch (IOException e) {
+            return PREVIEW_UNKNOWN_LABEL;
+        }
+    }
+
     /**
      * Builder for {@link FileDialog} instances.
      */
@@ -422,6 +490,7 @@ public class FileDialog extends AbstractListDialog<Path> {
         private Path initialDirectory;
         private boolean directoriesOnly = false;
         private boolean showHiddenFiles = false;
+        private boolean metadataPreviewVisible = false;
         private Predicate<Path> filter = path -> true;
         private Map<KeyType, Path> shortcuts = Collections.emptyMap();
 
@@ -507,6 +576,17 @@ public class FileDialog extends AbstractListDialog<Path> {
          */
         public Builder withShowHiddenFiles(boolean showHiddenFiles) {
             this.showHiddenFiles = showHiddenFiles;
+            return this;
+        }
+
+        /**
+         * Controls whether a metadata preview panel is rendered for the selected entry.
+         *
+         * @param metadataPreviewVisible true to show file metadata below the current path
+         * @return this builder
+         */
+        public Builder withMetadataPreview(boolean metadataPreviewVisible) {
+            this.metadataPreviewVisible = metadataPreviewVisible;
             return this;
         }
 

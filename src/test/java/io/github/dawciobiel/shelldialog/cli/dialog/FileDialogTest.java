@@ -161,6 +161,32 @@ class FileDialogTest {
     }
 
     @Test
+    void shouldStoreMetadataPreviewFlagWhenConfigured() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withMetadataPreview(true)
+                .build();
+
+        assertTrue((boolean) readField(dialog, "metadataPreviewVisible"));
+    }
+
+    @Test
+    void shouldBuildPreviewLinesForSelectedFile() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .withMetadataPreview(true)
+                .build();
+
+        List<String> previewLines = invokePreviewLines(dialog, 2);
+
+        assertEquals(4, previewLines.size());
+        assertTrue(previewLines.get(0).startsWith("Selected: "));
+        assertTrue(previewLines.get(1).contains("Type: File"));
+        assertTrue(previewLines.get(2).contains("Path: "));
+        assertTrue(previewLines.get(3).contains("Size: "));
+    }
+
+    @Test
     void shouldStoreErrorMessageWhenDirectoryCannotBeRead() throws Exception {
         Path missingDirectory = tempDir.resolve("missing");
 
@@ -339,5 +365,12 @@ class FileDialogTest {
         Method method = FileDialog.class.getDeclaredMethod("createDirectory", String.class);
         method.setAccessible(true);
         return (boolean) method.invoke(dialog, directoryName);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> invokePreviewLines(FileDialog dialog, int selectedIndex) throws Exception {
+        Method method = FileDialog.class.getDeclaredMethod("previewLines", int.class);
+        method.setAccessible(true);
+        return (List<String>) method.invoke(dialog, selectedIndex);
     }
 }
