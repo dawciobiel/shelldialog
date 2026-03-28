@@ -74,6 +74,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
 - `WizardInfoStep` supports bullet-formatted instructional content for onboarding-style screens.
 - `WizardSummaryStep` supports typed `label: value` review rows with placeholder handling for missing values.
 - `WizardSummaryStep` also supports grouped review sections for larger wizard summaries.
+- `WizardSummaryStep` can add an optional intro line above grouped summary sections.
     - `MultiChoiceDialog` supports default selected options.
     - `YesNoDialog` supports a configurable default focused answer.
     - `FileDialog` supports directory navigation, filtering (by predicate or extension), smart sorting (folders first), and quick navigation shortcuts (F5, Home, End).
