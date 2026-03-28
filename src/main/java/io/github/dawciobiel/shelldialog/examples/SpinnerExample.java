@@ -25,6 +25,17 @@ public class SpinnerExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        SpinnerDialog dialog = buildDialog();
+        Optional<Boolean> result = dialog.show();
+
+        if (result.orElse(false)) {
+            out.println("Connected successfully!");
+        } else {
+            out.println("Connection failed or was cancelled.");
+        }
+    }
+
+    static SpinnerDialog buildDialog() {
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Connecting to Server")
                 .withTitleColor(TextColor.ANSI.MAGENTA_BRIGHT)
@@ -36,7 +47,7 @@ public class SpinnerExample {
 
         DialogTheme theme = DialogTheme.darkTheme();
 
-        SpinnerDialog dialog = new SpinnerDialog.Builder(titleArea, statusArea)
+        return new SpinnerDialog.Builder(titleArea, statusArea)
                 .withTheme(theme)
                 .withTask(reporter -> {
                     String[] steps = {
@@ -56,13 +67,5 @@ public class SpinnerExample {
                 // Custom dots spinner
                 .withSpinnerFrames(List.of("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"))
                 .build();
-
-        Optional<Boolean> result = dialog.show();
-
-        if (result.orElse(false)) {
-            out.println("Connected successfully!");
-        } else {
-            out.println("Connection failed or was cancelled.");
-        }
     }
 }

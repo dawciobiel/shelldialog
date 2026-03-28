@@ -31,6 +31,17 @@ public class FileExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        FileDialog dialog = buildDialog();
+        Optional<Path> result = dialog.show();
+
+        if (result.isPresent()) {
+            out.println("You selected: " + result.get().toAbsolutePath());
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static FileDialog buildDialog() {
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Select a source file:")
                 .withTitleColor(TextColor.ANSI.YELLOW_BRIGHT)
@@ -72,7 +83,7 @@ public class FileExample {
                 .withTheme(theme)
                 .build();
 
-        FileDialog dialog = new FileDialog.Builder(
+        return new FileDialog.Builder(
                 titleArea,
                 menuItemArea,
                 selectedMenuItemArea,
@@ -88,13 +99,5 @@ public class FileExample {
                 )
                 .withShortcuts(customShortcuts)
                 .build();
-
-        Optional<Path> result = dialog.show();
-
-        if (result.isPresent()) {
-            out.println("You selected: " + result.get().toAbsolutePath());
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }

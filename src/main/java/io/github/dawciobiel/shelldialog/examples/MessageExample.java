@@ -26,6 +26,17 @@ public class MessageExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        MessageDialog dialog = buildDialog();
+        Optional<Boolean> result = dialog.show();
+
+        if (result.isPresent() && result.get()) {
+            out.println("User acknowledged the message.");
+        } else {
+            out.println("User cancelled/dismissed the message.");
+        }
+    }
+
+    static MessageDialog buildDialog() {
         DialogTheme theme = DialogTheme.darkTheme();
 
         TitleArea titleArea = new TitleArea.Builder()
@@ -49,18 +60,10 @@ public class MessageExample {
                 .withTheme(theme)
                 .build();
 
-        MessageDialog dialog = new MessageDialog.Builder(titleArea, contentArea, navigationArea)
+        return new MessageDialog.Builder(titleArea, contentArea, navigationArea)
                 .withBorder(true)
                 .withBorderColor(TextColor.ANSI.CYAN)
                 .withTheme(theme)
                 .build();
-
-        Optional<Boolean> result = dialog.show();
-
-        if (result.isPresent() && result.get()) {
-            out.println("User acknowledged the message.");
-        } else {
-            out.println("User cancelled/dismissed the message.");
-        }
     }
 }

@@ -29,6 +29,18 @@ public class SingleChoiceExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        SingleChoiceDialog dialog = buildDialog();
+        Optional<DialogOption> result = dialog.show();
+
+        if (result.isPresent()) {
+            DialogOption selected = result.get();
+            out.println("You selected: " + selected.getLabel() + " (Code: " + selected.getCode() + ")");
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static SingleChoiceDialog buildDialog() {
         TitleArea titleArea = new TitleArea.Builder()
                 .withTitle("Select your favorite fruit:")
                 .withTitleColor(TextColor.ANSI.YELLOW_BRIGHT)
@@ -69,7 +81,7 @@ public class SingleChoiceExample {
                 )
                 .build();
 
-        SingleChoiceDialog dialog = new SingleChoiceDialog.Builder(
+        return new SingleChoiceDialog.Builder(
                 titleArea,
                 menuItemArea,
                 selectedMenuItemArea,
@@ -79,14 +91,5 @@ public class SingleChoiceExample {
                 .withBorderColor(TextColor.ANSI.BLUE)
                 .withVisibleItemCount(3)
                 .build();
-
-        Optional<DialogOption> result = dialog.show();
-
-        if (result.isPresent()) {
-            DialogOption selected = result.get();
-            out.println("You selected: " + selected.getLabel() + " (Code: " + selected.getCode() + ")");
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }

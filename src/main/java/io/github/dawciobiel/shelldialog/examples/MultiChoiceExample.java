@@ -31,6 +31,21 @@ public class MultiChoiceExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        MultiChoiceDialog dialog = buildDialog();
+        Optional<List<DialogOption>> result = dialog.show();
+
+        if (result.isPresent()) {
+            List<DialogOption> selected = result.get();
+            String labels = selected.stream()
+                    .map(DialogOption::getLabel)
+                    .collect(Collectors.joining(", "));
+            out.println(labels.isEmpty() ? "No fruits selected." : "You selected: " + labels);
+        } else {
+            out.println("Dialog cancelled.");
+        }
+    }
+
+    static MultiChoiceDialog buildDialog() {
         DialogTheme theme = DialogTheme.darkTheme();
 
         TitleArea titleArea = new TitleArea.Builder()
@@ -84,7 +99,7 @@ public class MultiChoiceExample {
                 )
                 .build();
 
-        MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
+        return new MultiChoiceDialog.Builder(
                 titleArea,
                 menuItemArea,
                 focusedMenuItemArea,
@@ -100,17 +115,5 @@ public class MultiChoiceExample {
                 ))
                 .withVisibleItemCount(3)
                 .build();
-
-        Optional<List<DialogOption>> result = dialog.show();
-
-        if (result.isPresent()) {
-            List<DialogOption> selected = result.get();
-            String labels = selected.stream()
-                    .map(DialogOption::getLabel)
-                    .collect(Collectors.joining(", "));
-            out.println(labels.isEmpty() ? "No fruits selected." : "You selected: " + labels);
-        } else {
-            out.println("Dialog cancelled.");
-        }
     }
 }

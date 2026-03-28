@@ -36,6 +36,20 @@ public class FormExample {
      * @param args command-line arguments, currently ignored
      */
     public static void main(String[] args) {
+        FormDialog<AccountData> dialog = buildDialog();
+        Optional<AccountData> result = dialog.show();
+        if (result.isEmpty()) {
+            out.println("Dialog cancelled.");
+            return;
+        }
+
+        AccountData values = result.get();
+        out.println("Username: " + values.username());
+        out.println("Email: " + values.email());
+        out.println("Password length: " + values.password().length);
+    }
+
+    static FormDialog<AccountData> buildDialog() {
         DialogTheme theme = DialogTheme.builder()
                 .borderStyle(TextStyle.of(TextColor.ANSI.BLUE, TextColor.ANSI.DEFAULT))
                 .titleStyle(TextStyle.of(TextColor.ANSI.WHITE, TextColor.ANSI.DEFAULT))
@@ -103,7 +117,7 @@ public class FormExample {
                         .build()
         );
 
-        FormDialog<AccountData> dialog = new FormDialog.Builder<AccountData>(
+        return new FormDialog.Builder<AccountData>(
                 titleArea,
                 contentArea,
                 labelArea,
@@ -115,17 +129,6 @@ public class FormExample {
                 .withTheme(theme)
                 .withResultMapper(FormExample::toAccountData)
                 .build();
-
-        Optional<AccountData> result = dialog.show();
-        if (result.isEmpty()) {
-            out.println("Dialog cancelled.");
-            return;
-        }
-
-        AccountData values = result.get();
-        out.println("Username: " + values.username());
-        out.println("Email: " + values.email());
-        out.println("Password length: " + values.password().length);
     }
 
     private static AccountData toAccountData(FormValues values) {
