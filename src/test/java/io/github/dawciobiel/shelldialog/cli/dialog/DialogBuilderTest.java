@@ -506,6 +506,21 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardSummaryStepShouldFormatAlignedSummaryItems() {
+        List<String> lines = WizardSummaryStep.formatSummaryItems(List.of(
+                WizardSummaryStep.SummaryItem.of("User", "joe"),
+                WizardSummaryStep.SummaryItem.of("Config file", "/tmp/config.properties"),
+                WizardSummaryStep.SummaryItem.of("Optional", " ")
+        ));
+
+        assertEquals(List.of(
+                "User       : joe",
+                "Config file: /tmp/config.properties",
+                "Optional   : <not provided>"
+        ), lines);
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

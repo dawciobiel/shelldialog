@@ -71,7 +71,7 @@ public final class WizardExample {
                         .withDescription("Set the path to the configuration file written at the end of the wizard.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.of("Summary", "Review all collected values before finishing the setup.", WizardExample::summaryLines)
+                WizardSummaryStep.keyValues("Summary", "Review all collected values before finishing the setup.", WizardExample::summaryItems)
         );
 
         WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>("Setup Wizard", steps)
@@ -97,13 +97,12 @@ public final class WizardExample {
         out.println("Config file: " + data.configFile());
     }
 
-    private static List<String> summaryLines(WizardContext context) {
+    private static List<WizardSummaryStep.SummaryItem> summaryItems(WizardContext context) {
         return List.of(
-                "Review your setup:",
-                "User: " + context.getString("username"),
-                "Password length: " + context.getPassword("password").length,
-                "Target: " + context.getPath("targetDirectory"),
-                "Config: " + context.getPath("configFile")
+                WizardSummaryStep.SummaryItem.of("User", context.getString("username")),
+                WizardSummaryStep.SummaryItem.of("Password length", String.valueOf(context.getPassword("password").length)),
+                WizardSummaryStep.SummaryItem.of("Target", String.valueOf(context.getPath("targetDirectory"))),
+                WizardSummaryStep.SummaryItem.of("Config", String.valueOf(context.getPath("configFile")))
         );
     }
 }
