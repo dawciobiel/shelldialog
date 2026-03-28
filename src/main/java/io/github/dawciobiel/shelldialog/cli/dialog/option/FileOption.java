@@ -11,16 +11,22 @@ public class FileOption implements DialogOption {
     private final String label;
     private final boolean isDirectory;
     private final boolean isParentLink;
+    private final boolean isCurrentDirectoryLink;
 
     public FileOption(Path path, boolean isDirectory) {
-        this(path, path.getFileName() != null ? path.getFileName().toString() : path.toString(), isDirectory, false);
+        this(path, path.getFileName() != null ? path.getFileName().toString() : path.toString(), isDirectory, false, false);
     }
 
     public FileOption(Path path, String label, boolean isDirectory, boolean isParentLink) {
+        this(path, label, isDirectory, isParentLink, false);
+    }
+
+    public FileOption(Path path, String label, boolean isDirectory, boolean isParentLink, boolean isCurrentDirectoryLink) {
         this.path = path;
         this.label = label;
         this.isDirectory = isDirectory;
         this.isParentLink = isParentLink;
+        this.isCurrentDirectoryLink = isCurrentDirectoryLink;
     }
 
     @Override
@@ -32,6 +38,9 @@ public class FileOption implements DialogOption {
     public String getLabel() {
         if (isParentLink) {
             return "..";
+        }
+        if (isCurrentDirectoryLink) {
+            return label;
         }
         return (isDirectory ? "/" : "") + label;
     }
@@ -51,5 +60,9 @@ public class FileOption implements DialogOption {
 
     public boolean isParentLink() {
         return isParentLink;
+    }
+
+    public boolean isCurrentDirectoryLink() {
+        return isCurrentDirectoryLink;
     }
 }

@@ -161,20 +161,7 @@ class FileDialogTest {
 
     @Test
     void shouldListOnlyDirectoriesWhenConfigured() throws Exception {
-        TitleArea titleArea = new TitleArea.Builder().withTitle("Title").build();
-        ContentArea contentArea = new ContentArea.Builder().withContent("Item").build();
-        ContentArea selectedContentArea = new ContentArea.Builder().withContent("Selected").build();
-        NavigationArea navigationArea = new NavigationArea.Builder()
-                .withToolbar(NavigationToolbar.builder().build())
-                .withTheme(DialogTheme.darkTheme())
-                .build();
-
-        FileDialog dialog = new FileDialog.Builder(
-                titleArea,
-                contentArea,
-                selectedContentArea,
-                navigationArea
-        )
+        FileDialog dialog = createDialogBuilder()
                 .withInitialDirectory(tempDir)
                 .directoriesOnly(true)
                 .build();
@@ -182,15 +169,36 @@ class FileDialogTest {
         List<DialogOption> options = getOptions(dialog);
 
         boolean hasParent = tempDir.getParent() != null;
-        int expectedSize = 1 + (hasParent ? 1 : 0);
+        int expectedSize = 2 + (hasParent ? 1 : 0);
         
         assertEquals(expectedSize, options.size());
         
         boolean foundFile = options.stream().anyMatch(o -> o.getLabel().endsWith("file1.txt"));
         boolean foundDir = options.stream().anyMatch(o -> o.getLabel().endsWith("dir1"));
+        boolean foundCurrentDir = options.stream().anyMatch(o -> o.getLabel().contains("(current directory)"));
 
         assertFalse(foundFile, "File should NOT be listed");
         assertTrue(foundDir, "Directory should be listed");
+        assertTrue(foundCurrentDir, "Current directory option should be listed");
+    }
+
+    @Test
+    void shouldExposeCurrentDirectorySelectionOptionInDirectoriesOnlyMode() throws Exception {
+        FileDialog dialog = createDialogBuilder()
+                .withInitialDirectory(tempDir)
+                .directoriesOnly(true)
+                .build();
+
+        List<DialogOption> options = getOptions(dialog);
+
+        FileOption currentDirectoryOption = options.stream()
+                .map(option -> (FileOption) option)
+                .filter(FileOption::isCurrentDirectoryLink)
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(tempDir, currentDirectoryOption.getPath());
+        assertEquals("./ (current directory)", currentDirectoryOption.getLabel());
     }
 
     @Test

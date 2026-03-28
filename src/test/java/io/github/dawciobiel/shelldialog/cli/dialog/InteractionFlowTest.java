@@ -183,6 +183,30 @@ class InteractionFlowTest {
         assertEquals(hiddenFile, result.get());
     }
 
+    @Test
+    void fileDialogShouldAllowSelectingCurrentDirectoryInDirectoriesOnlyMode() throws Exception {
+        Path nestedDir = Files.createDirectory(tempDir.resolve("nested"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.ArrowDown));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        FileDialog dialog = new FileDialog.Builder(
+                titleArea(),
+                contentArea(),
+                selectedContentArea(),
+                navigationArea()
+        )
+                .withTerminal(terminal)
+                .withInitialDirectory(nestedDir)
+                .directoriesOnly(true)
+                .build();
+
+        Optional<Path> result = dialog.show();
+        assertTrue(result.isPresent(), "Dialog should return current directory in directories-only mode");
+        assertEquals(nestedDir, result.get());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 

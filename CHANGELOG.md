@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FileDialog` enhancements:
     - **Smart Sorting:** Directories are now listed first, followed by files.
     - **Hidden Files Toggle:** Added `withShowHiddenFiles(boolean)` plus runtime toggle with `F2`.
+    - **Current Directory Selection:** `directoriesOnly(true)` mode now exposes a selectable current-directory entry.
     - **Navigation Shortcuts:** Added `F5` (Refresh), `Home` (User Home), and `End` (CWD).
     - **Custom Shortcuts:** Support for user-defined keyboard shortcuts to specific directories via `.withShortcuts()`.
 - **Navigation Toolbar:** Added support for custom keys (`withKey`) and specialized actions (`withEnterOK`, `withF5Refresh`, etc.).
