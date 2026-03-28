@@ -17,10 +17,12 @@ import java.util.function.Function;
 public final class WizardSummaryStep implements WizardStep {
 
     private final String title;
+    private final String description;
     private final Function<WizardContext, List<String>> linesSupplier;
 
-    private WizardSummaryStep(String title, Function<WizardContext, List<String>> linesSupplier) {
+    private WizardSummaryStep(String title, String description, Function<WizardContext, List<String>> linesSupplier) {
         this.title = title;
+        this.description = description;
         this.linesSupplier = linesSupplier;
     }
 
@@ -32,16 +34,37 @@ public final class WizardSummaryStep implements WizardStep {
      * @return a new summary step
      */
     public static WizardSummaryStep of(String title, Function<WizardContext, List<String>> linesSupplier) {
+        return of(title, null, linesSupplier);
+    }
+
+    /**
+     * Creates a summary step with an optional description.
+     *
+     * @param title step title
+     * @param description optional help text shown below the header
+     * @param linesSupplier function producing lines from the current context
+     * @return a new summary step
+     */
+    public static WizardSummaryStep of(String title, String description, Function<WizardContext, List<String>> linesSupplier) {
         String normalizedTitle = Objects.requireNonNull(title).trim();
         if (normalizedTitle.isEmpty()) {
             throw new IllegalArgumentException("title must not be blank");
         }
-        return new WizardSummaryStep(normalizedTitle, Objects.requireNonNull(linesSupplier));
+        String normalizedDescription = description == null ? null : description.trim();
+        if (normalizedDescription != null && normalizedDescription.isEmpty()) {
+            normalizedDescription = null;
+        }
+        return new WizardSummaryStep(normalizedTitle, normalizedDescription, Objects.requireNonNull(linesSupplier));
     }
 
     @Override
     public String title() {
         return title;
+    }
+
+    @Override
+    public Optional<String> description() {
+        return Optional.ofNullable(description);
     }
 
     @Override

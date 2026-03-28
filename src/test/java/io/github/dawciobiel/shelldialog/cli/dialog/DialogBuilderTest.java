@@ -486,6 +486,15 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardTextStepBuilderShouldApplyDescription() throws Exception {
+        WizardTextStep step = WizardTextStep.builder("Account", "Enter username", "username")
+                .withDescription("Used to personalize the setup.")
+                .build();
+
+        assertEquals("Used to personalize the setup.", readField(step, "description"));
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

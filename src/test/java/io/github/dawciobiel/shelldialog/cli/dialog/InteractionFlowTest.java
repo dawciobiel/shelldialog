@@ -479,6 +479,37 @@ class InteractionFlowTest {
         assertEquals(existingFile, result.get().file());
     }
 
+    @Test
+    void wizardDialogShouldRenderStepDescriptionWithoutBreakingFlow() throws Exception {
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardData> dialog = new WizardDialog.Builder<WizardData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withDescription("This name will be shown in the final summary.")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardSummaryStep.of("Summary", "Review the collected setup values before finishing.", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardData(
+                        context.getString("username"),
+                        "done"
+                ))
+                .build();
+
+        Optional<WizardData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish when step descriptions are present");
+        assertEquals("joe", result.get().username());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 

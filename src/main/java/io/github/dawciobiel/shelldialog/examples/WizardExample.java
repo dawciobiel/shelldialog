@@ -47,18 +47,22 @@ public final class WizardExample {
 
         List<WizardStep> steps = List.of(
                 WizardTextStep.builder("Account", "Enter a username", "username")
+                        .withDescription("This name will be displayed in the generated configuration summary.")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username is required."))
                         .build(),
                 WizardPasswordStep.builder("Security", "Enter a password", "password")
+                        .withDescription("Choose a password for the account created by this setup flow.")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Password is required.").asPasswordValidator())
                         .build(),
                 WizardDirectoryStep.builder("Location", "Enter a target directory", "targetDirectory")
+                        .withDescription("Pick the directory where generated files should be stored.")
                         .withInitialValue(Path.of("./output"))
                         .build(),
                 WizardFileStep.builder("Config", "Enter a config file path", "configFile")
+                        .withDescription("Set the path to the configuration file written at the end of the wizard.")
                         .withInitialValue(Path.of("./output/config.properties"))
                         .build(),
-                WizardSummaryStep.of("Summary", WizardExample::summaryLines)
+                WizardSummaryStep.of("Summary", "Review all collected values before finishing the setup.", WizardExample::summaryLines)
         );
 
         WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>("Setup Wizard", steps)

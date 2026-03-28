@@ -124,10 +124,14 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         WizardStep currentStep = steps.get(currentStepIndex);
         TitleArea titleArea = titleArea(currentStepIndex, currentStep);
         NavigationToolbar navigationToolbar = navigationToolbar(currentStepIndex);
+        Optional<String> description = currentStep.description();
         int contentWidth = Math.max(
                 Math.max(titleArea.getWidth(), currentStep.width(context)),
                 navigationRenderer.measureWidth(navigationToolbar)
         );
+        if (description.isPresent()) {
+            contentWidth = Math.max(contentWidth, description.get().length());
+        }
 
         if (validationMessage != null) {
             contentWidth = Math.max(contentWidth, validationMessage.length());
@@ -136,6 +140,9 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         int contentHeight = titleArea.getHeight()
                 + 1
                 + currentStep.height(context);
+        if (description.isPresent()) {
+            contentHeight += 1 + 1;
+        }
         if (validationMessage != null) {
             contentHeight += 1 + 1;
         }
@@ -150,6 +157,11 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         row += titleArea.getHeight();
 
         row++;
+        if (description.isPresent()) {
+            contentArea.withContent(description.get()).render(tg, column, row);
+            row++;
+            row++;
+        }
 
         currentStep.render(tg, column, row, context, contentArea, inputArea);
         row += currentStep.height(context);
@@ -168,7 +180,11 @@ public final class WizardDialog<T> extends AbstractDialog<T> {
         row++;
         navigationRenderer.render(tg, navigationToolbar, column, row);
 
-        Optional<TerminalPosition> cursor = currentStep.cursorPosition(column, layout.contentRow() + titleArea.getHeight() + 1, context);
+        int contentRow = layout.contentRow() + titleArea.getHeight() + 1;
+        if (description.isPresent()) {
+            contentRow += 2;
+        }
+        Optional<TerminalPosition> cursor = currentStep.cursorPosition(column, contentRow, context);
         cursor.ifPresent(screen::setCursorPosition);
         screen.refresh();
     }

@@ -18,6 +18,7 @@ import java.util.Optional;
 public final class WizardPasswordStep implements WizardStep {
 
     private final String title;
+    private final String description;
     private final String prompt;
     private final String contextKey;
     private final PasswordValidator validator;
@@ -27,6 +28,7 @@ public final class WizardPasswordStep implements WizardStep {
 
     private WizardPasswordStep(Builder builder) {
         this.title = builder.title;
+        this.description = builder.description;
         this.prompt = builder.prompt;
         this.contextKey = builder.contextKey;
         this.validator = builder.validator;
@@ -50,6 +52,11 @@ public final class WizardPasswordStep implements WizardStep {
     @Override
     public String title() {
         return title;
+    }
+
+    @Override
+    public Optional<String> description() {
+        return Optional.ofNullable(description);
     }
 
     @Override
@@ -109,6 +116,7 @@ public final class WizardPasswordStep implements WizardStep {
         private final String title;
         private final String prompt;
         private final String contextKey;
+        private String description;
         private PasswordValidator validator = value -> Optional.empty();
         private int maxLength = Integer.MAX_VALUE;
         private String initialValue = "";
@@ -128,6 +136,18 @@ public final class WizardPasswordStep implements WizardStep {
          */
         public Builder withValidator(PasswordValidator validator) {
             this.validator = Objects.requireNonNull(validator);
+            return this;
+        }
+
+        /**
+         * Sets an optional single-line help text shown below the wizard header.
+         *
+         * @param description help text
+         * @return this builder
+         */
+        public Builder withDescription(String description) {
+            String normalized = Objects.requireNonNull(description).trim();
+            this.description = normalized.isEmpty() ? null : normalized;
             return this;
         }
 
