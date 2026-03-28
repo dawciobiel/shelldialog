@@ -399,6 +399,46 @@ class InteractionFlowTest {
         assertEquals("out", result.get().directory());
     }
 
+    @Test
+    void wizardDialogShouldSupportDirectoryStep() throws Exception {
+        Path existingDir = Files.createDirectory(tempDir.resolve("existing"));
+
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        for (char character : existingDir.toString().toCharArray()) {
+            terminal.addInput(new KeyStroke(character, false, false));
+        }
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardDirectoryData> dialog = new WizardDialog.Builder<WizardDirectoryData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardDirectoryStep.builder("Location", "Enter directory", "directory")
+                                .mustExist(true)
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardDirectoryData(
+                        context.getString("username"),
+                        context.getPath("directory")
+                ))
+                .build();
+
+        Optional<WizardDirectoryData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish with directory step");
+        assertEquals("joe", result.get().username());
+        assertEquals(existingDir, result.get().directory());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 
@@ -406,6 +446,9 @@ class InteractionFlowTest {
     }
 
     private record WizardPasswordData(String username, char[] password, String directory) {
+    }
+
+    private record WizardDirectoryData(String username, Path directory) {
     }
 
     private TitleArea titleArea() {

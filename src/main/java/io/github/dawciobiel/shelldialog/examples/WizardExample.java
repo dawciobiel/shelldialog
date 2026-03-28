@@ -2,6 +2,7 @@ package io.github.dawciobiel.shelldialog.examples;
 
 import com.googlecode.lanterna.TextColor;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardContext;
+import io.github.dawciobiel.shelldialog.cli.dialog.WizardDirectoryStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDialog;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardPasswordStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardStep;
@@ -11,6 +12,7 @@ import io.github.dawciobiel.shelldialog.cli.style.DialogTheme;
 import io.github.dawciobiel.shelldialog.cli.style.TextStyle;
 import io.github.dawciobiel.shelldialog.cli.validation.InputValidator;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +26,7 @@ public final class WizardExample {
     private WizardExample() {
     }
 
-    private record SetupData(String username, char[] password, String targetDirectory) {
+    private record SetupData(String username, char[] password, Path targetDirectory) {
     }
 
     /**
@@ -49,9 +51,8 @@ public final class WizardExample {
                 WizardPasswordStep.builder("Security", "Enter a password", "password")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Password is required.").asPasswordValidator())
                         .build(),
-                WizardTextStep.builder("Location", "Enter a target directory", "targetDirectory")
-                        .withInitialValue("./output")
-                        .withValidator(InputValidator.BuiltIn.nonEmpty("Target directory is required."))
+                WizardDirectoryStep.builder("Location", "Enter a target directory", "targetDirectory")
+                        .withInitialValue(Path.of("./output"))
                         .build(),
                 WizardSummaryStep.of("Summary", WizardExample::summaryLines)
         );
@@ -61,7 +62,7 @@ public final class WizardExample {
                 .withResultMapper(context -> new SetupData(
                         context.getString("username"),
                         context.getPassword("password"),
-                        context.getString("targetDirectory")
+                        context.getPath("targetDirectory")
                 ))
                 .build();
 
@@ -82,7 +83,7 @@ public final class WizardExample {
                 "Review your setup:",
                 "User: " + context.getString("username"),
                 "Password length: " + context.getPassword("password").length,
-                "Target: " + context.getString("targetDirectory")
+                "Target: " + context.getPath("targetDirectory")
         );
     }
 }

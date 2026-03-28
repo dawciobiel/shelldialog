@@ -241,6 +241,8 @@ To build `WizardDialog`, you need:
 ### Built-in step types in v1
 
 - `WizardTextStep` for single-line text input
+- `WizardPasswordStep` for masked single-line password input
+- `WizardDirectoryStep` for directory path input with optional existence checks
 - `WizardSummaryStep` for read-only review screens
 
 ### v1 scope notes
@@ -249,13 +251,13 @@ To build `WizardDialog`, you need:
 
 Current limitations:
 
-- built-in steps are limited to text input, password input, and summary screens
+- built-in steps are limited to text input, password input, directory input, and summary screens
 - there is no branching/conditional navigation between steps
 - there are no built-in adapters yet for `PasswordDialog`, `FormDialog`, or `FileDialog`
 
 Recommended next extensions:
 
-- directory/file-selection oriented wizard step
+- file-selection oriented wizard step
 - optional step adapters built on top of existing dialog primitives
 
 ### Shared context
@@ -280,19 +282,19 @@ WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
                 WizardTextStep.builder("Account", "Enter username", "username")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username required"))
                         .build(),
-                WizardTextStep.builder("Location", "Enter target directory", "targetDirectory")
-                        .withValidator(InputValidator.BuiltIn.nonEmpty("Directory required"))
+                WizardDirectoryStep.builder("Location", "Enter target directory", "targetDirectory")
+                        .withInitialValue(Path.of("./output"))
                         .build(),
                 WizardSummaryStep.of("Summary", context -> List.of(
                         "User: " + context.getString("username"),
-                        "Target: " + context.getString("targetDirectory")
+                        "Target: " + context.getPath("targetDirectory")
                 ))
         )
 )
         .withTheme(theme)
         .withResultMapper(context -> new SetupData(
                 context.getString("username"),
-                context.getString("targetDirectory")
+                context.getPath("targetDirectory")
         ))
         .build();
 

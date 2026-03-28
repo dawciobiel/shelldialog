@@ -15,6 +15,7 @@ import io.github.dawciobiel.shelldialog.cli.validation.InputValidator;
 import io.github.dawciobiel.shelldialog.cli.validation.PasswordValidator;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
@@ -464,6 +465,15 @@ class DialogBuilderTest {
 
         assertEquals('#', readField(step, "maskCharacter"));
         assertEquals("secret", readField(step, "buffer").toString());
+    }
+
+    @Test
+    void wizardDirectoryStepBuilderShouldApplyInitialValue() throws Exception {
+        WizardDirectoryStep step = WizardDirectoryStep.builder("Location", "Enter directory", "directory")
+                .withInitialValue(Path.of("./output"))
+                .build();
+
+        assertEquals("./output", readField(step, "buffer").toString());
     }
 
     @Test
