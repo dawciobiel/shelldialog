@@ -506,6 +506,15 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardInfoStepShouldFormatBulletLines() {
+        assertEquals(List.of(
+                "- First line",
+                "-",
+                "- Second line"
+        ), WizardInfoStep.formatBulletLines(List.of("First line", " ", "Second line")));
+    }
+
+    @Test
     void wizardSummaryStepShouldFormatAlignedSummaryItems() {
         List<String> lines = WizardSummaryStep.formatSummaryItems(List.of(
                 WizardSummaryStep.SummaryItem.of("User", "joe"),

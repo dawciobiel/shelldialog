@@ -54,6 +54,29 @@ public final class WizardInfoStep implements WizardStep {
         return new WizardInfoStep(normalizedTitle, normalizedDescription, normalizedLines);
     }
 
+    /**
+     * Creates an informational step with bullet-formatted body lines.
+     *
+     * @param title step title
+     * @param lines static bullet lines rendered in the step body
+     * @return a new info step
+     */
+    public static WizardInfoStep bullets(String title, List<String> lines) {
+        return bullets(title, null, lines);
+    }
+
+    /**
+     * Creates an informational step with description and bullet-formatted body lines.
+     *
+     * @param title step title
+     * @param description optional help text shown below the header
+     * @param lines static bullet lines rendered in the step body
+     * @return a new info step
+     */
+    public static WizardInfoStep bullets(String title, String description, List<String> lines) {
+        return of(title, description, formatBulletLines(lines));
+    }
+
     @Override
     public String title() {
         return title;
@@ -105,5 +128,14 @@ public final class WizardInfoStep implements WizardStep {
             throw new IllegalArgumentException(name + " must not be blank");
         }
         return normalized;
+    }
+
+    static List<String> formatBulletLines(List<String> lines) {
+        return Objects.requireNonNull(lines).stream()
+                .map(line -> {
+                    String normalized = Objects.requireNonNull(line).trim();
+                    return normalized.isEmpty() ? "-" : "- " + normalized;
+                })
+                .toList();
     }
 }

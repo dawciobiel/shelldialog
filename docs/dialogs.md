@@ -251,6 +251,8 @@ Built-in steps can also expose an optional single-line description rendered belo
 
 `WizardDialog` also renders an automatic progress bar below the header so the user can track the current step at a glance.
 
+`WizardInfoStep` can render either plain body lines or bullet-formatted onboarding/instruction content.
+
 `WizardSummaryStep` can be built from raw `List<String>` lines, typed `SummaryItem` entries for aligned `label: value` review rows, or grouped `SummarySection` blocks for larger review screens.
 
 ### v1 scope notes
@@ -292,7 +294,7 @@ Each step can commit values into `WizardContext`, and the final result is produc
 WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
         "Setup Wizard",
         List.of(
-                WizardInfoStep.of(
+                WizardInfoStep.bullets(
                         "Welcome",
                         "Read this short note before you begin.",
                         List.of("This wizard collects a few setup values step by step.")
