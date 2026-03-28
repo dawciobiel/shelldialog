@@ -495,6 +495,17 @@ class DialogBuilderTest {
     }
 
     @Test
+    void wizardInfoStepShouldExposeDescription() throws Exception {
+        WizardInfoStep step = WizardInfoStep.of(
+                "Welcome",
+                "Read this short note before continuing.",
+                List.of("Line 1", "Line 2")
+        );
+
+        assertEquals("Read this short note before continuing.", readField(step, "description"));
+    }
+
+    @Test
     void multiChoiceDialogBuilderShouldAllowDisablingBorder() throws Exception {
         MultiChoiceDialog dialog = new MultiChoiceDialog.Builder(
                 titleArea(),

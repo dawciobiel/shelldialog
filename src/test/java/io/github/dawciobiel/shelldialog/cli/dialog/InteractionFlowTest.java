@@ -510,6 +510,42 @@ class InteractionFlowTest {
         assertEquals("joe", result.get().username());
     }
 
+    @Test
+    void wizardDialogShouldSupportInfoStep() throws Exception {
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardData> dialog = new WizardDialog.Builder<WizardData>(
+                "Setup Wizard",
+                List.of(
+                        WizardInfoStep.of(
+                                "Welcome",
+                                "Read this note before continuing.",
+                                List.of("This wizard collects a few setup values.")
+                        ),
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardData(
+                        context.getString("username"),
+                        "done"
+                ))
+                .build();
+
+        Optional<WizardData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish when an info step is present");
+        assertEquals("joe", result.get().username());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 

@@ -5,6 +5,7 @@ import io.github.dawciobiel.shelldialog.cli.dialog.WizardContext;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDirectoryStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardDialog;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardFileStep;
+import io.github.dawciobiel.shelldialog.cli.dialog.WizardInfoStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardPasswordStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardStep;
 import io.github.dawciobiel.shelldialog.cli.dialog.WizardSummaryStep;
@@ -46,6 +47,14 @@ public final class WizardExample {
                 .build();
 
         List<WizardStep> steps = List.of(
+                WizardInfoStep.of(
+                        "Welcome",
+                        "Read this short note before you start entering values.",
+                        List.of(
+                                "This wizard collects a few setup values step by step.",
+                                "Press Enter to continue or Escape to cancel at any time."
+                        )
+                ),
                 WizardTextStep.builder("Account", "Enter a username", "username")
                         .withDescription("This name will be displayed in the generated configuration summary.")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username is required."))
