@@ -244,6 +244,7 @@ To build `WizardDialog`, you need:
 - `WizardPasswordStep` for masked single-line password input
 - `WizardDirectoryStep` for directory path input with optional existence checks
 - `WizardFileStep` for file path input with optional existence checks
+- `WizardInfoStep` for read-only informational screens
 - `WizardSummaryStep` for read-only review screens
 
 Built-in steps can also expose an optional single-line description rendered below the wizard header.
@@ -287,6 +288,11 @@ Each step can commit values into `WizardContext`, and the final result is produc
 WizardDialog<SetupData> dialog = new WizardDialog.Builder<SetupData>(
         "Setup Wizard",
         List.of(
+                WizardInfoStep.of(
+                        "Welcome",
+                        "Read this short note before you begin.",
+                        List.of("This wizard collects a few setup values step by step.")
+                ),
                 WizardTextStep.builder("Account", "Enter username", "username")
                         .withDescription("This user name will appear in the generated configuration.")
                         .withValidator(InputValidator.BuiltIn.nonEmpty("Username required"))
