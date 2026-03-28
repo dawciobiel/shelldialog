@@ -243,6 +243,22 @@ To build `WizardDialog`, you need:
 - `WizardTextStep` for single-line text input
 - `WizardSummaryStep` for read-only review screens
 
+### v1 scope notes
+
+`WizardDialog` in v1 is intentionally a lightweight step orchestrator, not a full workflow engine.
+
+Current limitations:
+
+- built-in steps are limited to text input and summary screens
+- there is no branching/conditional navigation between steps
+- there are no built-in adapters yet for `PasswordDialog`, `FormDialog`, or `FileDialog`
+
+Recommended next extensions:
+
+- `WizardPasswordStep`
+- directory/file-selection oriented wizard step
+- optional step adapters built on top of existing dialog primitives
+
 ### Shared context
 
 Each step can commit values into `WizardContext`, and the final result is produced via `withResultMapper(...)`.
