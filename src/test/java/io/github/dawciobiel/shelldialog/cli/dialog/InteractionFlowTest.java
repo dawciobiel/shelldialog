@@ -536,6 +536,13 @@ class InteractionFlowTest {
     }
 
     @Test
+    void wizardDialogShouldFormatProgressBarForCurrentStep() {
+        assertEquals("[#--]", WizardDialog.progressBar(0, 3));
+        assertEquals("[##-]", WizardDialog.progressBar(1, 3));
+        assertEquals("[###]", WizardDialog.progressBar(2, 3));
+    }
+
+    @Test
     void wizardDialogShouldSupportInfoStep() throws Exception {
         DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
         terminal.addInput(new KeyStroke(KeyType.Enter));
