@@ -43,6 +43,16 @@ public final class WizardContext {
     }
 
     /**
+     * Returns the password value stored under the supplied key.
+     *
+     * @param key key name
+     * @return stored password characters
+     */
+    public char[] getPassword(String key) {
+        return (char[]) requireValue(key);
+    }
+
+    /**
      * Returns the path value stored under the supplied key.
      *
      * @param key key name

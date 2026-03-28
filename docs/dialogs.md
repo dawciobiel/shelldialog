@@ -249,13 +249,12 @@ To build `WizardDialog`, you need:
 
 Current limitations:
 
-- built-in steps are limited to text input and summary screens
+- built-in steps are limited to text input, password input, and summary screens
 - there is no branching/conditional navigation between steps
 - there are no built-in adapters yet for `PasswordDialog`, `FormDialog`, or `FileDialog`
 
 Recommended next extensions:
 
-- `WizardPasswordStep`
 - directory/file-selection oriented wizard step
 - optional step adapters built on top of existing dialog primitives
 
@@ -268,6 +267,7 @@ Each step can commit values into `WizardContext`, and the final result is produc
 - `put(key, value)`
 - `get(key)`
 - `getString(key)`
+- `getPassword(key)`
 - `getPath(key)`
 - `asMap()`
 

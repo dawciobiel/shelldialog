@@ -349,10 +349,63 @@ class InteractionFlowTest {
         assertEquals("out", result.get().directory());
     }
 
+    @Test
+    void wizardDialogShouldSupportPasswordStep() throws Exception {
+        DefaultVirtualTerminal terminal = new DefaultVirtualTerminal();
+        terminal.addInput(new KeyStroke('j', false, false));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('s', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke('c', false, false));
+        terminal.addInput(new KeyStroke('r', false, false));
+        terminal.addInput(new KeyStroke('e', false, false));
+        terminal.addInput(new KeyStroke('t', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke('o', false, false));
+        terminal.addInput(new KeyStroke('u', false, false));
+        terminal.addInput(new KeyStroke('t', false, false));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+        terminal.addInput(new KeyStroke(KeyType.Enter));
+
+        WizardDialog<WizardPasswordData> dialog = new WizardDialog.Builder<WizardPasswordData>(
+                "Setup Wizard",
+                List.of(
+                        WizardTextStep.builder("Account", "Enter username", "username")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardPasswordStep.builder("Security", "Enter password", "password")
+                                .withValidator(chars -> chars.length < 6 ? Optional.of("Too short") : Optional.empty())
+                                .build(),
+                        WizardTextStep.builder("Location", "Enter directory", "directory")
+                                .withValidator(value -> value.isBlank() ? Optional.of("Required") : Optional.empty())
+                                .build(),
+                        WizardSummaryStep.of("Summary", context -> List.of("Ready"))
+                )
+        )
+                .withTerminal(terminal)
+                .withResultMapper(context -> new WizardPasswordData(
+                        context.getString("username"),
+                        context.getPassword("password"),
+                        context.getString("directory")
+                ))
+                .build();
+
+        Optional<WizardPasswordData> result = dialog.show();
+        assertTrue(result.isPresent(), "Wizard should finish with password step");
+        assertEquals("joe", result.get().username());
+        assertArrayEquals("secret".toCharArray(), result.get().password());
+        assertEquals("out", result.get().directory());
+    }
+
     private record LoginData(String username, char[] password) {
     }
 
     private record WizardData(String username, String directory) {
+    }
+
+    private record WizardPasswordData(String username, char[] password, String directory) {
     }
 
     private TitleArea titleArea() {
