@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.2.1] - 2026-03-28
 
 ### Added
+- `FileDialog` now shows the preset-cycle hotkey directly in the active filter line.
 - `FileDialog` now shows the current selectable preset position in the active filter label.
 - `FileDialog` now supports cycling selectable extension presets at runtime with `F4`.
 - `WizardInfoStep` now supports bullet-formatted instructional body lines.
