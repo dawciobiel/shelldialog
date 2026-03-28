@@ -327,6 +327,7 @@ To build `FileDialog`, you need:
 - `ArrowDown`: moves selection down
 - `F5`: refresh current directory content
 - `F2`: toggle hidden files visibility
+- `F7`: create a new directory in the currently opened path
 - `Home`: jump to user home directory
 - `End`: jump to initial working directory (CWD)
 - `[KeyType]`: any custom shortcut key configured in builder
@@ -335,6 +336,8 @@ To build `FileDialog`, you need:
 - `Escape`: clears search filter (if not empty) or cancels dialog
 
 If the current directory cannot be read, `FileDialog` displays an inline error message and keeps the dialog open so the user can retry (`F5`) or switch to another directory via navigation or shortcuts.
+
+When `F7` is pressed, `FileDialog` opens an inline prompt for a new directory name. Confirm with `Enter` to create the folder in the currently opened path, or cancel with `Escape`.
 
 ### Sorting behavior
 

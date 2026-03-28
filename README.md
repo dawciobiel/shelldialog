@@ -72,6 +72,7 @@ ShellDialog is a simple Java library for creating interactive command-line menus
     - `FileDialog` can optionally show hidden files and toggle them at runtime with `F2`.
     - `FileDialog` in `directoriesOnly` mode can select the currently opened directory directly.
     - `FileDialog` shows an inline error message when a directory cannot be read and can recover via refresh or directory change.
+    - `FileDialog` can create a new directory inline with `F7`.
     - `ProgressDialog` and `SpinnerDialog` support status messages and user cancellation via `Escape`.
 - **Modern Java:** Built with Java 21 features (Sequenced Collections, Math.clamp, etc.).
 
