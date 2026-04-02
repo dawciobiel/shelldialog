@@ -16,8 +16,7 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
-    withSourcesJar()
-    withJavadocJar()
+    // Usunięto withSourcesJar() i withJavadocJar() - plugin vanniktech zrobi to automatycznie
 }
 
 application {
@@ -85,9 +84,7 @@ tasks.test {
  * Maven Central (Central Portal 2025)
  */
 mavenPublishing {
-
-    publishToMavenCentral()
-
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
 
     coordinates(
@@ -100,14 +97,12 @@ mavenPublishing {
         name.set("shelldialog")
         description.set(project.description)
         url.set("https://github.com/dawciobiel/shelldialog")
-
         licenses {
             license {
                 name.set("GNU General Public License v3.0")
                 url.set("https://www.gnu.org/licenses/gpl-3.0.html")
             }
         }
-
         developers {
             developer {
                 id.set("dawciobiel")
@@ -115,11 +110,15 @@ mavenPublishing {
                 email.set("3913996+dawciobiel@users.noreply.github.com")
             }
         }
-
         scm {
             connection.set("scm:git:git://github.com/dawciobiel/shelldialog.git")
             developerConnection.set("scm:git:ssh://github.com/dawciobiel/shelldialog.git")
             url.set("https://github.com/dawciobiel/shelldialog")
         }
     }
+}
+
+// Użycie systemowego GPG (skonfigurowane w gradle.properties)
+signing {
+    useGpgCmd()
 }
