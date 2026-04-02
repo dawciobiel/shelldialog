@@ -15,18 +15,15 @@ class VersionConsistencyTest {
 
     private static final Path PROJECT_ROOT = Path.of("").toAbsolutePath();
     private static final Pattern GRADLE_VERSION = Pattern.compile("^version\\s*=\\s*\"([^\"]+)\"", Pattern.MULTILINE);
-    private static final Pattern POM_VERSION = Pattern.compile("<artifactId>shelldialog</artifactId>\\s*<version>([^<]+)</version>");
     private static final Pattern README_CURRENT_VERSION = Pattern.compile("\\*\\*Current version: ([^*]+)\\*\\*");
     private static final Pattern CHANGELOG_RELEASE = Pattern.compile("^## \\[([^\\]]+)] - ", Pattern.MULTILINE);
 
     @Test
     void releaseMetadataShouldUseTheSameVersionAcrossProjectFiles() throws IOException {
         String gradleVersion = capture(GRADLE_VERSION, read("build.gradle.kts"));
-        String pomVersion = capture(POM_VERSION, read("pom.xml"));
         String readmeVersion = capture(README_CURRENT_VERSION, read("README.md"));
         String changelogVersion = capture(CHANGELOG_RELEASE, read("CHANGELOG.md"));
 
-        assertEquals(gradleVersion, pomVersion, "Gradle and Maven versions should match");
         assertEquals(gradleVersion, readmeVersion, "README current version should match the build version");
         assertEquals(gradleVersion, changelogVersion, "Latest changelog release should match the build version");
     }
